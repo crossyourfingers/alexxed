@@ -1,5 +1,6 @@
 # alexxed
 # React + TypeScript + Vite
+to run, use `npx vite` in the project folder
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
