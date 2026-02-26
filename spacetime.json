@@ -1,0 +1,9 @@
+{
+  "dev": {
+    "run": "npm run dev"
+  },
+  "_source-config": "spacetime.local.json",
+  "database": "alexxed-u3k4f",
+  "server": "maincloud",
+  "module-path": "./spacetimedb"
+}
