@@ -23,3 +23,9 @@ export const User = __t.object('User', {
   online: __t.bool(),
 });
 export type User = __Infer<typeof User>;
+
+export const MessageLike = __t.object('MessageLike', {
+  message_sent: __t.timestamp(),
+  user_identity: __t.identity(),
+});
+export type MessageLike = __Infer<typeof MessageLike>;

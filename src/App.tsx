@@ -10,6 +10,8 @@ export type PrettyMessage = {
   text: string;
   sent: Timestamp;
   kind: 'system' | 'user';
+  likeCount: number;
+  isLikedByMe: boolean;
 };
 
 function App() {
@@ -21,9 +23,13 @@ function App() {
   const { identity, isActive: connected } = useSpacetimeDB();
   const setName = useReducer(reducers.setName);
   const sendMessage = useReducer(reducers.sendMessage);
+  const toggleLike = useReducer(reducers.toggleLike);
 
   // Subscribe to all messages in the chat
   const [messages] = useTable(tables.message);
+
+  // Subscribe to all message likes
+  const [likes] = useTable(tables.messageLike);
 
   // Subscribe to all online users in the chat
   const [onlineUsers] = useTable(
@@ -66,11 +72,14 @@ function App() {
       const user = users.find(
         u => u.identity.toHexString() === message.sender.toHexString()
       );
+      const messageLikes = likes.filter(l => l.message_sent.isEqual(message.sent));
       return {
         senderName: user?.name || message.sender.toHexString().substring(0, 8),
         text: message.text,
         sent: message.sent,
         kind: Identity.zero().isEqual(message.sender) ? 'system' : 'user',
+        likeCount: messageLikes.length,
+        isLikedByMe: messageLikes.some(l => l.user_identity.isEqual(identity!)),
       };
     });
 
@@ -182,6 +191,16 @@ function App() {
                   </span>
                 </p>
                 <p>{message.text}</p>
+                {message.kind === 'user' && (
+                  <div className="message-actions">
+                    <button
+                      className={message.isLikedByMe ? 'like-button liked' : 'like-button'}
+                      onClick={() => toggleLike({ message_sent: message.sent })}
+                    >
+                      {message.isLikedByMe ? '❤️' : '🤍'} {message.likeCount}
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}

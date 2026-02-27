@@ -73,4 +73,66 @@ describe('App Integration Test', () => {
       { timeout: 10000 }
     );
   });
+
+  it('allows toggling a like on a message', async () => {
+    const connectionBuilder = DbConnection.builder()
+      .withUri('ws://localhost:3000')
+      .withDatabaseName('quickstart-chat')
+      .withToken(
+        localStorage.getItem(
+          'ws://localhost:3000/quickstart-chat/auth_token'
+        ) || ''
+      );
+    render(
+      <SpacetimeDBProvider connectionBuilder={connectionBuilder}>
+        <App />
+      </SpacetimeDBProvider>
+    );
+
+    await waitFor(
+      () =>
+        expect(screen.queryByText(/Connecting.../i)).not.toBeInTheDocument(),
+      { timeout: 10000 }
+    );
+
+    // Send a message first
+    const textarea = screen.getByRole('textbox', { name: /message input/i });
+    await userEvent.type(textarea, 'Like this message!');
+    const sendButton = screen.getByRole('button', { name: /send/i });
+    await userEvent.click(sendButton);
+
+    // Wait for message and like button
+    await waitFor(
+      () => {
+        expect(screen.getByText('Like this message!')).toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
+
+    const likeButton = await screen.findByRole('button', { name: /🤍 0/i });
+    expect(likeButton).toBeInTheDocument();
+
+    // Click like
+    await userEvent.click(likeButton);
+
+    // Should update to ❤️ 1
+    await waitFor(
+      () => {
+        expect(screen.getByRole('button', { name: /❤️ 1/i })).toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
+
+    // Click again to unlike
+    const likedButton = screen.getByRole('button', { name: /❤️ 1/i });
+    await userEvent.click(likedButton);
+
+    // Should update back to 🤍 0
+    await waitFor(
+      () => {
+        expect(screen.getByRole('button', { name: /🤍 0/i })).toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
+  });
 });

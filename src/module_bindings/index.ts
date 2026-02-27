@@ -36,12 +36,14 @@ import {
 // Import all reducer arg schemas
 import SendMessageReducer from './send_message_reducer';
 import SetNameReducer from './set_name_reducer';
+import ToggleLikeReducer from './toggle_like_reducer';
 
 // Import all procedure arg schemas
 
 // Import all table schema definitions
 import MessageRow from './message_table';
 import UserRow from './user_table';
+import MessageLikeRow from './message_like_table';
 
 /** Type-only namespace exports for generated type groups. */
 
@@ -71,12 +73,21 @@ const tablesSchema = __schema({
     },
     UserRow
   ),
+  messageLike: __table(
+    {
+      name: 'message_like',
+      indexes: [],
+      constraints: [],
+    },
+    MessageLikeRow
+  ),
 });
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
   __reducerSchema('send_message', SendMessageReducer),
-  __reducerSchema('set_name', SetNameReducer)
+  __reducerSchema('set_name', SetNameReducer),
+  __reducerSchema('toggleLike', ToggleLikeReducer)
 );
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */
