@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import { tables, reducers } from './module_bindings';
 import type * as Types from './module_bindings/types';
 import { useSpacetimeDB, useTable, useReducer } from 'spacetimedb/react';
 import { Identity, Timestamp } from 'spacetimedb';
+
+// Feature flags
+const ENABLE_MESSAGE_LIKES = true;
 
 export type PrettyMessage = {
   senderName: string;
@@ -19,6 +22,10 @@ function App() {
   const [settingName, setSettingName] = useState(false);
   const [systemMessages, setSystemMessages] = useState([] as Types.Message[]);
   const [newMessage, setNewMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const { identity, isActive: connected } = useSpacetimeDB();
   const setName = useReducer(reducers.setName);
@@ -29,7 +36,7 @@ function App() {
   const [messages] = useTable(tables.message);
 
   // Subscribe to all message likes
-  const [likes] = useTable(tables.messageLike);
+  const [likes] = useTable(tables.message_like);
 
   // Subscribe to all online users in the chat
   const [onlineUsers] = useTable(
@@ -72,16 +79,36 @@ function App() {
       const user = users.find(
         u => u.identity.toHexString() === message.sender.toHexString()
       );
-      const messageLikes = likes.filter(l => l.message_sent.isEqual(message.sent));
+      const messageLikes = likes.filter(l => l.messageSent.microsSinceUnixEpoch === message.sent.microsSinceUnixEpoch);
       return {
         senderName: user?.name || message.sender.toHexString().substring(0, 8),
         text: message.text,
         sent: message.sent,
         kind: Identity.zero().isEqual(message.sender) ? 'system' : 'user',
         likeCount: messageLikes.length,
-        isLikedByMe: messageLikes.some(l => l.user_identity.isEqual(identity!)),
+        isLikedByMe: messageLikes.some(l => l.userIdentity.isEqual(identity!)),
       };
     });
+
+  // Auto-scroll to bottom when NEW messages arrive, unless user has scrolled up
+  const prevMessageCountRef = useRef(prettyMessages.length);
+  useEffect(() => {
+    const hasNewMessage = prettyMessages.length > prevMessageCountRef.current;
+    prevMessageCountRef.current = prettyMessages.length;
+
+    if (autoScroll && hasNewMessage && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [prettyMessages.length, autoScroll]);
+
+  // Detect when user scrolls up
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+      setAutoScroll(isAtBottom);
+    }
+  };
 
   console.log('connected:', connected, 'identity:', identity?.toHexString());
 
@@ -118,6 +145,23 @@ function App() {
 
   return (
     <div className="App">
+      {showToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '20px',
+            backgroundColor: '#333',
+            color: '#fff',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            zIndex: 1000,
+          }}
+        >
+          nah, that's not cool
+        </div>
+      )}
       <div className="profile">
         <h1>Profile</h1>
         {!settingName ? (
@@ -147,7 +191,7 @@ function App() {
       <div className="message-panel">
         <h1>Messages</h1>
         {prettyMessages.length < 1 && <p>No messages</p>}
-        <div className="messages">
+        <div className="messages" ref={messagesContainerRef} onScroll={handleScroll}>
           {prettyMessages.map((message, key) => {
             const sentDate = message.sent.toDate();
             const now = new Date();
@@ -191,11 +235,19 @@ function App() {
                   </span>
                 </p>
                 <p>{message.text}</p>
-                {message.kind === 'user' && (
+                {ENABLE_MESSAGE_LIKES && message.kind === 'user' && (
                   <div className="message-actions">
                     <button
                       className={message.isLikedByMe ? 'like-button liked' : 'like-button'}
-                      onClick={() => toggleLike({ message_sent: message.sent })}
+                      onClick={() => {
+                        const isMyMessage = message.senderName === name;
+                        if (isMyMessage) {
+                          setShowToast(true);
+                          setTimeout(() => setShowToast(false), 3000);
+                        } else {
+                          toggleLike({ messageSent: message.sent });
+                        }
+                      }}
                     >
                       {message.isLikedByMe ? '❤️' : '🤍'} {message.likeCount}
                     </button>
@@ -204,6 +256,7 @@ function App() {
               </div>
             );
           })}
+          <div ref={messagesEndRef} />
         </div>
       </div>
       <div className="online" style={{ whiteSpace: 'pre-wrap' }}>

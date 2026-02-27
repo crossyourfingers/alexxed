@@ -8,24 +8,25 @@ import {
   t as __t,
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
-} from 'spacetimedb';
+} from "spacetimedb";
 
-export const Message = __t.object('Message', {
+export const Message = __t.object("Message", {
   sender: __t.identity(),
   sent: __t.timestamp(),
   text: __t.string(),
 });
 export type Message = __Infer<typeof Message>;
 
-export const User = __t.object('User', {
+export const MessageLike = __t.object("MessageLike", {
+  messageSent: __t.timestamp(),
+  userIdentity: __t.identity(),
+});
+export type MessageLike = __Infer<typeof MessageLike>;
+
+export const User = __t.object("User", {
   identity: __t.identity(),
   name: __t.option(__t.string()),
   online: __t.bool(),
 });
 export type User = __Infer<typeof User>;
 
-export const MessageLike = __t.object('MessageLike', {
-  message_sent: __t.timestamp(),
-  user_identity: __t.identity(),
-});
-export type MessageLike = __Infer<typeof MessageLike>;

@@ -66,7 +66,14 @@ export const send_message = spacetimedb.reducer(
 export const toggle_like = spacetimedb.reducer(
   { message_sent: t.timestamp() },
   (ctx, { message_sent }) => {
-    const existing = ctx.db.message_like.message_sent.filter(message_sent).find(r => r.user_identity.isEqual(ctx.sender));
+    let existing = undefined;
+    for (const like of ctx.db.message_like.iter()) {
+      if (like.message_sent.microsSinceUnixEpoch === message_sent.microsSinceUnixEpoch &&
+          like.user_identity.isEqual(ctx.sender)) {
+        existing = like;
+        break;
+      }
+    }
     if (existing) {
       ctx.db.message_like.delete(existing);
     } else {
