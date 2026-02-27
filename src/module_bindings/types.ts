@@ -10,6 +10,13 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const Credentials = __t.object("Credentials", {
+  identity: __t.identity(),
+  username: __t.string(),
+  passwordHash: __t.string(),
+});
+export type Credentials = __Infer<typeof Credentials>;
+
 export const Message = __t.object("Message", {
   sender: __t.identity(),
   sent: __t.timestamp(),

@@ -17,7 +17,12 @@ export type PrettyMessage = {
   isLikedByMe: boolean;
 };
 
-function App() {
+interface AppProps {
+  username: string;
+  onLogout: () => void;
+}
+
+function App({ username: loggedInUsername, onLogout }: AppProps) {
   const [newName, setNewName] = useState('');
   const [settingName, setSettingName] = useState(false);
   const [systemMessages, setSystemMessages] = useState([] as Types.Message[]);
@@ -143,6 +148,10 @@ function App() {
       });
   };
 
+  const handleLogout = () => {
+    onLogout();
+  };
+
   return (
     <div className="App">
       {showToast && (
@@ -174,6 +183,16 @@ function App() {
               }}
             >
               Edit Name
+            </button>
+            <button
+              onClick={handleLogout}
+              style={{
+                marginTop: '10px',
+                backgroundColor: '#dc3545',
+                color: '#fff',
+              }}
+            >
+              Logout
             </button>
           </>
         ) : (

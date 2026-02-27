@@ -12,6 +12,19 @@ const user = table(
   }
 );
 
+// Private table for storing user credentials
+const credentials = table(
+  {
+    name: 'credentials',
+    indexes: [{ name: 'credentials_username', algorithm: 'btree', columns: ['username'] }]
+  },
+  {
+    identity: t.identity().primaryKey(),
+    username: t.string(),
+    passwordHash: t.string(),
+  }
+);
+
 const message = table(
   { name: 'message', public: true },
   { sender: t.identity(), sent: t.timestamp(), text: t.string() }
@@ -25,7 +38,7 @@ const message_like = table(
   }
 );
 
-const spacetimedb = schema({ user, message, message_like });
+const spacetimedb = schema({ user, message, message_like, credentials });
 export default spacetimedb;
 
 function validateName(name: string) {
@@ -46,6 +59,99 @@ export const set_name = spacetimedb.reducer(
 function validateMessage(text: string) {
   if (!text) throw new SenderError('Messages must not be empty');
 }
+
+// Simple hash function for demo - IN PRODUCTION, hash passwords client-side!
+function simpleHash(input: string): string {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return hash.toString(36);
+}
+
+export const register = spacetimedb.reducer(
+  { username: t.string(), password: t.string() },
+  (ctx, { username, password }) => {
+    // Validate inputs
+    if (!username || username.length < 3) {
+      throw new SenderError('Username must be at least 3 characters');
+    }
+    if (!password || password.length < 6) {
+      throw new SenderError('Password must be at least 6 characters');
+    }
+
+    // Check if username already exists
+    let existing = undefined;
+    for (const cred of ctx.db.credentials.iter()) {
+      if (cred.username === username) {
+        existing = cred;
+        break;
+      }
+    }
+    if (existing) {
+      throw new SenderError('Username already exists');
+    }
+
+    // Hash password and store credentials
+    const passwordHash = simpleHash(password);
+    ctx.db.credentials.insert({
+      identity: ctx.sender,
+      username,
+      passwordHash,
+    });
+
+    // Update existing user record (created by onConnect) or create new one
+    const existingUser = ctx.db.user.identity.find(ctx.sender);
+    if (existingUser) {
+      ctx.db.user.identity.update({
+        ...existingUser,
+        name: username,
+        online: true,
+      });
+    } else {
+      ctx.db.user.insert({
+        identity: ctx.sender,
+        name: username,
+        online: true,
+      });
+    }
+
+    console.info(`User registered: ${username}`);
+  }
+);
+
+export const login = spacetimedb.reducer(
+  { username: t.string(), password: t.string() },
+  (ctx, { username, password }) => {
+    // Find credentials by username
+    let creds = undefined;
+    for (const cred of ctx.db.credentials.iter()) {
+      if (cred.username === username) {
+        creds = cred;
+        break;
+      }
+    }
+    if (!creds) {
+      throw new SenderError('Invalid username or password');
+    }
+
+    // Verify password
+    const passwordHash = simpleHash(password);
+    if (creds.passwordHash !== passwordHash) {
+      throw new SenderError('Invalid username or password');
+    }
+
+    // Update user to online
+    const user = ctx.db.user.identity.find(creds.identity);
+    if (user) {
+      ctx.db.user.identity.update({ ...user, online: true });
+    }
+
+    console.info(`User logged in: ${username}`);
+  }
+);
 
 export const send_message = spacetimedb.reducer(
   { text: t.string() },

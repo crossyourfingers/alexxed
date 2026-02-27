@@ -6,10 +6,14 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
+import LoginReducer from "../login_reducer";
+import RegisterReducer from "../register_reducer";
 import SendMessageReducer from "../send_message_reducer";
 import SetNameReducer from "../set_name_reducer";
 import ToggleLikeReducer from "../toggle_like_reducer";
 
+export type LoginParams = __Infer<typeof LoginReducer>;
+export type RegisterParams = __Infer<typeof RegisterReducer>;
 export type SendMessageParams = __Infer<typeof SendMessageReducer>;
 export type SetNameParams = __Infer<typeof SetNameReducer>;
 export type ToggleLikeParams = __Infer<typeof ToggleLikeReducer>;
