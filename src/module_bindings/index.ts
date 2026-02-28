@@ -34,15 +34,21 @@ import {
 } from "spacetimedb";
 
 // Import all reducer arg schemas
+import CreateChannelReducer from "./create_channel_reducer";
+import DeleteChannelReducer from "./delete_channel_reducer";
 import LoginReducer from "./login_reducer";
 import RegisterReducer from "./register_reducer";
 import SendMessageReducer from "./send_message_reducer";
 import SetNameReducer from "./set_name_reducer";
 import ToggleLikeReducer from "./toggle_like_reducer";
+import UpdateChannelReducer from "./update_channel_reducer";
 
 // Import all procedure arg schemas
+import * as FetchLinkPreviewProcedure from "./fetch_link_preview_procedure";
 
 // Import all table schema definitions
+import ChannelRow from "./channel_table";
+import LinkPreviewRow from "./link_preview_table";
 import MessageRow from "./message_table";
 import MessageLikeRow from "./message_like_table";
 import UserRow from "./user_table";
@@ -51,6 +57,28 @@ import UserRow from "./user_table";
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema({
+  channel: __table({
+    name: 'channel',
+    indexes: [
+      { name: 'id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'channel_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, ChannelRow),
+  link_preview: __table({
+    name: 'link_preview',
+    indexes: [
+      { name: 'url', algorithm: 'btree', columns: [
+        'url',
+      ] },
+    ],
+    constraints: [
+      { name: 'link_preview_url_key', constraint: 'unique', columns: ['url'] },
+    ],
+  }, LinkPreviewRow),
   message: __table({
     name: 'message',
     indexes: [
@@ -80,15 +108,19 @@ const tablesSchema = __schema({
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
+  __reducerSchema("create_channel", CreateChannelReducer),
+  __reducerSchema("delete_channel", DeleteChannelReducer),
   __reducerSchema("login", LoginReducer),
   __reducerSchema("register", RegisterReducer),
   __reducerSchema("send_message", SendMessageReducer),
   __reducerSchema("set_name", SetNameReducer),
   __reducerSchema("toggle_like", ToggleLikeReducer),
+  __reducerSchema("update_channel", UpdateChannelReducer),
 );
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */
 const proceduresSchema = __procedures(
+  __procedureSchema("fetch_link_preview", FetchLinkPreviewProcedure.params, FetchLinkPreviewProcedure.returnType),
 );
 
 /** The remote SpacetimeDB module schema, both runtime and type information. */

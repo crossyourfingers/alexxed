@@ -1,7 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './index.css';
-import App from './App.tsx';
+import { StreamPage } from './pages/StreamPage.tsx';
+import { CommunityPage } from './pages/CommunityPage.tsx';
 import { LoginForm } from './LoginForm.tsx';
 import { Identity } from 'spacetimedb';
 import { SpacetimeDBProvider, useSpacetimeDB } from 'spacetimedb/react';
@@ -57,8 +59,16 @@ function AuthGate() {
 
   const user = auth.getUser();
   const username = user?.username || user?.name || user?.email || 'User';
+  const handleLogout = () => auth.logout();
 
-  return <App username={username} onLogout={() => auth.logout()} />;
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/community/general" replace />} />
+      <Route path="/community" element={<Navigate to="/community/general" replace />} />
+      <Route path="/community/:channelName" element={<CommunityPage username={username} onLogout={handleLogout} />} />
+      <Route path="/stream" element={<StreamPage username={username} onLogout={handleLogout} />} />
+    </Routes>
+  );
 }
 
 function SpacetimeDBWrapper() {
@@ -124,6 +134,8 @@ const RootApp = () => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RootApp />
+    <BrowserRouter>
+      <RootApp />
+    </BrowserRouter>
   </StrictMode>
 );

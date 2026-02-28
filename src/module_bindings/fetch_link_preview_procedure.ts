@@ -10,7 +10,11 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  text: __t.string(),
-  channelId: __t.u64(),
+import {
+  LinkPreviewResult,
+} from "./types";
+
+export const params = {
+  url: __t.string(),
 };
+export const returnType = LinkPreviewResult

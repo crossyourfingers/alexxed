@@ -14,4 +14,5 @@ export default __t.row({
   sender: __t.identity(),
   sent: __t.timestamp(),
   text: __t.string(),
+  channelId: __t.u64().name("channel_id"),
 });

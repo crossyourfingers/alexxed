@@ -10,6 +10,15 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const Channel = __t.object("Channel", {
+  id: __t.u64(),
+  name: __t.string(),
+  description: __t.string(),
+  createdBy: __t.identity(),
+  createdAt: __t.timestamp(),
+});
+export type Channel = __Infer<typeof Channel>;
+
 export const Credentials = __t.object("Credentials", {
   identity: __t.identity(),
   username: __t.string(),
@@ -17,10 +26,28 @@ export const Credentials = __t.object("Credentials", {
 });
 export type Credentials = __Infer<typeof Credentials>;
 
+export const LinkPreview = __t.object("LinkPreview", {
+  url: __t.string(),
+  title: __t.string(),
+  description: __t.string(),
+  image: __t.string(),
+  fetchedAt: __t.timestamp(),
+});
+export type LinkPreview = __Infer<typeof LinkPreview>;
+
+export const LinkPreviewResult = __t.object("LinkPreviewResult", {
+  url: __t.string(),
+  title: __t.string(),
+  description: __t.string(),
+  image: __t.string(),
+});
+export type LinkPreviewResult = __Infer<typeof LinkPreviewResult>;
+
 export const Message = __t.object("Message", {
   sender: __t.identity(),
   sent: __t.timestamp(),
   text: __t.string(),
+  channelId: __t.u64(),
 });
 export type Message = __Infer<typeof Message>;
 

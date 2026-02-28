@@ -11,6 +11,6 @@ import {
 } from "spacetimedb";
 
 export default {
-  text: __t.string(),
   channelId: __t.u64(),
+  description: __t.string(),
 };

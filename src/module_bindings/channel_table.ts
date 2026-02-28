@@ -10,7 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  text: __t.string(),
-  channelId: __t.u64(),
-};
+export default __t.row({
+  id: __t.u64().primaryKey(),
+  name: __t.string(),
+  description: __t.string(),
+  createdBy: __t.identity().name("created_by"),
+  createdAt: __t.timestamp().name("created_at"),
+});
