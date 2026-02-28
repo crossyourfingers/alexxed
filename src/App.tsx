@@ -29,8 +29,23 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
   const [newMessage, setNewMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [youtubeUrl, setYoutubeUrl] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  // Extract YouTube video ID from URL
+  const extractYoutubeId = (url: string): string | null => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+      /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+      /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
+  };
 
   const { identity, isActive: connected } = useSpacetimeDB();
   const setName = useReducer(reducers.setName);
@@ -299,6 +314,26 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
             ))}
           </div>
         )}
+
+        <div className="youtube-embed-section">
+          <h3>YouTube Video</h3>
+          <input
+            type="text"
+            placeholder="Paste YouTube URL here"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+          />
+          {extractYoutubeId(youtubeUrl) && (
+            <div className="youtube-embed-container">
+              <iframe
+                src={`https://www.youtube.com/embed/${extractYoutubeId(youtubeUrl)}`}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
+        </div>
       </div>
       <div className="new-message">
         <form

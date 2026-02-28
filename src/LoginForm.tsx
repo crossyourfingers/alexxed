@@ -1,10 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { reducers } from './module_bindings';
-import { useReducer } from 'spacetimedb/react';
-
-interface LoginFormProps {
-  onSuccess: (username: string) => void;
-}
+import React, { useState } from 'react';
+import { useAuth } from './auth/useAuth';
+import { AUTH_MODE } from './auth/authProvider';
 
 function RavenSVG({ coverEyes }: { coverEyes: boolean }) {
   return (
@@ -90,35 +86,15 @@ function RavenSVG({ coverEyes }: { coverEyes: boolean }) {
   );
 }
 
-export function LoginForm({ onSuccess }: LoginFormProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+export function LoginForm() {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const auth = useAuth();
 
-  const register = useReducer(reducers.register);
-  const login = useReducer(reducers.login);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      if (isRegistering) {
-        await register({ username, password });
-      } else {
-        await login({ username, password });
-      }
-      onSuccess(username);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
+  const handleLogin = () => {
+    auth.login();
   };
+
+  const isAnonymousMode = AUTH_MODE === 'anonymous';
 
   return (
     <div style={{
@@ -144,134 +120,55 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         </div>
 
         <h1 style={{
-          marginBottom: '20px',
+          marginBottom: '30px',
           textAlign: 'center',
           color: '#22c55e',
           fontWeight: 'bold',
         }}>
-          {isRegistering ? 'Register' : 'Login'}
+          Welcome
         </h1>
 
-        {error && (
-          <div style={{
-            backgroundColor: '#450a0a',
-            color: '#fca5a5',
-            padding: '10px',
+        <p style={{
+          textAlign: 'center',
+          color: '#86efac',
+          marginBottom: '30px',
+          fontSize: '14px',
+        }}>
+          {isAnonymousMode
+            ? 'Join the chat anonymously'
+            : 'Sign in with SpacetimeAuth to continue'}
+        </p>
+
+        <button
+          onClick={handleLogin}
+          style={{
+            width: '100%',
+            padding: '14px',
+            backgroundColor: '#22c55e',
+            color: '#0a0a0a',
+            border: 'none',
             borderRadius: '8px',
-            marginBottom: '20px',
-            border: '1px solid #991b1b',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#16a34a'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#22c55e'}
+        >
+          {isAnonymousMode ? 'Enter Chat' : 'Sign In'}
+        </button>
+
+        {!isAnonymousMode && (
+          <p style={{
+            textAlign: 'center',
+            color: '#6b7280',
+            marginTop: '20px',
+            fontSize: '12px',
           }}>
-            {error}
-          </div>
+            Powered by SpacetimeAuth
+          </p>
         )}
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              color: '#86efac',
-              fontWeight: '500',
-            }}>
-              Username
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              minLength={3}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '2px solid #166534',
-                backgroundColor: '#0a0a0a',
-                color: '#86efac',
-                fontSize: '16px',
-                outline: 'none',
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#22c55e'}
-              onBlur={(e) => e.target.style.borderColor = '#166534'}
-            />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              color: '#86efac',
-              fontWeight: '500',
-            }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onFocus={() => setIsPasswordFocused(true)}
-              onBlur={() => setIsPasswordFocused(false)}
-              required
-              minLength={6}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '2px solid #166534',
-                backgroundColor: '#0a0a0a',
-                color: '#86efac',
-                fontSize: '16px',
-                outline: 'none',
-                transition: 'border-color 0.2s',
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '14px',
-              backgroundColor: loading ? '#166534' : '#22c55e',
-              color: '#0a0a0a',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              marginBottom: '12px',
-              transition: 'background-color 0.2s',
-            }}
-            onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = '#16a34a')}
-            onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = '#22c55e')}
-          >
-            {loading ? 'Please wait...' : (isRegistering ? 'Register' : 'Login')}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsRegistering(!isRegistering);
-              setError('');
-            }}
-            style={{
-              width: '100%',
-              padding: '12px',
-              backgroundColor: 'transparent',
-              color: '#86efac',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '14px',
-              textDecoration: 'underline',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#22c55e'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#86efac'}
-          >
-            {isRegistering ? 'Already have an account? Login' : "Don't have an account? Register"}
-          </button>
-        </form>
       </div>
     </div>
   );
