@@ -11,6 +11,7 @@ import { fetchChannelVideos } from '../services/youtubeApi';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { ENABLE_EMOJI_REACTIONS } from '../config/featureFlags';
 import { MessageList, MessageInput, type PrettyMessage, type ReactionGroup } from '../components/Chat';
+import SessionWidget from '../components/SessionWidget';
 import './StreamPage.css';
 
 interface StreamPageProps {
@@ -214,6 +215,7 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
         </nav>
         <div className="stream-header-right">
           <ThemeSwitcher />
+          <SessionWidget />
           <span className="user-badge">{username}</span>
         </div>
       </header>

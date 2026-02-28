@@ -89,7 +89,23 @@ const link_preview = table(
   }
 );
 
-const spacetimedb = schema({ user, message, message_like, message_reaction, credentials, channel, link_preview });
+// Per-client session rows to track connect/disconnect times
+const user_session = table(
+  {
+    name: 'user_session',
+    public: false,
+    indexes: [{ name: 'user_session_user_identity', algorithm: 'btree', columns: ['user_identity'] }]
+  },
+  {
+    session_id: t.u64().primaryKey().autoInc(),
+    user_identity: t.identity(),
+    client_id: t.string().optional(),
+    connected_at: t.timestamp(),
+    disconnected_at: t.timestamp().optional(),
+  }
+);
+
+const spacetimedb = schema({ user, message, message_like, message_reaction, credentials, channel, link_preview, user_session });
 export default spacetimedb;
 
 function validateName(name: string) {
@@ -394,12 +410,39 @@ export const onConnect = spacetimedb.clientConnected(ctx => {
       online: true,
     });
   }
+  // Create a session row for this connection
+  try {
+    ctx.db.user_session.insert({
+      session_id: 0n,
+      user_identity: ctx.sender,
+      client_id: undefined,
+      connected_at: ctx.timestamp,
+      disconnected_at: undefined,
+    });
+  } catch (e) {
+    console.warn('Failed to insert user_session on connect:', e);
+  }
 });
 
 export const onDisconnect = spacetimedb.clientDisconnected(ctx => {
   const user = ctx.db.user.identity.find(ctx.sender);
   if (user) {
     ctx.db.user.identity.update({ ...user, online: false });
+    // Close any open session rows for this user
+    try {
+      let openSession = undefined;
+      for (const s of ctx.db.user_session.iter()) {
+        if (s.user_identity.isEqual(ctx.sender) && !s.disconnected_at) {
+          openSession = s;
+          break;
+        }
+      }
+      if (openSession) {
+        ctx.db.user_session.session_id.update({ ...openSession, disconnected_at: ctx.timestamp });
+      }
+    } catch (e) {
+      console.warn('Failed to close user_session on disconnect:', e);
+    }
   } else {
     // This branch should be unreachable,
     // as it doesn't make sense for a client to disconnect without connecting first.
@@ -408,6 +451,43 @@ export const onDisconnect = spacetimedb.clientDisconnected(ctx => {
     );
   }
 });
+
+// Cleanup reducer: delete user_session rows older than 90 days
+export const cleanup_old_user_sessions = spacetimedb.reducer((ctx) => {
+  const retentionMicros = 90n * 24n * 60n * 60n * 1_000_000n;
+  const cutoff = ctx.timestamp.microsSinceUnixEpoch - retentionMicros;
+
+  const toDelete: bigint[] = [];
+  for (const s of ctx.db.user_session.iter()) {
+    if (s.disconnected_at && s.disconnected_at.microsSinceUnixEpoch < cutoff) {
+      toDelete.push(s.session_id);
+    }
+  }
+
+  for (const id of toDelete) {
+    ctx.db.user_session.session_id.delete(id);
+  }
+});
+
+// Per-subscriber view exposing current user's session metrics
+export const my_session_metrics = spacetimedb.view(
+  { name: 'my_session_metrics', public: true },
+  t.array(
+    t.object('SessionMetrics', {
+      sessionCount: t.u64(),
+      connectedAt: t.timestamp().optional(),
+    })
+  ),
+  (ctx) => {
+    // Find all sessions for this sender by scanning and filtering (safe server-side)
+    const sessions = [...ctx.db.user_session.iter()].filter(s => s.user_identity.isEqual(ctx.sender));
+    const open = sessions.find(s => !s.disconnected_at);
+    return [{
+      sessionCount: BigInt(sessions.length),
+      connectedAt: open ? open.connected_at : undefined,
+    }];
+  }
+);
 
 // Link preview return type
 const LinkPreviewResult = t.object('LinkPreviewResult', {

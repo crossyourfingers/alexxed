@@ -103,23 +103,17 @@ The system SHALL display separate lists of online and offline users.
 
 ## Authentication
 
-### Requirement: Authentication Modes
-The system SHALL support multiple authentication modes via configuration.
+### Requirement: Authentication
+The system SHALL authenticate users via SpacetimeAuth (OIDC).
 
-#### Scenario: Anonymous mode
-- **GIVEN** VITE_USE_ANONYMOUS_AUTH is set to "true"
-- **WHEN** a user opens the application
-- **THEN** an anonymous user is automatically created with a random name
-- **AND** the username persists in localStorage
-
-#### Scenario: SpacetimeAuth mode
-- **GIVEN** VITE_USE_ANONYMOUS_AUTH is not "true"
-- **WHEN** a user opens the application
-- **THEN** the user is redirected to SpacetimeAuth OIDC login
-- **AND** authentication tokens are managed via OIDC flow
+#### Scenario: SpacetimeAuth login
+- **GIVEN** a user is not authenticated
+- **WHEN** the user opens the application
+- **THEN** the user is redirected to SpacetimeAuth for OIDC authentication
+- **AND** authentication tokens are managed via the OIDC flow
 
 ### Requirement: User Registration
-The system SHALL allow users to set their display name.
+The system SHALL allow authenticated users to set their display name.
 
 #### Scenario: Set username
 - **GIVEN** a user is authenticated
@@ -128,18 +122,12 @@ The system SHALL allow users to set their display name.
 - **AND** future messages show the new username
 
 ### Requirement: Logout
-The system SHALL allow users to logout.
+The system SHALL allow users to logout via the OIDC signout flow.
 
-#### Scenario: Logout in anonymous mode
-- **GIVEN** a user is authenticated in anonymous mode
-- **WHEN** the user clicks logout
-- **THEN** the anonymous user data is cleared from localStorage
-- **AND** the page reloads to create a new anonymous user
-
-#### Scenario: Logout in SpacetimeAuth mode
+#### Scenario: Logout
 - **GIVEN** a user is authenticated via SpacetimeAuth
 - **WHEN** the user clicks logout
-- **THEN** the user is signed out via OIDC signout flow
+- **THEN** the user is signed out via SpacetimeAuth signout endpoint
 
 ## User Experience
 

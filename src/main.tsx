@@ -76,10 +76,31 @@ function SpacetimeDBWrapper() {
 
   const onConnect = (conn: DbConnection, identity: Identity, token: string) => {
     console.log('Connected to SpacetimeDB with identity:', identity.toHexString());
+    try {
+      const id = identity.toHexString();
+      const startedKey = `session_connected_at_${id}`;
+      const countKey = `session_count_${id}`;
+      // Use sessionStorage so value persists across SPA navigation in the same tab
+      if (!sessionStorage.getItem(startedKey)) {
+        const now = String(Date.now());
+        sessionStorage.setItem(startedKey, now);
+        // Increment overall session count in localStorage once per tab session
+        const prev = parseInt(localStorage.getItem(countKey) || '0', 10) || 0;
+        localStorage.setItem(countKey, String(prev + 1));
+      }
+    } catch (e) {
+      console.warn('Failed to set sessionStorage on connect', e);
+    }
   };
 
   const onDisconnect = () => {
     console.log('Disconnected from SpacetimeDB');
+    try {
+      // Do not clear sessionStorage here to avoid resetting when navigating between pages.
+      // The browser will clear sessionStorage when the tab/window is closed.
+    } catch (e) {
+      console.warn('Error during onDisconnect cleanup', e);
+    }
   };
 
   const onConnectError = (_ctx: ErrorContext, err: Error) => {
@@ -117,20 +138,12 @@ const oidcConfig = {
   },
 };
 
-// Conditionally wrap with OIDC provider based on auth mode
-const RootApp = () => {
-  if (AUTH_MODE === 'anonymous') {
-    // Anonymous mode: no OIDC provider needed
-    return <SpacetimeDBWrapper />;
-  }
-
-  // SpacetimeAuth mode: wrap with OIDC provider
-  return (
-    <AuthProvider {...oidcConfig}>
-      <SpacetimeDBWrapper />
-    </AuthProvider>
-  );
-};
+// Always use the OIDC provider (SpacetimeAuth)
+const RootApp = () => (
+  <AuthProvider {...oidcConfig}>
+    <SpacetimeDBWrapper />
+  </AuthProvider>
+);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

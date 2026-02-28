@@ -34,6 +34,7 @@ import {
 } from "spacetimedb";
 
 // Import all reducer arg schemas
+import CleanupOldUserSessionsReducer from "./cleanup_old_user_sessions_reducer";
 import CreateChannelReducer from "./create_channel_reducer";
 import DeleteChannelReducer from "./delete_channel_reducer";
 import LoginReducer from "./login_reducer";
@@ -53,6 +54,7 @@ import LinkPreviewRow from "./link_preview_table";
 import MessageRow from "./message_table";
 import MessageLikeRow from "./message_like_table";
 import MessageReactionRow from "./message_reaction_table";
+import MySessionMetricsRow from "./my_session_metrics_table";
 import UserRow from "./user_table";
 
 /** Type-only namespace exports for generated type groups. */
@@ -113,10 +115,18 @@ const tablesSchema = __schema({
       { name: 'user_identity_key', constraint: 'unique', columns: ['identity'] },
     ],
   }, UserRow),
+  my_session_metrics: __table({
+    name: 'my_session_metrics',
+    indexes: [
+    ],
+    constraints: [
+    ],
+  }, MySessionMetricsRow),
 });
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
+  __reducerSchema("cleanup_old_user_sessions", CleanupOldUserSessionsReducer),
   __reducerSchema("create_channel", CreateChannelReducer),
   __reducerSchema("delete_channel", DeleteChannelReducer),
   __reducerSchema("login", LoginReducer),

@@ -4,8 +4,7 @@
  */
 
 import { useAuth as useOidcAuth } from 'react-oidc-context';
-import { AuthProvider, AUTH_MODE } from './authProvider';
-import { useAnonymousAuth } from './useAnonymousAuth';
+import { AuthProvider } from './authProvider';
 
 function useSpacetimeAuth(): AuthProvider {
   const auth = useOidcAuth();
@@ -30,10 +29,5 @@ function useSpacetimeAuth(): AuthProvider {
 }
 
 export function useAuth(): AuthProvider {
-  // Switch authentication implementation based on mode
-  if (AUTH_MODE === 'anonymous') {
-    return useAnonymousAuth();
-  }
-
   return useSpacetimeAuth();
 }

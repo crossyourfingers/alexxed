@@ -6,6 +6,7 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
+import CleanupOldUserSessionsReducer from "../cleanup_old_user_sessions_reducer";
 import CreateChannelReducer from "../create_channel_reducer";
 import DeleteChannelReducer from "../delete_channel_reducer";
 import LoginReducer from "../login_reducer";
@@ -16,6 +17,7 @@ import ToggleLikeReducer from "../toggle_like_reducer";
 import ToggleReactionReducer from "../toggle_reaction_reducer";
 import UpdateChannelReducer from "../update_channel_reducer";
 
+export type CleanupOldUserSessionsParams = __Infer<typeof CleanupOldUserSessionsReducer>;
 export type CreateChannelParams = __Infer<typeof CreateChannelReducer>;
 export type DeleteChannelParams = __Infer<typeof DeleteChannelReducer>;
 export type LoginParams = __Infer<typeof LoginReducer>;

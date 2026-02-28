@@ -64,10 +64,28 @@ export const MessageReaction = __t.object("MessageReaction", {
 });
 export type MessageReaction = __Infer<typeof MessageReaction>;
 
+export const MySessionMetrics = __t.object("MySessionMetrics", {});
+export type MySessionMetrics = __Infer<typeof MySessionMetrics>;
+
+export const SessionMetrics = __t.object("SessionMetrics", {
+  sessionCount: __t.u64(),
+  connectedAt: __t.option(__t.timestamp()),
+});
+export type SessionMetrics = __Infer<typeof SessionMetrics>;
+
 export const User = __t.object("User", {
   identity: __t.identity(),
   name: __t.option(__t.string()),
   online: __t.bool(),
 });
 export type User = __Infer<typeof User>;
+
+export const UserSession = __t.object("UserSession", {
+  sessionId: __t.u64(),
+  userIdentity: __t.identity(),
+  clientId: __t.option(__t.string()),
+  connectedAt: __t.timestamp(),
+  disconnectedAt: __t.option(__t.timestamp()),
+});
+export type UserSession = __Infer<typeof UserSession>;
 

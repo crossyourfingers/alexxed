@@ -183,24 +183,15 @@ Located in `src/`:
 - **SpacetimeDB Integration:** Generated bindings in `src/module_bindings/`
 - **UI:** Component-based with CSS Grid layout
 
-### Authentication Modes
+### Authentication (SpacetimeAuth)
 
-Toggle between modes in `.env`:
+Authentication uses SpacetimeAuth (OIDC). Configure your client ID in `.env`:
 
-**Anonymous Mode (Development):**
 ```env
-VITE_USE_ANONYMOUS_AUTH=true
-```
-- Instant access with random username
-- No external auth required
-
-**SpacetimeAuth Mode (Production):**
-```env
-VITE_USE_ANONYMOUS_AUTH=false
 VITE_SPACETIMEAUTH_CLIENT_ID=your_client_id
 ```
-- OAuth2/OIDC via SpacetimeAuth
-- Requires dashboard setup at https://spacetimedb.com
+
+Follow the SpacetimeAuth dashboard to create or obtain a client ID: https://spacetimedb.com
 
 ## Project Structure
 

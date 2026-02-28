@@ -17,33 +17,10 @@ The system SHALL select authentication provider based on environment configurati
 #### Scenario: Select provider
 - **GIVEN** environment variables are set
 - **WHEN** the application initializes
-- **THEN** the correct provider is selected based on VITE_USE_ANONYMOUS_AUTH
+- **THEN** the application initializes the configured OIDC provider (SpacetimeAuth)
 - **AND** only the necessary provider dependencies are loaded
 
-## Anonymous Authentication
-
-### Requirement: Anonymous User Generation
-The system SHALL generate anonymous users with readable random names.
-
-#### Scenario: Generate anonymous user
-- **WHEN** anonymous authentication creates a new user
-- **THEN** a username is generated from adjective + noun + number pattern
-- **AND** a unique UUID is assigned as the user ID
-
-### Requirement: Anonymous Persistence
-The system SHALL persist anonymous user credentials in browser storage.
-
-#### Scenario: Persist anonymous session
-- **GIVEN** an anonymous user is created
-- **WHEN** the user data is stored
-- **THEN** credentials are saved to localStorage
-- **AND** the same credentials are restored on page reload
-
-#### Scenario: Clear anonymous session
-- **GIVEN** an anonymous user logs out
-- **WHEN** logout is triggered
-- **THEN** localStorage is cleared
-- **AND** the page reloads to generate a new user
+<!-- Anonymous authentication removed: system uses SpacetimeAuth (OIDC) only -->
 
 ## SpacetimeAuth (OIDC) Authentication
 

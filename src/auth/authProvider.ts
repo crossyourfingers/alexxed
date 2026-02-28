@@ -31,10 +31,9 @@ export interface AuthProvider {
 
 /**
  * Determine which auth mode to use
- * Set VITE_USE_ANONYMOUS_AUTH=true for anonymous mode (no SpacetimeAuth)
+ * The application uses SpacetimeAuth (OIDC) only. Anonymous mode is deprecated.
  */
-export const USE_ANONYMOUS_AUTH = import.meta.env.VITE_USE_ANONYMOUS_AUTH === 'true';
-export const AUTH_MODE: AuthMode = USE_ANONYMOUS_AUTH ? 'anonymous' : 'spacetimeauth';
+export const AUTH_MODE: AuthMode = 'spacetimeauth';
 
 /**
  * SpacetimeAuth configuration

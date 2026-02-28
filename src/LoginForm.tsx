@@ -94,8 +94,6 @@ export function LoginForm() {
     auth.login();
   };
 
-  const isAnonymousMode = AUTH_MODE === 'anonymous';
-
   return (
     <div style={{
       display: 'flex',
@@ -134,9 +132,7 @@ export function LoginForm() {
           marginBottom: '30px',
           fontSize: '14px',
         }}>
-          {isAnonymousMode
-            ? 'Join the chat anonymously'
-            : 'Sign in with SpacetimeAuth to continue'}
+          Sign in with SpacetimeAuth to continue
         </p>
 
         <button
@@ -156,19 +152,16 @@ export function LoginForm() {
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#16a34a'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#22c55e'}
         >
-          {isAnonymousMode ? 'Enter Chat' : 'Sign In'}
+          Sign In
         </button>
-
-        {!isAnonymousMode && (
-          <p style={{
-            textAlign: 'center',
-            color: '#6b7280',
-            marginTop: '20px',
-            fontSize: '12px',
-          }}>
-            Powered by SpacetimeAuth
-          </p>
-        )}
+        <p style={{
+          textAlign: 'center',
+          color: '#6b7280',
+          marginTop: '20px',
+          fontSize: '12px',
+        }}>
+          Powered by SpacetimeAuth
+        </p>
       </div>
     </div>
   );

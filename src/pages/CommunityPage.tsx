@@ -15,6 +15,7 @@ import {
   type PrettyMessage,
   type ReactionGroup,
 } from '../components/Chat';
+import SessionWidget from '../components/SessionWidget';
 import './CommunityPage.css';
 
 interface CommunityPageProps {
@@ -245,6 +246,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
         </div>
         <div className="community-header-right">
           <ThemeSwitcher />
+          <SessionWidget />
           <span className="user-badge">{username}</span>
         </div>
       </header>
