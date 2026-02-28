@@ -7,18 +7,9 @@ import { useSpacetimeDB, useTable, useReducer } from 'spacetimedb/react';
 import { Identity, Timestamp } from 'spacetimedb';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import SessionWidget from './components/SessionWidget';
-
-// Feature flags
-const ENABLE_MESSAGE_LIKES = true;
-
-export type PrettyMessage = {
-  senderName: string;
-  text: string;
-  sent: Timestamp;
-  kind: 'system' | 'user';
-  likeCount: number;
-  isLikedByMe: boolean;
-};
+import { ENABLE_MESSAGE_LIKES } from './config/featureFlags';
+import { type PrettyMessage } from './components/Chat';
+import { useOnlineUsers } from './hooks/useOnlineUsers';
 
 interface AppProps {
   username: string;
@@ -28,7 +19,6 @@ interface AppProps {
 function App({ username: loggedInUsername, onLogout }: AppProps) {
   const [newName, setNewName] = useState('');
   const [settingName, setSettingName] = useState(false);
-  const [systemMessages, setSystemMessages] = useState([] as Types.Message[]);
   const [newMessage, setNewMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -55,45 +45,18 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
   const sendMessage = useReducer(reducers.sendMessage);
   const toggleLike = useReducer(reducers.toggleLike);
 
+  // Subscribe to channels and find the general channel
+  const [channels] = useTable(tables.channel);
+  const generalChannel = channels.find(ch => ch.name === 'general');
+
   // Subscribe to all messages in the chat
   const [messages] = useTable(tables.message);
 
   // Subscribe to all message likes
   const [likes] = useTable(tables.message_like);
 
-  // Subscribe to all online users in the chat
-  const [onlineUsers] = useTable(
-    tables.user.where(r => r.online.eq(true)),
-    {
-      onInsert: user => {
-        // All users being inserted here are online
-        const name = user.name || user.identity.toHexString().substring(0, 8);
-        setSystemMessages(prev => [
-          ...prev,
-          {
-            sender: Identity.zero(),
-            text: `${name} has connected.`,
-            sent: Timestamp.now(),
-          },
-        ]);
-      },
-      onDelete: user => {
-        // All users being deleted here are offline
-        const name = user.name || user.identity.toHexString().substring(0, 8);
-        setSystemMessages(prev => [
-          ...prev,
-          {
-            sender: Identity.zero(),
-            text: `${name} has disconnected.`,
-            sent: Timestamp.now(),
-          },
-        ]);
-      },
-    }
-  );
-
-  const [offlineUsers] = useTable(tables.user.where(r => r.online.eq(false)));
-  const users = [...onlineUsers, ...offlineUsers];
+  // Subscribe to all online users via shared hook
+  const { onlineUsers, offlineUsers, allUsers: users, systemMessages } = useOnlineUsers();
 
   const prettyMessages: PrettyMessage[] = messages
     .concat(systemMessages)
@@ -156,8 +119,12 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
 
   const onSubmitMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!generalChannel) {
+      console.error('No general channel available');
+      return;
+    }
     setNewMessage('');
-    sendMessage({ text: newMessage })
+    sendMessage({ text: newMessage, channelId: generalChannel.id })
       .then(() => {
         console.log('Message sent.');
       })

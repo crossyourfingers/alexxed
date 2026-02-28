@@ -1,5 +1,17 @@
 # quickstart-chat
 
+## 0.0.4
+
+### Refactor - Simplify Codebase
+
+- Consolidated AI instruction files: `.github/copilot-instructions.md`, `AGENTS.md`, `.windsurfrules` → single `CLAUDE.md`
+- Extracted shared `useOnlineUsers` hook from duplicated code in `App.tsx`, `CommunityPage.tsx`, `StreamPage.tsx`
+- Fixed `App.tsx` to import `ENABLE_MESSAGE_LIKES` from `featureFlags.ts` instead of hardcoding
+- Fixed `App.tsx` to import `PrettyMessage` type from `components/Chat` instead of duplicating
+- Fixed `App.tsx` `sendMessage` to include required `channelId` parameter
+- Removed unused files: `alex.excalidraw`, `openspec/plans/add-user-session-metrics.md`
+- Updated integration tests to use correct database name
+
 ## 0.0.1
 
 ### Patch Changes

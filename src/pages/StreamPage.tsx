@@ -12,6 +12,7 @@ import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { ENABLE_EMOJI_REACTIONS } from '../config/featureFlags';
 import { MessageList, MessageInput, type PrettyMessage, type ReactionGroup } from '../components/Chat';
 import SessionWidget from '../components/SessionWidget';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import './StreamPage.css';
 
 interface StreamPageProps {
@@ -24,7 +25,6 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
   const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(fallbackVideos[0]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'vods' | 'schedule' | 'about'>('vods');
-  const [systemMessages, setSystemMessages] = useState<Types.Message[]>([]);
   const [showToast, setShowToast] = useState(false);
 
   const { identity, isActive: connected } = useSpacetimeDB();
@@ -46,39 +46,8 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
     ? allMessages.filter(msg => msg.channelId === generalChannel.id)
     : [];
 
-  // Subscribe to online users
-  const [onlineUsers] = useTable(
-    tables.user.where(r => r.online.eq(true)),
-    {
-      onInsert: user => {
-        const name = user.name || user.identity.toHexString().substring(0, 8);
-        setSystemMessages(prev => [
-          ...prev,
-          {
-            sender: Identity.zero(),
-            text: `${name} has connected.`,
-            sent: Timestamp.now(),
-            channelId: 0n,
-          } as Types.Message,
-        ]);
-      },
-      onDelete: user => {
-        const name = user.name || user.identity.toHexString().substring(0, 8);
-        setSystemMessages(prev => [
-          ...prev,
-          {
-            sender: Identity.zero(),
-            text: `${name} has disconnected.`,
-            sent: Timestamp.now(),
-            channelId: 0n,
-          } as Types.Message,
-        ]);
-      },
-    }
-  );
-
-  const [offlineUsers] = useTable(tables.user.where(r => r.online.eq(false)));
-  const users = [...onlineUsers, ...offlineUsers];
+  // Subscribe to online users via shared hook
+  const { onlineUsers, offlineUsers, allUsers: users, systemMessages } = useOnlineUsers();
 
   // Load YouTube videos
   useEffect(() => {

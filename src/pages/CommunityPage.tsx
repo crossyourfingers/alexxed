@@ -16,6 +16,7 @@ import {
   type ReactionGroup,
 } from '../components/Chat';
 import SessionWidget from '../components/SessionWidget';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import './CommunityPage.css';
 
 interface CommunityPageProps {
@@ -27,7 +28,6 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
   const { channelName } = useParams<{ channelName?: string }>();
   const navigate = useNavigate();
   
-  const [systemMessages, setSystemMessages] = useState<Types.Message[]>([]);
   const [showToast, setShowToast] = useState(false);
 
   const { identity, isActive: connected } = useSpacetimeDB();
@@ -45,39 +45,8 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
   const [likes] = useTable(tables.message_like);
   const [reactions] = useTable(tables.message_reaction);
 
-  // Subscribe to online users
-  const [onlineUsers] = useTable(
-    tables.user.where(r => r.online.eq(true)),
-    {
-      onInsert: user => {
-        const name = user.name || user.identity.toHexString().substring(0, 8);
-        setSystemMessages(prev => [
-          ...prev,
-          {
-            sender: Identity.zero(),
-            text: `${name} has connected.`,
-            sent: Timestamp.now(),
-            channelId: 0n,
-          } as Types.Message,
-        ]);
-      },
-      onDelete: user => {
-        const name = user.name || user.identity.toHexString().substring(0, 8);
-        setSystemMessages(prev => [
-          ...prev,
-          {
-            sender: Identity.zero(),
-            text: `${name} has disconnected.`,
-            sent: Timestamp.now(),
-            channelId: 0n,
-          } as Types.Message,
-        ]);
-      },
-    }
-  );
-
-  const [offlineUsers] = useTable(tables.user.where(r => r.online.eq(false)));
-  const users = [...onlineUsers, ...offlineUsers];
+  // Subscribe to online users via shared hook
+  const { onlineUsers, offlineUsers, allUsers: users, systemMessages } = useOnlineUsers();
 
   // Find active channel
   const activeChannel = channels.find(

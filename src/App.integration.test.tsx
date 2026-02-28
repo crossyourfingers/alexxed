@@ -6,14 +6,18 @@ import { SpacetimeDBProvider } from 'spacetimedb/react';
 import { DbConnection } from './module_bindings';
 import CommunityPage from './pages/CommunityPage';
 
+// Use same config as main app
+const HOST = 'ws://localhost:3000';
+const DB_NAME = 'alexxed-u3k4f';
+
 describe('Community Integration Test', () => {
   const renderWithProviders = () => {
     const connectionBuilder = DbConnection.builder()
-      .withUri('ws://localhost:3000')
-      .withDatabaseName('quickstart-chat')
+      .withUri(HOST)
+      .withDatabaseName(DB_NAME)
       .withToken(
         localStorage.getItem(
-          'ws://localhost:3000/quickstart-chat/auth_token'
+          `${HOST}/${DB_NAME}/auth_token`
         ) || ''
       );
     return render(
