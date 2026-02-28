@@ -41,6 +41,7 @@ import RegisterReducer from "./register_reducer";
 import SendMessageReducer from "./send_message_reducer";
 import SetNameReducer from "./set_name_reducer";
 import ToggleLikeReducer from "./toggle_like_reducer";
+import ToggleReactionReducer from "./toggle_reaction_reducer";
 import UpdateChannelReducer from "./update_channel_reducer";
 
 // Import all procedure arg schemas
@@ -51,6 +52,7 @@ import ChannelRow from "./channel_table";
 import LinkPreviewRow from "./link_preview_table";
 import MessageRow from "./message_table";
 import MessageLikeRow from "./message_like_table";
+import MessageReactionRow from "./message_reaction_table";
 import UserRow from "./user_table";
 
 /** Type-only namespace exports for generated type groups. */
@@ -93,6 +95,13 @@ const tablesSchema = __schema({
     constraints: [
     ],
   }, MessageLikeRow),
+  message_reaction: __table({
+    name: 'message_reaction',
+    indexes: [
+    ],
+    constraints: [
+    ],
+  }, MessageReactionRow),
   user: __table({
     name: 'user',
     indexes: [
@@ -115,6 +124,7 @@ const reducersSchema = __reducers(
   __reducerSchema("send_message", SendMessageReducer),
   __reducerSchema("set_name", SetNameReducer),
   __reducerSchema("toggle_like", ToggleLikeReducer),
+  __reducerSchema("toggle_reaction", ToggleReactionReducer),
   __reducerSchema("update_channel", UpdateChannelReducer),
 );
 

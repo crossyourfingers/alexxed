@@ -57,6 +57,13 @@ export const MessageLike = __t.object("MessageLike", {
 });
 export type MessageLike = __Infer<typeof MessageLike>;
 
+export const MessageReaction = __t.object("MessageReaction", {
+  messageSent: __t.timestamp(),
+  userIdentity: __t.identity(),
+  emoji: __t.string(),
+});
+export type MessageReaction = __Infer<typeof MessageReaction>;
+
 export const User = __t.object("User", {
   identity: __t.identity(),
   name: __t.option(__t.string()),

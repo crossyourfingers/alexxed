@@ -13,6 +13,7 @@ import RegisterReducer from "../register_reducer";
 import SendMessageReducer from "../send_message_reducer";
 import SetNameReducer from "../set_name_reducer";
 import ToggleLikeReducer from "../toggle_like_reducer";
+import ToggleReactionReducer from "../toggle_reaction_reducer";
 import UpdateChannelReducer from "../update_channel_reducer";
 
 export type CreateChannelParams = __Infer<typeof CreateChannelReducer>;
@@ -22,5 +23,6 @@ export type RegisterParams = __Infer<typeof RegisterReducer>;
 export type SendMessageParams = __Infer<typeof SendMessageReducer>;
 export type SetNameParams = __Infer<typeof SetNameReducer>;
 export type ToggleLikeParams = __Infer<typeof ToggleLikeReducer>;
+export type ToggleReactionParams = __Infer<typeof ToggleReactionReducer>;
 export type UpdateChannelParams = __Infer<typeof UpdateChannelReducer>;
 

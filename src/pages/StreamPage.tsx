@@ -9,7 +9,8 @@ import { streamSchedule, type ScheduleEntry } from '../data/streamSchedule';
 import { fallbackVideos, type VideoData } from '../data/fallbackVideos';
 import { fetchChannelVideos } from '../services/youtubeApi';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
-import { MessageList, MessageInput, type PrettyMessage } from '../components/Chat';
+import { ENABLE_EMOJI_REACTIONS } from '../config/featureFlags';
+import { MessageList, MessageInput, type PrettyMessage, type ReactionGroup } from '../components/Chat';
 import './StreamPage.css';
 
 interface StreamPageProps {
@@ -28,6 +29,7 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
   const { identity, isActive: connected } = useSpacetimeDB();
   const sendMessage = useReducer(reducers.sendMessage);
   const toggleLike = useReducer(reducers.toggleLike);
+  const toggleReaction = useReducer(reducers.toggleReaction);
 
   // Subscribe to channels (to get the general channel for the stream chat)
   const [channels] = useTable(tables.channel);
@@ -36,6 +38,7 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
   // Subscribe to messages
   const [allMessages] = useTable(tables.message);
   const [likes] = useTable(tables.message_like);
+  const [reactions] = useTable(tables.message_reaction);
 
   // Filter to general channel messages only (stream chat = global chat)
   const messages = generalChannel
@@ -145,6 +148,40 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   }, []);
+
+  // Reaction handlers
+  const getReactionsForMessage = useCallback(
+    (sent: Timestamp): ReactionGroup[] => {
+      const messageReactions = reactions.filter(
+        r => r.messageSent.microsSinceUnixEpoch === sent.microsSinceUnixEpoch
+      );
+      
+      // Group by emoji
+      const grouped = new Map<string, { count: number; hasReacted: boolean }>();
+      for (const reaction of messageReactions) {
+        const existing = grouped.get(reaction.emoji) || { count: 0, hasReacted: false };
+        existing.count++;
+        if (identity && reaction.userIdentity.isEqual(identity)) {
+          existing.hasReacted = true;
+        }
+        grouped.set(reaction.emoji, existing);
+      }
+      
+      return Array.from(grouped.entries()).map(([emoji, { count, hasReacted }]) => ({
+        emoji,
+        count,
+        hasReacted,
+      }));
+    },
+    [reactions, identity]
+  );
+
+  const handleToggleReaction = useCallback(
+    (messageSent: Timestamp, emoji: string) => {
+      toggleReaction({ messageSent, emoji });
+    },
+    [toggleReaction]
+  );
 
   if (!connected || !identity) {
     return (
@@ -359,6 +396,9 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
             currentUserName={currentName}
             onToggleLike={handleToggleLike}
             onSelfLikeAttempt={handleSelfLikeAttempt}
+            enableReactions={ENABLE_EMOJI_REACTIONS}
+            getReactionsForMessage={getReactionsForMessage}
+            onToggleReaction={handleToggleReaction}
           />
           <MessageInput
             onSend={handleSendMessage}

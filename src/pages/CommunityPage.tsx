@@ -6,12 +6,14 @@ import { useSpacetimeDB, useTable, useReducer } from 'spacetimedb/react';
 import { Identity, Timestamp } from 'spacetimedb';
 import { streamerProfile } from '../data/streamerProfile';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
+import { ENABLE_EMOJI_REACTIONS } from '../config/featureFlags';
 import {
   MessageList,
   MessageInput,
   OnlineUsers,
   ChannelSidebar,
   type PrettyMessage,
+  type ReactionGroup,
 } from '../components/Chat';
 import './CommunityPage.css';
 
@@ -30,6 +32,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
   const { identity, isActive: connected } = useSpacetimeDB();
   const sendMessage = useReducer(reducers.sendMessage);
   const toggleLike = useReducer(reducers.toggleLike);
+  const toggleReaction = useReducer(reducers.toggleReaction);
   const createChannel = useReducer(reducers.createChannel);
   const deleteChannel = useReducer(reducers.deleteChannel);
 
@@ -39,6 +42,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
   // Subscribe to messages
   const [allMessages] = useTable(tables.message);
   const [likes] = useTable(tables.message_like);
+  const [reactions] = useTable(tables.message_reaction);
 
   // Subscribe to online users
   const [onlineUsers] = useTable(
@@ -139,6 +143,40 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   }, []);
+
+  // Reaction handlers
+  const getReactionsForMessage = useCallback(
+    (sent: Timestamp): ReactionGroup[] => {
+      const messageReactions = reactions.filter(
+        r => r.messageSent.microsSinceUnixEpoch === sent.microsSinceUnixEpoch
+      );
+      
+      // Group by emoji
+      const grouped = new Map<string, { count: number; hasReacted: boolean }>();
+      for (const reaction of messageReactions) {
+        const existing = grouped.get(reaction.emoji) || { count: 0, hasReacted: false };
+        existing.count++;
+        if (identity && reaction.userIdentity.isEqual(identity)) {
+          existing.hasReacted = true;
+        }
+        grouped.set(reaction.emoji, existing);
+      }
+      
+      return Array.from(grouped.entries()).map(([emoji, { count, hasReacted }]) => ({
+        emoji,
+        count,
+        hasReacted,
+      }));
+    },
+    [reactions, identity]
+  );
+
+  const handleToggleReaction = useCallback(
+    (messageSent: Timestamp, emoji: string) => {
+      toggleReaction({ messageSent, emoji });
+    },
+    [toggleReaction]
+  );
 
   const handleSelectChannel = useCallback(
     (channel: { name: string }) => {
@@ -242,6 +280,9 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
                 currentUserName={currentName}
                 onToggleLike={handleToggleLike}
                 onSelfLikeAttempt={handleSelfLikeAttempt}
+                enableReactions={ENABLE_EMOJI_REACTIONS}
+                getReactionsForMessage={getReactionsForMessage}
+                onToggleReaction={handleToggleReaction}
               />
               <MessageInput
                 onSend={handleSendMessage}

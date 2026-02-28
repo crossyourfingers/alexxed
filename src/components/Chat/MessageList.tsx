@@ -1,7 +1,10 @@
-import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Timestamp } from 'spacetimedb';
 import { LinkPreview } from './LinkPreview';
+import { ReactionPicker } from './ReactionPicker';
+import { ReactionDisplay, type ReactionGroup } from './ReactionDisplay';
 import type { PrettyMessage } from './types';
 import './Chat.css';
 
@@ -11,6 +14,10 @@ interface MessageListProps {
   onToggleLike: (message: PrettyMessage) => void;
   onSelfLikeAttempt?: () => void;
   enableLikes?: boolean;
+  // Reaction props
+  enableReactions?: boolean;
+  getReactionsForMessage?: (sent: Timestamp) => ReactionGroup[];
+  onToggleReaction?: (messageSent: Timestamp, emoji: string) => void;
 }
 
 export interface MessageListHandle {
@@ -49,13 +56,25 @@ function formatMessageTime(sent: { toDate: () => Date }): { time: string; date: 
 
 export const MessageList = forwardRef<MessageListHandle, MessageListProps>(
   function MessageList(
-    { messages, currentUserName, onToggleLike, onSelfLikeAttempt, enableLikes = true },
+    { 
+      messages, 
+      currentUserName, 
+      onToggleLike, 
+      onSelfLikeAttempt, 
+      enableLikes = true,
+      enableReactions = true,
+      getReactionsForMessage,
+      onToggleReaction,
+    },
     ref
   ) {
     const containerRef = useRef<HTMLDivElement>(null);
     const endRef = useRef<HTMLDivElement>(null);
     const autoScrollRef = useRef(true);
     const prevCountRef = useRef(messages.length);
+    
+    // Track which message has the reaction picker open (by index)
+    const [openPickerIndex, setOpenPickerIndex] = useState<number | null>(null);
 
     useImperativeHandle(ref, () => ({
       scrollToBottom: (smooth = true) => {
@@ -134,14 +153,31 @@ export const MessageList = forwardRef<MessageListHandle, MessageListProps>(
                   ))}
                 </div>
               )}
-              {enableLikes && message.kind === 'user' && (
+              {message.kind === 'user' && (
                 <div className="message-actions">
-                  <button
-                    className={`like-btn ${message.isLikedByMe ? 'liked' : ''}`}
-                    onClick={() => handleLikeClick(message)}
-                  >
-                    {message.isLikedByMe ? '❤️' : '🤍'} {message.likeCount > 0 && message.likeCount}
-                  </button>
+                  {enableLikes && (
+                    <button
+                      className={`like-btn ${message.isLikedByMe ? 'liked' : ''}`}
+                      onClick={() => handleLikeClick(message)}
+                    >
+                      {message.isLikedByMe ? '❤️' : '🤍'} {message.likeCount > 0 && message.likeCount}
+                    </button>
+                  )}
+                  {enableReactions && getReactionsForMessage && onToggleReaction && (
+                    <>
+                      {openPickerIndex === index && (
+                        <ReactionPicker
+                          onSelect={(emoji) => onToggleReaction(message.sent, emoji)}
+                          onClose={() => setOpenPickerIndex(null)}
+                        />
+                      )}
+                      <ReactionDisplay
+                        reactions={getReactionsForMessage(message.sent)}
+                        onToggle={(emoji) => onToggleReaction(message.sent, emoji)}
+                        onAddReaction={() => setOpenPickerIndex(openPickerIndex === index ? null : index)}
+                      />
+                    </>
+                  )}
                 </div>
               )}
             </div>

@@ -63,6 +63,20 @@ const message_like = table(
   }
 );
 
+// Emoji reactions for messages (multiple emoji types per message)
+const message_reaction = table(
+  {
+    name: 'message_reaction',
+    public: true,
+    indexes: [{ name: 'message_reaction_message_sent', algorithm: 'btree', columns: ['message_sent'] }]
+  },
+  {
+    message_sent: t.timestamp(),
+    user_identity: t.identity(),
+    emoji: t.string(),
+  }
+);
+
 // Cache for link preview metadata
 const link_preview = table(
   { name: 'link_preview', public: true },
@@ -75,7 +89,7 @@ const link_preview = table(
   }
 );
 
-const spacetimedb = schema({ user, message, message_like, credentials, channel, link_preview });
+const spacetimedb = schema({ user, message, message_like, message_reaction, credentials, channel, link_preview });
 export default spacetimedb;
 
 function validateName(name: string) {
@@ -231,6 +245,39 @@ export const toggle_like = spacetimedb.reducer(
       ctx.db.message_like.insert({
         message_sent,
         user_identity: ctx.sender,
+      });
+    }
+  }
+);
+
+export const toggle_reaction = spacetimedb.reducer(
+  { message_sent: t.timestamp(), emoji: t.string() },
+  (ctx, { message_sent, emoji }) => {
+    // Validate emoji (allow common emoji characters)
+    if (!emoji || emoji.length > 10) {
+      throw new SenderError('Invalid emoji');
+    }
+    
+    // Find existing reaction from this user with this emoji on this message
+    let existing = undefined;
+    for (const reaction of ctx.db.message_reaction.iter()) {
+      if (reaction.message_sent.microsSinceUnixEpoch === message_sent.microsSinceUnixEpoch &&
+          reaction.user_identity.isEqual(ctx.sender) && 
+          reaction.emoji === emoji) {
+        existing = reaction;
+        break;
+      }
+    }
+    
+    if (existing) {
+      // Remove the reaction
+      ctx.db.message_reaction.delete(existing);
+    } else {
+      // Add the reaction
+      ctx.db.message_reaction.insert({
+        message_sent,
+        user_identity: ctx.sender,
+        emoji,
       });
     }
   }
