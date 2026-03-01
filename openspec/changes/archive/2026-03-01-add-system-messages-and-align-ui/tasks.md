@@ -61,20 +61,20 @@
 
 ## 9. Verification and Testing
 
-- [ ] 9.1 Run `spacetime start` to start local SpacetimeDB server
-- [ ] 9.2 Run `spacetime generate --lang typescript --out-dir src/module_bindings --module-path spacetimedb` to regenerate client bindings
-- [ ] 9.3 Start dev server: `npm run dev`
-- [ ] 9.4 Test user connection: Verify system message appears with correct `sender: Identity.zero()`
-- [ ] 9.5 Test user disconnection: Verify system message appears with `messageType: 'disconnect'`
-- [ ] 9.6 Verify connectivity across multiple clients: All users should see system messages
-- [ ] 9.7 Check system message styling: Centered, muted text, smaller badge on both Community and Stream pages
-- [ ] 9.8 Verify spacing consistency: Check Community and Stream page padding/gaps match
-- [ ] 9.9 Test interactive element hit areas: Ensure expanded click regions work well
-- [ ] 9.10 Verify dark mode: Check tokens render correctly in dark theme
+- [x] 9.1 Run `spacetime start` to start local SpacetimeDB server
+- [x] 9.2 Run `spacetime generate --lang typescript --out-dir src/module_bindings --module-path spacetimedb` to regenerate client bindings
+- [x] 9.3 Start dev server: `npm run dev`
+- [x] 9.4 Test user connection: Verify system message appears with correct `sender: Identity.zero()`
+- [x] 9.5 Test user disconnection: Verify system message appears with `messageType: 'disconnect'`
+- [x] 9.6 Verify connectivity across multiple clients: All users should see system messages
+- [x] 9.7 Check system message styling: Centered, muted text, smaller badge on both Community and Stream pages
+- [x] 9.8 Verify spacing consistency: Check Community and Stream page padding/gaps match
+- [x] 9.9 Test interactive element hit areas: Ensure expanded click regions work well
+- [x] 9.10 Verify dark mode: Check tokens render correctly in dark theme
 
 ## 10. Documentation
 
-- [ ] 10.1 Document new `system_message` table schema and usage in project README
-- [ ] 10.2 Update `useOnlineUsers` hook documentation with system message behavior
-- [ ] 10.3 Add inline code comments documenting reducer and lifecycle hook usage
-- [ ] 10.4 Create manual QA checklist from verification steps for future reference
+- [x] 10.1 Document new `system_message` table schema and usage in project README
+- [x] 10.2 Update `useOnlineUsers` hook documentation with system message behavior
+- [x] 10.3 Add inline code comments documenting reducer and lifecycle hook usage
+- [x] 10.4 Create manual QA checklist from verification steps for future reference

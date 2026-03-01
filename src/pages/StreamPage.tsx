@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { tables, reducers } from '../module_bindings';
 import type * as Types from '../module_bindings/types';
 import { useSpacetimeDB, useTable, useReducer } from 'spacetimedb/react';
-import { Identity, Timestamp } from 'spacetimedb';
-import { streamerProfile } from '../data/streamerProfile';
+import { Timestamp } from 'spacetimedb';
 import { streamSchedule, type ScheduleEntry } from '../data/streamSchedule';
 import { fallbackVideos, type VideoData } from '../data/fallbackVideos';
 import { fetchChannelVideos } from '../services/youtubeApi';
-import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { ENABLE_EMOJI_REACTIONS } from '../config/featureFlags';
 import { MessageList, MessageInput, type PrettyMessage, type ReactionGroup } from '../components/Chat';
-import SessionWidget from '../components/SessionWidget';
+import { Header } from '../components/Header';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import './StreamPage.css';
 
@@ -192,24 +189,7 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
       )}
 
       {/* Header */}
-      <header className="stream-header">
-        <div className="stream-header-left">
-          <div className="stream-logo">
-            <img src={streamerProfile.avatar} alt={streamerProfile.name} />
-            <span>{streamerProfile.displayName}</span>
-          </div>
-        </div>
-        <nav className="stream-nav">
-          <Link to="/stream" className="nav-link active">Stream</Link>
-          <Link to="/community/general" className="nav-link">Community</Link>
-          <button onClick={onLogout} className="nav-link logout-btn">Logout</button>
-        </nav>
-        <div className="stream-header-right">
-          <ThemeSwitcher />
-          <SessionWidget />
-          <span className="user-badge">{username}</span>
-        </div>
-      </header>
+      <Header activePage="stream" username={username} onLogout={onLogout} />
 
       <div className="stream-content">
         {/* Main content area */}

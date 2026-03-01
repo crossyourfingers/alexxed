@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { tables, reducers } from '../module_bindings';
 import type * as Types from '../module_bindings/types';
 import { useSpacetimeDB, useTable, useReducer } from 'spacetimedb/react';
-import { Identity, Timestamp } from 'spacetimedb';
-import { streamerProfile } from '../data/streamerProfile';
-import { ThemeSwitcher } from '../components/ThemeSwitcher';
+import { Timestamp } from 'spacetimedb';
 import { ENABLE_EMOJI_REACTIONS } from '../config/featureFlags';
 import {
   MessageList,
@@ -15,7 +13,7 @@ import {
   type PrettyMessage,
   type ReactionGroup,
 } from '../components/Chat';
-import SessionWidget from '../components/SessionWidget';
+import { Header } from '../components/Header';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import './CommunityPage.css';
 
@@ -224,24 +222,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
       )}
 
       {/* Header */}
-      <header className="community-header">
-        <div className="community-header-left">
-          <div className="community-logo">
-            <img src={streamerProfile.avatar} alt={streamerProfile.name} />
-            <span>{streamerProfile.displayName}</span>
-          </div>
-          <nav className="community-nav">
-            <Link to="/stream" className="nav-link">Stream</Link>
-            <Link to="/community/general" className="nav-link active">Community</Link>
-            <button onClick={onLogout} className="nav-link logout-btn">Logout</button>
-          </nav>
-        </div>
-        <div className="community-header-right">
-          <ThemeSwitcher />
-          <SessionWidget />
-          <span className="user-badge">{username}</span>
-        </div>
-      </header>
+      <Header activePage="community" username={username} onLogout={onLogout} />
 
       {/* Main content */}
       <div className="community-content">

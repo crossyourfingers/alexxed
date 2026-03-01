@@ -171,9 +171,25 @@ openspec update
 
 Located in `spacetimedb/`:
 
-- **Tables:** `user`, `message`, `message_like`
-- **Reducers:** Transactional mutations (send_message, toggle_like, set_name)
-- **Lifecycle Hooks:** onConnect/onDisconnect for presence tracking
+- **Tables:** `user`, `message`, `message_like`, `message_reaction`, `channel`, `system_message`
+- **Reducers:** Transactional mutations (send_message, toggle_like, toggle_reaction, set_name, insert_system_message)
+- **Lifecycle Hooks:** onConnect/onDisconnect for presence tracking and system message broadcasting
+
+#### System Messages
+
+The `system_message` table stores connection events (connect/disconnect) with the following schema:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | u64 | Auto-increment primary key |
+| `message_type` | string | Event type: `'connect'` or `'disconnect'` |
+| `channel_id` | u64 | Channel where the message appears |
+| `sender` | Identity | Always `Identity.zero()` for system messages |
+| `user_identity` | Identity | The user who connected/disconnected |
+| `created_at` | Timestamp | Server-side timestamp |
+| `content` | string? | Optional additional content |
+
+System messages are automatically inserted into **all channels** when users connect or disconnect, enabling real-time presence notifications across the entire application.
 
 ### Frontend (React)
 

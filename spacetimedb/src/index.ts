@@ -130,7 +130,24 @@ const user_session = table(
   },
 );
 
-// System messages for connection/disconnection events
+/**
+ * System messages table for connection/disconnection events.
+ * 
+ * These messages are automatically inserted when users connect or disconnect,
+ * and are broadcast to ALL channels. The `sender` is always `Identity.zero()`
+ * to distinguish system messages from user messages.
+ * 
+ * Schema:
+ * - id: Auto-increment primary key
+ * - message_type: 'connect' or 'disconnect'
+ * - channel_id: Channel where the message appears (FK to channel.id)
+ * - sender: Always Identity.zero() for system attribution
+ * - user_identity: The actual user who connected/disconnected
+ * - created_at: Server-side timestamp
+ * - content: Optional additional text (for future extensibility)
+ * 
+ * Index: system_message_channel_id for efficient per-channel queries
+ */
 const system_message = table(
   {
     name: "system_message",
@@ -364,7 +381,19 @@ export const toggle_reaction = spacetimedb.reducer(
   },
 );
 
-// Reducer to insert system messages
+/**
+ * Reducer to manually insert system messages.
+ * 
+ * Note: Most system messages are inserted automatically by lifecycle hooks
+ * (onConnect/onDisconnect). This reducer exists for programmatic insertion
+ * and testing. The sender is set to Identity.zero() to mark it as a system
+ * message rather than a user message.
+ * 
+ * @param message_type - Event type: 'connect', 'disconnect', or custom
+ * @param channel_id - Target channel (must exist)
+ * @param user_identity - The user the message is about
+ * @param content - Optional additional text
+ */
 export const insert_system_message = spacetimedb.reducer(
   {
     message_type: t.string(),
@@ -494,6 +523,19 @@ export const update_channel = spacetimedb.reducer(
   },
 );
 
+/**
+ * Lifecycle hook: Client Connected
+ * 
+ * Called automatically when a client establishes a connection.
+ * 
+ * Actions:
+ * 1. Updates or creates user record with online: true
+ * 2. Creates a user_session row for analytics
+ * 3. Broadcasts 'connect' system message to ALL channels
+ * 
+ * The system message uses Identity.zero() as sender and stores
+ * ctx.sender in user_identity so clients can display "Alice connected"
+ */
 export const onConnect = spacetimedb.clientConnected((ctx) => {
   const user = ctx.db.user.identity.find(ctx.sender);
   if (user) {
@@ -535,6 +577,19 @@ export const onConnect = spacetimedb.clientConnected((ctx) => {
   }
 });
 
+/**
+ * Lifecycle hook: Client Disconnected
+ * 
+ * Called automatically when a client connection is closed.
+ * 
+ * Actions:
+ * 1. Sets user.online to false
+ * 2. Closes the user_session row with disconnected_at timestamp
+ * 3. Broadcasts 'disconnect' system message to ALL channels
+ * 
+ * The system message uses Identity.zero() as sender and stores
+ * ctx.sender in user_identity so clients can display "Alice disconnected"
+ */
 export const onDisconnect = spacetimedb.clientDisconnected((ctx) => {
   const user = ctx.db.user.identity.find(ctx.sender);
   if (user) {
