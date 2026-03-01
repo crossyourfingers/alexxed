@@ -37,6 +37,7 @@ import {
 import CleanupOldUserSessionsReducer from "./cleanup_old_user_sessions_reducer";
 import CreateChannelReducer from "./create_channel_reducer";
 import DeleteChannelReducer from "./delete_channel_reducer";
+import InsertSystemMessageReducer from "./insert_system_message_reducer";
 import LoginReducer from "./login_reducer";
 import RegisterReducer from "./register_reducer";
 import SendMessageReducer from "./send_message_reducer";
@@ -55,6 +56,7 @@ import MessageRow from "./message_table";
 import MessageLikeRow from "./message_like_table";
 import MessageReactionRow from "./message_reaction_table";
 import MySessionMetricsRow from "./my_session_metrics_table";
+import SystemMessageRow from "./system_message_table";
 import UserRow from "./user_table";
 
 /** Type-only namespace exports for generated type groups. */
@@ -104,6 +106,17 @@ const tablesSchema = __schema({
     constraints: [
     ],
   }, MessageReactionRow),
+  system_message: __table({
+    name: 'system_message',
+    indexes: [
+      { name: 'id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'system_message_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, SystemMessageRow),
   user: __table({
     name: 'user',
     indexes: [
@@ -129,6 +142,7 @@ const reducersSchema = __reducers(
   __reducerSchema("cleanup_old_user_sessions", CleanupOldUserSessionsReducer),
   __reducerSchema("create_channel", CreateChannelReducer),
   __reducerSchema("delete_channel", DeleteChannelReducer),
+  __reducerSchema("insert_system_message", InsertSystemMessageReducer),
   __reducerSchema("login", LoginReducer),
   __reducerSchema("register", RegisterReducer),
   __reducerSchema("send_message", SendMessageReducer),

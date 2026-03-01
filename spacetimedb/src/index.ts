@@ -1,36 +1,43 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // IMPORTS
 // ─────────────────────────────────────────────────────────────────────────────
-import { schema, t, table, SenderError } from 'spacetimedb/server';
+import { schema, t, table, SenderError } from "spacetimedb/server";
+import { Identity } from "spacetimedb";
 
 const user = table(
-  { name: 'user', public: true },
+  { name: "user", public: true },
   {
     identity: t.identity().primaryKey(),
     name: t.string().optional(),
     online: t.bool(),
-  }
+  },
 );
 
 // Private table for storing user credentials
 const credentials = table(
   {
-    name: 'credentials',
-    indexes: [{ name: 'credentials_username', algorithm: 'btree', columns: ['username'] }]
+    name: "credentials",
+    indexes: [
+      {
+        name: "credentials_username",
+        algorithm: "btree",
+        columns: ["username"],
+      },
+    ],
   },
   {
     identity: t.identity().primaryKey(),
     username: t.string(),
     passwordHash: t.string(),
-  }
+  },
 );
 
 // Channel table for Discord-like text channels
 const channel = table(
   {
-    name: 'channel',
+    name: "channel",
     public: true,
-    indexes: [{ name: 'channel_name', algorithm: 'btree', columns: ['name'] }]
+    indexes: [{ name: "channel_name", algorithm: "btree", columns: ["name"] }],
   },
   {
     id: t.u64().primaryKey().autoInc(),
@@ -38,63 +45,81 @@ const channel = table(
     description: t.string(),
     created_by: t.identity(),
     created_at: t.timestamp(),
-  }
+  },
 );
 
 const message = table(
   {
-    name: 'message',
+    name: "message",
     public: true,
-    indexes: [{ name: 'message_channel_id', algorithm: 'btree', columns: ['channel_id'] }]
+    indexes: [
+      {
+        name: "message_channel_id",
+        algorithm: "btree",
+        columns: ["channel_id"],
+      },
+    ],
   },
   {
     sender: t.identity(),
     sent: t.timestamp(),
     text: t.string(),
     channel_id: t.u64(),
-  }
+  },
 );
 
 const message_like = table(
-  { name: 'message_like', public: true },
+  { name: "message_like", public: true },
   {
     message_sent: t.timestamp(),
     user_identity: t.identity(),
-  }
+  },
 );
 
 // Emoji reactions for messages (multiple emoji types per message)
 const message_reaction = table(
   {
-    name: 'message_reaction',
+    name: "message_reaction",
     public: true,
-    indexes: [{ name: 'message_reaction_message_sent', algorithm: 'btree', columns: ['message_sent'] }]
+    indexes: [
+      {
+        name: "message_reaction_message_sent",
+        algorithm: "btree",
+        columns: ["message_sent"],
+      },
+    ],
   },
   {
     message_sent: t.timestamp(),
     user_identity: t.identity(),
     emoji: t.string(),
-  }
+  },
 );
 
 // Cache for link preview metadata
 const link_preview = table(
-  { name: 'link_preview', public: true },
+  { name: "link_preview", public: true },
   {
     url: t.string().primaryKey(),
     title: t.string(),
     description: t.string(),
     image: t.string(),
     fetched_at: t.timestamp(),
-  }
+  },
 );
 
 // Per-client session rows to track connect/disconnect times
 const user_session = table(
   {
-    name: 'user_session',
+    name: "user_session",
     public: false,
-    indexes: [{ name: 'user_session_user_identity', algorithm: 'btree', columns: ['user_identity'] }]
+    indexes: [
+      {
+        name: "user_session_user_identity",
+        algorithm: "btree",
+        columns: ["user_identity"],
+      },
+    ],
   },
   {
     session_id: t.u64().primaryKey().autoInc(),
@@ -102,14 +127,48 @@ const user_session = table(
     client_id: t.string().optional(),
     connected_at: t.timestamp(),
     disconnected_at: t.timestamp().optional(),
-  }
+  },
 );
 
-const spacetimedb = schema({ user, message, message_like, message_reaction, credentials, channel, link_preview, user_session });
+// System messages for connection/disconnection events
+const system_message = table(
+  {
+    name: "system_message",
+    public: true,
+    indexes: [
+      {
+        name: "system_message_channel_id",
+        algorithm: "btree",
+        columns: ["channel_id"],
+      },
+    ],
+  },
+  {
+    id: t.u64().primaryKey().autoInc(),
+    message_type: t.string(),
+    channel_id: t.u64(),
+    sender: t.identity(),
+    user_identity: t.identity(),
+    created_at: t.timestamp(),
+    content: t.string().optional(),
+  },
+);
+
+const spacetimedb = schema({
+  user,
+  message,
+  message_like,
+  message_reaction,
+  credentials,
+  channel,
+  link_preview,
+  user_session,
+  system_message,
+});
 export default spacetimedb;
 
 function validateName(name: string) {
-  if (!name) throw new SenderError('Names must not be empty');
+  if (!name) throw new SenderError("Names must not be empty");
 }
 
 export const set_name = spacetimedb.reducer(
@@ -117,14 +176,14 @@ export const set_name = spacetimedb.reducer(
   (ctx, { name }) => {
     validateName(name);
     const user = ctx.db.user.identity.find(ctx.sender);
-    if (!user) throw new SenderError('Cannot set name for unknown user');
+    if (!user) throw new SenderError("Cannot set name for unknown user");
     console.info(`User ${ctx.sender} sets name to ${name}`);
     ctx.db.user.identity.update({ ...user, name });
-  }
+  },
 );
 
 function validateMessage(text: string) {
-  if (!text) throw new SenderError('Messages must not be empty');
+  if (!text) throw new SenderError("Messages must not be empty");
 }
 
 // Simple hash function for demo - IN PRODUCTION, hash passwords client-side!
@@ -132,7 +191,7 @@ function simpleHash(input: string): string {
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash;
   }
   return hash.toString(36);
@@ -143,10 +202,10 @@ export const register = spacetimedb.reducer(
   (ctx, { username, password }) => {
     // Validate inputs
     if (!username || username.length < 3) {
-      throw new SenderError('Username must be at least 3 characters');
+      throw new SenderError("Username must be at least 3 characters");
     }
     if (!password || password.length < 6) {
-      throw new SenderError('Password must be at least 6 characters');
+      throw new SenderError("Password must be at least 6 characters");
     }
 
     // Check if username already exists
@@ -158,7 +217,7 @@ export const register = spacetimedb.reducer(
       }
     }
     if (existing) {
-      throw new SenderError('Username already exists');
+      throw new SenderError("Username already exists");
     }
 
     // Hash password and store credentials
@@ -186,7 +245,7 @@ export const register = spacetimedb.reducer(
     }
 
     console.info(`User registered: ${username}`);
-  }
+  },
 );
 
 export const login = spacetimedb.reducer(
@@ -201,13 +260,13 @@ export const login = spacetimedb.reducer(
       }
     }
     if (!creds) {
-      throw new SenderError('Invalid username or password');
+      throw new SenderError("Invalid username or password");
     }
 
     // Verify password
     const passwordHash = simpleHash(password);
     if (creds.passwordHash !== passwordHash) {
-      throw new SenderError('Invalid username or password');
+      throw new SenderError("Invalid username or password");
     }
 
     // Update user to online
@@ -217,7 +276,7 @@ export const login = spacetimedb.reducer(
     }
 
     console.info(`User logged in: ${username}`);
-  }
+  },
 );
 
 export const send_message = spacetimedb.reducer(
@@ -227,13 +286,13 @@ export const send_message = spacetimedb.reducer(
     // - Rate-limit messages per-user.
     // - Reject messages from unnamed user.
     validateMessage(text);
-    
+
     // Verify channel exists
     const channelExists = ctx.db.channel.id.find(channel_id);
     if (!channelExists) {
-      throw new SenderError('Channel not found');
+      throw new SenderError("Channel not found");
     }
-    
+
     console.info(`User ${ctx.sender} in #${channelExists.name}: ${text}`);
     ctx.db.message.insert({
       sender: ctx.sender,
@@ -241,7 +300,7 @@ export const send_message = spacetimedb.reducer(
       sent: ctx.timestamp,
       channel_id,
     });
-  }
+  },
 );
 
 export const toggle_like = spacetimedb.reducer(
@@ -249,8 +308,11 @@ export const toggle_like = spacetimedb.reducer(
   (ctx, { message_sent }) => {
     let existing = undefined;
     for (const like of ctx.db.message_like.iter()) {
-      if (like.message_sent.microsSinceUnixEpoch === message_sent.microsSinceUnixEpoch &&
-          like.user_identity.isEqual(ctx.sender)) {
+      if (
+        like.message_sent.microsSinceUnixEpoch ===
+          message_sent.microsSinceUnixEpoch &&
+        like.user_identity.isEqual(ctx.sender)
+      ) {
         existing = like;
         break;
       }
@@ -263,7 +325,7 @@ export const toggle_like = spacetimedb.reducer(
         user_identity: ctx.sender,
       });
     }
-  }
+  },
 );
 
 export const toggle_reaction = spacetimedb.reducer(
@@ -271,20 +333,23 @@ export const toggle_reaction = spacetimedb.reducer(
   (ctx, { message_sent, emoji }) => {
     // Validate emoji (allow common emoji characters)
     if (!emoji || emoji.length > 10) {
-      throw new SenderError('Invalid emoji');
+      throw new SenderError("Invalid emoji");
     }
-    
+
     // Find existing reaction from this user with this emoji on this message
     let existing = undefined;
     for (const reaction of ctx.db.message_reaction.iter()) {
-      if (reaction.message_sent.microsSinceUnixEpoch === message_sent.microsSinceUnixEpoch &&
-          reaction.user_identity.isEqual(ctx.sender) && 
-          reaction.emoji === emoji) {
+      if (
+        reaction.message_sent.microsSinceUnixEpoch ===
+          message_sent.microsSinceUnixEpoch &&
+        reaction.user_identity.isEqual(ctx.sender) &&
+        reaction.emoji === emoji
+      ) {
         existing = reaction;
         break;
       }
     }
-    
+
     if (existing) {
       // Remove the reaction
       ctx.db.message_reaction.delete(existing);
@@ -296,15 +361,42 @@ export const toggle_reaction = spacetimedb.reducer(
         emoji,
       });
     }
-  }
+  },
+);
+
+// Reducer to insert system messages
+export const insert_system_message = spacetimedb.reducer(
+  {
+    message_type: t.string(),
+    channel_id: t.u64(),
+    user_identity: t.identity(),
+    content: t.string().optional(),
+  },
+  (ctx, { message_type, channel_id, user_identity, content }) => {
+    // Verify channel exists
+    const channel = ctx.db.channel.id.find(channel_id);
+    if (!channel) {
+      throw new SenderError("Channel not found");
+    }
+
+    ctx.db.system_message.insert({
+      id: 0n,
+      message_type,
+      channel_id,
+      sender: Identity.zero(),
+      user_identity,
+      created_at: ctx.timestamp,
+      content,
+    });
+  },
 );
 
 // Called when the module is initially published
-export const init = spacetimedb.init(ctx => {
+export const init = spacetimedb.init((ctx) => {
   // Create default general channel if it doesn't exist
   let generalExists = false;
   for (const ch of ctx.db.channel.iter()) {
-    if (ch.name === 'general') {
+    if (ch.name === "general") {
       generalExists = true;
       break;
     }
@@ -312,12 +404,12 @@ export const init = spacetimedb.init(ctx => {
   if (!generalExists) {
     ctx.db.channel.insert({
       id: 0n,
-      name: 'general',
-      description: 'General discussion',
+      name: "general",
+      description: "General discussion",
       created_by: ctx.sender,
       created_at: ctx.timestamp,
     });
-    console.info('Created default #general channel');
+    console.info("Created default #general channel");
   }
 });
 
@@ -326,28 +418,35 @@ export const create_channel = spacetimedb.reducer(
   { name: t.string(), description: t.string() },
   (ctx, { name, description }) => {
     // Validate channel name
-    const cleanName = name.toLowerCase().replace(/[^a-z0-9-]/g, '').substring(0, 32);
+    const cleanName = name
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .substring(0, 32);
     if (!cleanName || cleanName.length < 2) {
-      throw new SenderError('Channel name must be at least 2 characters (letters, numbers, dashes only)');
+      throw new SenderError(
+        "Channel name must be at least 2 characters (letters, numbers, dashes only)",
+      );
     }
-    
+
     // Check if channel name already exists
     for (const ch of ctx.db.channel.iter()) {
       if (ch.name === cleanName) {
-        throw new SenderError('Channel with this name already exists');
+        throw new SenderError("Channel with this name already exists");
       }
     }
-    
+
     const row = ctx.db.channel.insert({
       id: 0n,
       name: cleanName,
-      description: description || '',
+      description: description || "",
       created_by: ctx.sender,
       created_at: ctx.timestamp,
     });
-    
-    console.info(`User ${ctx.sender} created channel #${cleanName} (id: ${row.id})`);
-  }
+
+    console.info(
+      `User ${ctx.sender} created channel #${cleanName} (id: ${row.id})`,
+    );
+  },
 );
 
 export const delete_channel = spacetimedb.reducer(
@@ -355,14 +454,14 @@ export const delete_channel = spacetimedb.reducer(
   (ctx, { channel_id }) => {
     const channel = ctx.db.channel.id.find(channel_id);
     if (!channel) {
-      throw new SenderError('Channel not found');
+      throw new SenderError("Channel not found");
     }
-    
+
     // Don't allow deleting the general channel
-    if (channel.name === 'general') {
-      throw new SenderError('Cannot delete the general channel');
+    if (channel.name === "general") {
+      throw new SenderError("Cannot delete the general channel");
     }
-    
+
     // Delete all messages in the channel
     const messagesToDelete = [];
     for (const msg of ctx.db.message.iter()) {
@@ -373,10 +472,10 @@ export const delete_channel = spacetimedb.reducer(
     for (const msg of messagesToDelete) {
       ctx.db.message.delete(msg);
     }
-    
+
     ctx.db.channel.id.delete(channel_id);
     console.info(`User ${ctx.sender} deleted channel #${channel.name}`);
-  }
+  },
 );
 
 export const update_channel = spacetimedb.reducer(
@@ -384,18 +483,18 @@ export const update_channel = spacetimedb.reducer(
   (ctx, { channel_id, description }) => {
     const channel = ctx.db.channel.id.find(channel_id);
     if (!channel) {
-      throw new SenderError('Channel not found');
+      throw new SenderError("Channel not found");
     }
-    
+
     ctx.db.channel.id.update({
       ...channel,
       description,
     });
     console.info(`User ${ctx.sender} updated channel #${channel.name}`);
-  }
+  },
 );
 
-export const onConnect = spacetimedb.clientConnected(ctx => {
+export const onConnect = spacetimedb.clientConnected((ctx) => {
   const user = ctx.db.user.identity.find(ctx.sender);
   if (user) {
     // If this is a returning user, i.e. we already have a `User` with this `Identity`,
@@ -420,11 +519,23 @@ export const onConnect = spacetimedb.clientConnected(ctx => {
       disconnected_at: undefined,
     });
   } catch (e) {
-    console.warn('Failed to insert user_session on connect:', e);
+    console.warn("Failed to insert user_session on connect:", e);
+  }
+  // Insert system message for all channels
+  for (const channel of ctx.db.channel.iter()) {
+    ctx.db.system_message.insert({
+      id: 0n,
+      message_type: "connect",
+      channel_id: channel.id,
+      sender: Identity.zero(),
+      user_identity: ctx.sender,
+      created_at: ctx.timestamp,
+      content: undefined,
+    });
   }
 });
 
-export const onDisconnect = spacetimedb.clientDisconnected(ctx => {
+export const onDisconnect = spacetimedb.clientDisconnected((ctx) => {
   const user = ctx.db.user.identity.find(ctx.sender);
   if (user) {
     ctx.db.user.identity.update({ ...user, online: false });
@@ -438,16 +549,31 @@ export const onDisconnect = spacetimedb.clientDisconnected(ctx => {
         }
       }
       if (openSession) {
-        ctx.db.user_session.session_id.update({ ...openSession, disconnected_at: ctx.timestamp });
+        ctx.db.user_session.session_id.update({
+          ...openSession,
+          disconnected_at: ctx.timestamp,
+        });
       }
     } catch (e) {
-      console.warn('Failed to close user_session on disconnect:', e);
+      console.warn("Failed to close user_session on disconnect:", e);
+    }
+    // Insert disconnect system message for all channels
+    for (const channel of ctx.db.channel.iter()) {
+      ctx.db.system_message.insert({
+        id: 0n,
+        message_type: "disconnect",
+        channel_id: channel.id,
+        sender: Identity.zero(),
+        user_identity: ctx.sender,
+        created_at: ctx.timestamp,
+        content: undefined,
+      });
     }
   } else {
     // This branch should be unreachable,
     // as it doesn't make sense for a client to disconnect without connecting first.
     console.warn(
-      `Disconnect event for unknown user with identity ${ctx.sender}`
+      `Disconnect event for unknown user with identity ${ctx.sender}`,
     );
   }
 });
@@ -471,26 +597,30 @@ export const cleanup_old_user_sessions = spacetimedb.reducer((ctx) => {
 
 // Per-subscriber view exposing current user's session metrics
 export const my_session_metrics = spacetimedb.view(
-  { name: 'my_session_metrics', public: true },
+  { name: "my_session_metrics", public: true },
   t.array(
-    t.object('SessionMetrics', {
+    t.object("SessionMetrics", {
       sessionCount: t.u64(),
       connectedAt: t.timestamp().optional(),
-    })
+    }),
   ),
   (ctx) => {
     // Find all sessions for this sender by scanning and filtering (safe server-side)
-    const sessions = [...ctx.db.user_session.iter()].filter(s => s.user_identity.isEqual(ctx.sender));
-    const open = sessions.find(s => !s.disconnected_at);
-    return [{
-      sessionCount: BigInt(sessions.length),
-      connectedAt: open ? open.connected_at : undefined,
-    }];
-  }
+    const sessions = [...ctx.db.user_session.iter()].filter((s) =>
+      s.user_identity.isEqual(ctx.sender),
+    );
+    const open = sessions.find((s) => !s.disconnected_at);
+    return [
+      {
+        sessionCount: BigInt(sessions.length),
+        connectedAt: open ? open.connected_at : undefined,
+      },
+    ];
+  },
 );
 
 // Link preview return type
-const LinkPreviewResult = t.object('LinkPreviewResult', {
+const LinkPreviewResult = t.object("LinkPreviewResult", {
   url: t.string(),
   title: t.string(),
   description: t.string(),
@@ -503,7 +633,7 @@ export const fetch_link_preview = spacetimedb.procedure(
   LinkPreviewResult,
   (ctx, { url }) => {
     // First check if we have a cached preview
-    const cached = ctx.withTx(tx => tx.db.link_preview.url.find(url));
+    const cached = ctx.withTx((tx) => tx.db.link_preview.url.find(url));
     if (cached) {
       return {
         url: cached.url,
@@ -514,44 +644,52 @@ export const fetch_link_preview = spacetimedb.procedure(
     }
 
     // Fetch the URL
-    let title = '';
-    let description = '';
-    let image = '';
+    let title = "";
+    let description = "";
+    let image = "";
 
     try {
       const response = ctx.http.fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)',
+          "User-Agent": "Mozilla/5.0 (compatible; LinkPreviewBot/1.0)",
         },
       });
 
       if (response.status === 200) {
         const html = response.text();
-        
+
         // Extract Open Graph tags or fall back to standard tags
         // Title: og:title or <title>
-        const ogTitleMatch = html.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i);
+        const ogTitleMatch = html.match(
+          /<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i,
+        );
         const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-        title = ogTitleMatch?.[1] || titleMatch?.[1] || '';
-        
+        title = ogTitleMatch?.[1] || titleMatch?.[1] || "";
+
         // Description: og:description or meta description
-        const ogDescMatch = html.match(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i);
-        const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
-        description = ogDescMatch?.[1] || descMatch?.[1] || '';
-        
+        const ogDescMatch = html.match(
+          /<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i,
+        );
+        const descMatch = html.match(
+          /<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i,
+        );
+        description = ogDescMatch?.[1] || descMatch?.[1] || "";
+
         // Image: og:image
-        const ogImageMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i);
-        image = ogImageMatch?.[1] || '';
-        
+        const ogImageMatch = html.match(
+          /<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i,
+        );
+        image = ogImageMatch?.[1] || "";
+
         // Make relative image URLs absolute
-        if (image && !image.startsWith('http')) {
+        if (image && !image.startsWith("http")) {
           try {
             const urlObj = new URL(url);
-            image = image.startsWith('/') 
+            image = image.startsWith("/")
               ? `${urlObj.protocol}//${urlObj.host}${image}`
               : `${urlObj.protocol}//${urlObj.host}/${image}`;
           } catch {
-            image = '';
+            image = "";
           }
         }
       }
@@ -560,7 +698,7 @@ export const fetch_link_preview = spacetimedb.procedure(
     }
 
     // Cache the result
-    ctx.withTx(tx => {
+    ctx.withTx((tx) => {
       tx.db.link_preview.insert({
         url,
         title: title.substring(0, 500),
@@ -571,5 +709,5 @@ export const fetch_link_preview = spacetimedb.procedure(
     });
 
     return { url, title, description, image };
-  }
+  },
 );

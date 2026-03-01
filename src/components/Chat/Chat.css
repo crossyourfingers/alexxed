@@ -27,15 +27,52 @@
   background: var(--color-bg-overlay);
 }
 
+/* System messages - centered, muted, smaller */
 .chat-message.system {
   background: transparent;
-  padding: var(--spacing-1) var(--spacing-3);
-  font-style: italic;
+  padding: var(--spacing-2) var(--spacing-4);
+  font-style: normal;
   color: var(--color-text-muted);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  border-radius: 0;
+  margin: var(--spacing-1) 0;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.chat-message.system:hover {
+  background: transparent;
+}
+
+.chat-message.system .message-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+}
+
+.chat-message.system .message-content::before,
+.chat-message.system .message-content::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-subtle);
+  max-width: 60px;
 }
 
 .chat-message.system .message-header {
   display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Message Header */

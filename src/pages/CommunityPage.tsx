@@ -40,13 +40,14 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
   // Subscribe to channels
   const [channels] = useTable(tables.channel);
   
-  // Subscribe to messages
+  // Subscribe to messages and system messages
   const [allMessages] = useTable(tables.message);
+  const [allSystemMessages] = useTable(tables.system_message);
   const [likes] = useTable(tables.message_like);
   const [reactions] = useTable(tables.message_reaction);
 
   // Subscribe to online users via shared hook
-  const { onlineUsers, offlineUsers, allUsers: users, systemMessages } = useOnlineUsers();
+  const { onlineUsers, offlineUsers, allUsers: users } = useOnlineUsers();
 
   // Find active channel
   const activeChannel = channels.find(
@@ -65,11 +66,15 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
     ? allMessages.filter(msg => msg.channelId === activeChannel.id)
     : [];
 
+  // Filter system messages for active channel
+  const channelSystemMessages = activeChannel
+    ? allSystemMessages.filter(msg => msg.channelId === activeChannel.id)
+    : [];
+
   // Map messages to PrettyMessage format
-  const prettyMessages: PrettyMessage[] = channelMessages
-    .concat(systemMessages.filter(msg => !channelName || channelName === 'general'))
-    .sort((a, b) => (a.sent.toDate() > b.sent.toDate() ? 1 : -1))
-    .map(message => {
+  const prettyMessages: PrettyMessage[] = [
+    // Regular messages
+    ...channelMessages.map(message => {
       const user = users.find(
         u => u.identity.toHexString() === message.sender.toHexString()
       );
@@ -80,12 +85,30 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
         senderName: user?.name || message.sender.toHexString().substring(0, 8),
         text: message.text,
         sent: message.sent,
-        kind: Identity.zero().isEqual(message.sender) ? 'system' : 'user',
+        kind: 'user' as const,
         likeCount: messageLikes.length,
         isLikedByMe: identity ? messageLikes.some(l => l.userIdentity.isEqual(identity)) : false,
-        channelId: 'channelId' in message ? (message as any).channelId : 0n,
+        channelId: message.channelId,
       };
-    });
+    }),
+    // System messages
+    ...channelSystemMessages.map(sysMsg => {
+      const user = users.find(
+        u => u.identity.toHexString() === sysMsg.userIdentity.toHexString()
+      );
+      const userName = user?.name || sysMsg.userIdentity.toHexString().substring(0, 8);
+      const action = sysMsg.messageType === 'connect' ? 'has connected.' : 'has disconnected.';
+      return {
+        senderName: 'System',
+        text: `${userName} ${action}`,
+        sent: sysMsg.createdAt,
+        kind: 'system' as const,
+        likeCount: 0,
+        isLikedByMe: false,
+        channelId: sysMsg.channelId,
+      };
+    }),
+  ].sort((a, b) => (a.sent.toDate() > b.sent.toDate() ? 1 : -1));
 
   // Current user name
   const currentUser = users.find(u => identity && u.identity.isEqual(identity));

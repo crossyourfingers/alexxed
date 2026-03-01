@@ -73,6 +73,17 @@ export const SessionMetrics = __t.object("SessionMetrics", {
 });
 export type SessionMetrics = __Infer<typeof SessionMetrics>;
 
+export const SystemMessage = __t.object("SystemMessage", {
+  id: __t.u64(),
+  messageType: __t.string(),
+  channelId: __t.u64(),
+  sender: __t.identity(),
+  userIdentity: __t.identity(),
+  createdAt: __t.timestamp(),
+  content: __t.option(__t.string()),
+});
+export type SystemMessage = __Infer<typeof SystemMessage>;
+
 export const User = __t.object("User", {
   identity: __t.identity(),
   name: __t.option(__t.string()),
