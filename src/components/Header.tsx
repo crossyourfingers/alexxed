@@ -1,12 +1,12 @@
-import { Link } from 'react-router-dom';
-import { streamerProfile } from '../data/streamerProfile';
-import { ThemeSwitcher } from './ThemeSwitcher';
-import SessionWidget from './SessionWidget';
-import './Header.css';
+import { Link } from "react-router-dom";
+import { streamerProfile } from "../data/streamerProfile";
+import { ThemeSwitcher } from "./ThemeSwitcher";
+import SessionWidget from "./SessionWidget";
+import "./Header.css";
 
 interface HeaderProps {
   /** Which page is currently active */
-  activePage: 'stream' | 'community';
+  activePage: "stream" | "community";
   /** Current user's display name */
   username: string;
   /** Callback when user clicks logout */
@@ -15,7 +15,7 @@ interface HeaderProps {
 
 /**
  * Shared header navigation component used across Stream and Community pages.
- * 
+ *
  * Features:
  * - Streamer logo/avatar with display name
  * - Navigation links (Stream, Community, Logout)
@@ -32,15 +32,19 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
           <span>{streamerProfile.displayName}</span>
         </Link>
         <nav className="app-nav">
-          <Link 
-            to="/stream" 
-            className={`nav-link ${activePage === 'stream' ? 'active' : ''}`}
-          >
+          <Link to="/stream" className="nav-link" data-page="stream">
             Stream
           </Link>
-          <Link 
-            to="/community/general" 
-            className={`nav-link ${activePage === 'community' ? 'active' : ''}`}
+          <Link
+            to="/community/general"
+            className="nav-link"
+            data-page="community"
+          >
+            Community
+          </Link>
+          <Link
+            to="/community/general"
+            className={`nav-link ${activePage === "community" ? "active" : ""}`}
           >
             Community
           </Link>
