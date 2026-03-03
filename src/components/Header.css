@@ -54,3 +54,8 @@
   align-items: center;
   gap: var(--spacing-3);
 }
+
+.app-nav .nav-link.active {
+  font-weight: var(--font-weight-bold);
+  text-decoration: underline;
+}

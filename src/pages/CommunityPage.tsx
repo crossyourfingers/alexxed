@@ -250,7 +250,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
                   <span className="channel-description">{activeChannel.description}</span>
                 )}
               </div>
-              <MessageList
+                enableAutoScroll={false},
                 messages={prettyMessages}
                 currentUserName={currentName}
                 onToggleLike={handleToggleLike}

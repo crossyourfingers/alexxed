@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react';
+import React, { useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Timestamp } from 'spacetimedb';
@@ -9,6 +9,8 @@ import type { PrettyMessage } from './types';
 import './Chat.css';
 
 interface MessageListProps {
+
+
   messages: PrettyMessage[];
   currentUserName: string;
   onToggleLike: (message: PrettyMessage) => void;
@@ -20,9 +22,8 @@ interface MessageListProps {
   onToggleReaction?: (messageSent: Timestamp, emoji: string) => void;
 }
 
-export interface MessageListHandle {
-  scrollToBottom: (smooth?: boolean) => void;
-}
+
+
 
 // Extract URLs from text
 function extractUrls(text: string): string[] {
@@ -54,51 +55,25 @@ function formatMessageTime(sent: { toDate: () => Date }): { time: string; date: 
   return { time: timeString, date: dateString };
 }
 
-export const MessageList = forwardRef<MessageListHandle, MessageListProps>(
-  function MessageList(
-    { 
-      messages, 
-      currentUserName, 
-      onToggleLike, 
-      onSelfLikeAttempt, 
-      enableLikes = true,
-      enableReactions = true,
-      getReactionsForMessage,
-      onToggleReaction,
-    },
-    ref
-  ) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const endRef = useRef<HTMLDivElement>(null);
-    const autoScrollRef = useRef(true);
-    const prevCountRef = useRef(messages.length);
-    
-    // Track which message has the reaction picker open (by index)
-    const [openPickerIndex, setOpenPickerIndex] = useState<number | null>(null);
-
-    useImperativeHandle(ref, () => ({
-      scrollToBottom: (smooth = true) => {
-        endRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
-      },
-    }));
-
-    // Auto-scroll when new messages arrive
-    useEffect(() => {
-      const hasNewMessage = messages.length > prevCountRef.current;
-      prevCountRef.current = messages.length;
-
-      if (autoScrollRef.current && hasNewMessage && endRef.current) {
-        endRef.current.scrollIntoView({ behavior: 'smooth' });
+export const MessageList = ({
+  messages,
+  currentUserName,
+  onToggleLike,
+  onSelfLikeAttempt,
+  enableLikes = true,
+  enableReactions,
+  getReactionsForMessage,
+  onToggleReaction,
+}: MessageListProps) => {
+    const lastMessageRef = useCallback((node: HTMLDivElement | null) => {
+      if (node) {
+        node.scrollIntoView({ behavior: 'smooth' });
       }
-    }, [messages.length]);
+    }, []);
 
-    const handleScroll = () => {
-      if (containerRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-        const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-        autoScrollRef.current = isAtBottom;
-      }
-    };
+
+
+
 
     const handleLikeClick = (message: PrettyMessage) => {
       const isMyMessage = message.senderName === currentUserName;
@@ -109,11 +84,10 @@ export const MessageList = forwardRef<MessageListHandle, MessageListProps>(
       }
     };
 
+
     return (
       <div
         className="chat-messages-container"
-        ref={containerRef}
-        onScroll={handleScroll}
       >
         {messages.length === 0 && (
           <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', padding: 'var(--spacing-4)' }}>
@@ -128,7 +102,7 @@ export const MessageList = forwardRef<MessageListHandle, MessageListProps>(
             <div
               key={index}
               className={`chat-message ${message.kind}`}
-            >
+            ref={index === messages.length - 1 ? lastMessageRef : undefined} >
               {message.kind === 'user' && (
                 <div className="message-header">
                   <span className="message-author">{message.senderName}</span>
@@ -159,7 +133,7 @@ export const MessageList = forwardRef<MessageListHandle, MessageListProps>(
                     <button
                       className={`like-btn ${message.isLikedByMe ? 'liked' : ''}`}
                       onClick={() => handleLikeClick(message)}
-                    >
+                      ref={index === messages.length - 1 ? lastMessageRef : undefined}
                       {message.isLikedByMe ? '❤️' : '🤍'} {message.likeCount > 0 && message.likeCount}
                     </button>
                   )}
@@ -168,13 +142,13 @@ export const MessageList = forwardRef<MessageListHandle, MessageListProps>(
                       {openPickerIndex === index && (
                         <ReactionPicker
                           onSelect={(emoji) => onToggleReaction(message.sent, emoji)}
-                          onClose={() => setOpenPickerIndex(null)}
+                          onClose={() => {}}
                         />
                       )}
                       <ReactionDisplay
                         reactions={getReactionsForMessage(message.sent)}
                         onToggle={(emoji) => onToggleReaction(message.sent, emoji)}
-                        onAddReaction={() => setOpenPickerIndex(openPickerIndex === index ? null : index)}
+                        onAddReaction={() => {}}
                       />
                     </>
                   )}
@@ -183,8 +157,7 @@ export const MessageList = forwardRef<MessageListHandle, MessageListProps>(
             </div>
           );
         })}
-        <div ref={endRef} />
-      </div>
+          </div>
     );
   }
 );

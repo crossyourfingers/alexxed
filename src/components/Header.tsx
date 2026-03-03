@@ -32,17 +32,10 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
           <span>{streamerProfile.displayName}</span>
         </Link>
         <nav className="app-nav">
-          <Link to="/stream" className="nav-link" data-page="stream">
+          <Link to="/stream" className={`nav-link ${activePage === "stream" ? "active" : ""}`} data-page="stream">
             Stream
           </Link>
-          <Link
-            to="/community/general"
-            className="nav-link"
-            data-page="community"
-          >
-            Community
-          </Link>
-          <Link
+                    <Link
             to="/community/general"
             className={`nav-link ${activePage === "community" ? "active" : ""}`}
           >
