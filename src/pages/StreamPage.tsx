@@ -1,16 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
-import { tables, reducers } from '../module_bindings';
-import type * as Types from '../module_bindings/types';
-import { useSpacetimeDB, useTable, useReducer } from 'spacetimedb/react';
-import { Timestamp } from 'spacetimedb';
-import { streamSchedule, type ScheduleEntry } from '../data/streamSchedule';
-import { fallbackVideos, type VideoData } from '../data/fallbackVideos';
-import { fetchChannelVideos } from '../services/youtubeApi';
-import { ENABLE_EMOJI_REACTIONS } from '../config/featureFlags';
-import { MessageList, MessageInput, type PrettyMessage, type ReactionGroup } from '../components/Chat';
-import { Header } from '../components/Header';
-import { useOnlineUsers } from '../hooks/useOnlineUsers';
-import './StreamPage.css';
+import { useState, useEffect, useCallback } from "react";
+import { tables, reducers } from "../module_bindings";
+import type * as Types from "../module_bindings/types";
+import { useSpacetimeDB, useTable, useReducer } from "spacetimedb/react";
+import { Timestamp } from "spacetimedb";
+import { streamSchedule, type ScheduleEntry } from "../data/streamSchedule";
+import { fallbackVideos, type VideoData } from "../data/fallbackVideos";
+import { fetchChannelVideos } from "../services/youtubeApi";
+import { ENABLE_EMOJI_REACTIONS } from "../config/featureFlags";
+import {
+  MessageList,
+  MessageInput,
+  type PrettyMessage,
+  type ReactionGroup,
+} from "../components/Chat";
+import { Header } from "../components/Header";
+import { useChatMessages } from "../hooks/useChatMessages";
+import { useChannelByName } from "../hooks/useChannelByName";
+import "./StreamPage.css";
 
 interface StreamPageProps {
   username: string;
@@ -19,9 +25,13 @@ interface StreamPageProps {
 
 export function StreamPage({ username, onLogout }: StreamPageProps) {
   const [videos, setVideos] = useState<VideoData[]>(fallbackVideos);
-  const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(fallbackVideos[0]);
+  const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(
+    fallbackVideos[0],
+  );
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'vods' | 'schedule' | 'about'>('vods');
+  const [activeTab, setActiveTab] = useState<"vods" | "schedule" | "about">(
+    "vods",
+  );
   const [showToast, setShowToast] = useState(false);
 
   const { identity, isActive: connected } = useSpacetimeDB();
@@ -29,108 +39,48 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
   const toggleLike = useReducer(reducers.toggleLike);
   const toggleReaction = useReducer(reducers.toggleReaction);
 
-  // Subscribe to channels (to get the general channel for the stream chat)
-  const [channels] = useTable(tables.channel);
-  const generalChannel = channels.find(ch => ch.name === 'general');
+  // Find the general channel using the shared hook
+  const generalChannel = useChannelByName("general");
 
   // Subscribe to messages and system messages
   const [allMessages] = useTable(tables.message);
   const [allSystemMessages] = useTable(tables.system_message);
   const [likes] = useTable(tables.message_like);
   const [reactions] = useTable(tables.message_reaction);
+  const [users] = useTable(tables.user);
 
-  // Filter to general channel messages only (stream chat = global chat)
-  const messages = generalChannel
-    ? allMessages.filter(msg => msg.channelId === generalChannel.id)
-    : [];
-
-  // Subscribe to online users via shared hook
-  const { onlineUsers, offlineUsers, allUsers: users } = useOnlineUsers();
-
-  // Load YouTube videos
-  useEffect(() => {
-    async function loadVideos() {
-      setIsLoading(true);
-      try {
-        const channelVideos = await fetchChannelVideos(12);
-        setVideos(channelVideos);
-        if (channelVideos.length > 0 && !selectedVideo) {
-          setSelectedVideo(channelVideos[0]);
-        }
-      } catch (error) {
-        console.error('Failed to load videos:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadVideos();
-  }, []);
-
-  // Filter system messages for general channel
-  const channelSystemMessages = generalChannel
-    ? allSystemMessages.filter(msg => msg.channelId === generalChannel.id)
-    : [];
-
-  // Map messages to PrettyMessage format
-  const prettyMessages: PrettyMessage[] = [
-    // Regular messages
-    ...messages.map(message => {
-      const user = users.find(
-        u => u.identity.toHexString() === message.sender.toHexString()
-      );
-      const messageLikes = likes.filter(
-        l => l.messageSent.microsSinceUnixEpoch === message.sent.microsSinceUnixEpoch
-      );
-      return {
-        senderName: user?.name || message.sender.toHexString().substring(0, 8),
-        text: message.text,
-        sent: message.sent,
-        kind: 'user' as const,
-        likeCount: messageLikes.length,
-        isLikedByMe: identity ? messageLikes.some(l => l.userIdentity.isEqual(identity)) : false,
-      };
-    }),
-    // System messages
-    ...channelSystemMessages.map(sysMsg => {
-      const user = users.find(
-        u => u.identity.toHexString() === sysMsg.userIdentity.toHexString()
-      );
-      const userName = user?.name || sysMsg.userIdentity.toHexString().substring(0, 8);
-      const action = sysMsg.messageType === 'connect' ? 'has connected.' : 'has disconnected.';
-      return {
-        senderName: 'System',
-        text: `${userName} ${action}`,
-        sent: sysMsg.createdAt,
-        kind: 'system' as const,
-        likeCount: 0,
-        isLikedByMe: false,
-      };
-    }),
-  ].sort((a, b) => (a.sent.toDate() > b.sent.toDate() ? 1 : -1));
+  // Use the shared hook to format messages with channel filtering
+  const { prettyMessages } = useChatMessages({
+    channelId: generalChannel?.id,
+    identity,
+  });
 
   // Current user name
-  const currentUser = users.find(u => identity && u.identity.isEqual(identity));
-  const currentName = currentUser?.name || identity?.toHexString().substring(0, 8) || '';
+  const currentUser = users.find(
+    (u) => identity && u.identity.isEqual(identity),
+  );
+  const currentName =
+    currentUser?.name || identity?.toHexString().substring(0, 8) || "";
 
   // Handlers
   const handleSendMessage = useCallback(
     (text: string) => {
       if (!generalChannel) {
-        console.error('No general channel available');
+        console.error("No general channel available");
         return;
       }
       sendMessage({ text, channelId: generalChannel.id })
-        .then(() => console.log('Message sent'))
-        .catch(err => console.error('Error sending message:', err));
+        .then(() => console.log("Message sent"))
+        .catch((err) => console.error("Error sending message:", err));
     },
-    [sendMessage, generalChannel]
+    [sendMessage, generalChannel],
   );
 
   const handleToggleLike = useCallback(
     (message: PrettyMessage) => {
       toggleLike({ messageSent: message.sent });
     },
-    [toggleLike]
+    [toggleLike],
   );
 
   const handleSelfLikeAttempt = useCallback(() => {
@@ -142,34 +92,39 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
   const getReactionsForMessage = useCallback(
     (sent: Timestamp): ReactionGroup[] => {
       const messageReactions = reactions.filter(
-        r => r.messageSent.microsSinceUnixEpoch === sent.microsSinceUnixEpoch
+        (r) => r.messageSent.microsSinceUnixEpoch === sent.microsSinceUnixEpoch,
       );
-      
+
       // Group by emoji
       const grouped = new Map<string, { count: number; hasReacted: boolean }>();
       for (const reaction of messageReactions) {
-        const existing = grouped.get(reaction.emoji) || { count: 0, hasReacted: false };
+        const existing = grouped.get(reaction.emoji) || {
+          count: 0,
+          hasReacted: false,
+        };
         existing.count++;
         if (identity && reaction.userIdentity.isEqual(identity)) {
           existing.hasReacted = true;
         }
         grouped.set(reaction.emoji, existing);
       }
-      
-      return Array.from(grouped.entries()).map(([emoji, { count, hasReacted }]) => ({
-        emoji,
-        count,
-        hasReacted,
-      }));
+
+      return Array.from(grouped.entries()).map(
+        ([emoji, { count, hasReacted }]) => ({
+          emoji,
+          count,
+          hasReacted,
+        }),
+      );
     },
-    [reactions, identity]
+    [reactions, identity],
   );
 
   const handleToggleReaction = useCallback(
     (messageSent: Timestamp, emoji: string) => {
       toggleReaction({ messageSent, emoji });
     },
-    [toggleReaction]
+    [toggleReaction],
   );
 
   if (!connected || !identity) {
@@ -182,11 +137,7 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
 
   return (
     <div className="stream-page">
-      {showToast && (
-        <div className="toast">
-          nah, that's not cool
-        </div>
-      )}
+      {showToast && <div className="toast">nah, that's not cool</div>}
 
       {/* Header */}
       <Header activePage="stream" username={username} onLogout={onLogout} />
@@ -230,21 +181,21 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
 
           {/* Tabs */}
           <div className="content-tabs">
-            <button 
-              className={`tab-btn ${activeTab === 'vods' ? 'active' : ''}`}
-              onClick={() => setActiveTab('vods')}
+            <button
+              className={`tab-btn ${activeTab === "vods" ? "active" : ""}`}
+              onClick={() => setActiveTab("vods")}
             >
               VODs & Highlights
             </button>
-            <button 
-              className={`tab-btn ${activeTab === 'schedule' ? 'active' : ''}`}
-              onClick={() => setActiveTab('schedule')}
+            <button
+              className={`tab-btn ${activeTab === "schedule" ? "active" : ""}`}
+              onClick={() => setActiveTab("schedule")}
             >
               Schedule
             </button>
-            <button 
-              className={`tab-btn ${activeTab === 'about' ? 'active' : ''}`}
-              onClick={() => setActiveTab('about')}
+            <button
+              className={`tab-btn ${activeTab === "about" ? "active" : ""}`}
+              onClick={() => setActiveTab("about")}
             >
               About
             </button>
@@ -252,15 +203,15 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
 
           {/* Tab content */}
           <section className="tab-content">
-            {activeTab === 'vods' && (
+            {activeTab === "vods" && (
               <div className="vod-grid">
                 {isLoading ? (
                   <div className="loading-spinner">Loading videos...</div>
                 ) : (
-                  videos.map(video => (
-                    <div 
-                      key={video.id} 
-                      className={`vod-card ${selectedVideo?.id === video.id ? 'selected' : ''}`}
+                  videos.map((video) => (
+                    <div
+                      key={video.id}
+                      className={`vod-card ${selectedVideo?.id === video.id ? "selected" : ""}`}
                       onClick={() => setSelectedVideo(video)}
                     >
                       <div className="vod-thumbnail">
@@ -281,7 +232,7 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
               </div>
             )}
 
-            {activeTab === 'schedule' && (
+            {activeTab === "schedule" && (
               <div className="schedule-section">
                 <div className="schedule-grid">
                   {streamSchedule.map((entry, index) => (
@@ -289,17 +240,27 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
                   ))}
                 </div>
                 <div className="schedule-note">
-                  <p>All times are in EST. Follow on social media for any schedule changes!</p>
+                  <p>
+                    All times are in EST. Follow on social media for any
+                    schedule changes!
+                  </p>
                 </div>
               </div>
             )}
 
-            {activeTab === 'about' && (
+            {activeTab === "about" && (
               <div className="about-section">
-                <div className="about-banner" style={{ background: streamerProfile.banner }} />
+                <div
+                  className="about-banner"
+                  style={{ background: streamerProfile.banner }}
+                />
                 <div className="about-content">
                   <div className="about-header">
-                    <img src={streamerProfile.avatar} alt={streamerProfile.name} className="about-avatar" />
+                    <img
+                      src={streamerProfile.avatar}
+                      alt={streamerProfile.name}
+                      className="about-avatar"
+                    />
                     <div className="about-title">
                       <h2>{streamerProfile.displayName}</h2>
                       <p className="tagline">{streamerProfile.tagline}</p>
@@ -307,19 +268,27 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
                   </div>
                   <div className="about-stats">
                     <div className="stat">
-                      <span className="stat-value">{streamerProfile.followers}</span>
+                      <span className="stat-value">
+                        {streamerProfile.followers}
+                      </span>
                       <span className="stat-label">Followers</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-value">{streamerProfile.totalViews}</span>
+                      <span className="stat-value">
+                        {streamerProfile.totalViews}
+                      </span>
                       <span className="stat-label">Total Views</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-value">{streamerProfile.stats.avgViewers}</span>
+                      <span className="stat-value">
+                        {streamerProfile.stats.avgViewers}
+                      </span>
                       <span className="stat-label">Avg Viewers</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-value">{streamerProfile.stats.peakViewers}</span>
+                      <span className="stat-value">
+                        {streamerProfile.stats.peakViewers}
+                      </span>
                       <span className="stat-label">Peak Viewers</span>
                     </div>
                   </div>
@@ -333,7 +302,9 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
                       {streamerProfile.featuredGames.map((game, i) => (
                         <div key={i} className="game-item">
                           <span className="game-name">{game.name}</span>
-                          <span className="game-hours">{game.hours}+ hours</span>
+                          <span className="game-hours">
+                            {game.hours}+ hours
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -341,13 +312,28 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
                   <div className="about-social">
                     <h3>Connect</h3>
                     <div className="social-links">
-                      <a href={streamerProfile.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="social-btn twitter">
+                      <a
+                        href={streamerProfile.socialLinks.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="social-btn twitter"
+                      >
                         Twitter
                       </a>
-                      <a href={streamerProfile.socialLinks.discord} target="_blank" rel="noopener noreferrer" className="social-btn discord">
+                      <a
+                        href={streamerProfile.socialLinks.discord}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="social-btn discord"
+                      >
                         Discord
                       </a>
-                      <a href={streamerProfile.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="social-btn instagram">
+                      <a
+                        href={streamerProfile.socialLinks.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="social-btn instagram"
+                      >
                         Instagram
                       </a>
                     </div>
@@ -394,7 +380,9 @@ function ScheduleCard({ entry }: { entry: ScheduleEntry }) {
       {entry.description && (
         <div className="schedule-desc">{entry.description}</div>
       )}
-      {entry.type === 'special' && <span className="special-badge">Special</span>}
+      {entry.type === "special" && (
+        <span className="special-badge">Special</span>
+      )}
     </div>
   );
 }

@@ -1,15 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import './App.css';
-import { tables, reducers } from './module_bindings';
-import type * as Types from './module_bindings/types';
-import { useSpacetimeDB, useTable, useReducer } from 'spacetimedb/react';
-import { Identity, Timestamp } from 'spacetimedb';
-import { ThemeSwitcher } from './components/ThemeSwitcher';
-import SessionWidget from './components/SessionWidget';
-import { ENABLE_MESSAGE_LIKES } from './config/featureFlags';
-import { type PrettyMessage } from './components/Chat';
-import { useOnlineUsers } from './hooks/useOnlineUsers';
+import React, { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import "./App.css";
+import { tables, reducers } from "./module_bindings";
+import type * as Types from "./module_bindings/types";
+import { useSpacetimeDB, useTable, useReducer } from "spacetimedb/react";
+import { Identity, Timestamp } from "spacetimedb";
+import { ThemeSwitcher } from "./components/ThemeSwitcher";
+import SessionWidget from "./components/SessionWidget";
+import { ENABLE_MESSAGE_LIKES } from "./config/featureFlags";
+import { type PrettyMessage } from "./components/Chat";
+import { useOnlineUsers } from "./hooks/useOnlineUsers";
+import { useChatMessages } from "./hooks/useChatMessages";
+import { useChannelByName } from "./hooks/useChannelByName";
 
 interface AppProps {
   username: string;
@@ -17,12 +19,12 @@ interface AppProps {
 }
 
 function App({ username: loggedInUsername, onLogout }: AppProps) {
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState("");
   const [settingName, setSettingName] = useState(false);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
-  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -45,9 +47,8 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
   const sendMessage = useReducer(reducers.sendMessage);
   const toggleLike = useReducer(reducers.toggleLike);
 
-  // Subscribe to channels and find the general channel
-  const [channels] = useTable(tables.channel);
-  const generalChannel = channels.find(ch => ch.name === 'general');
+  // Find the general channel using the shared hook
+  const generalChannel = useChannelByName("general");
 
   // Subscribe to all messages in the chat
   const [messages] = useTable(tables.message);
@@ -56,25 +57,13 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
   const [likes] = useTable(tables.message_like);
 
   // Subscribe to all online users via shared hook
-  const { onlineUsers, offlineUsers, allUsers: users, systemMessages } = useOnlineUsers();
+  const { onlineUsers, offlineUsers, allUsers: users } = useOnlineUsers();
 
-  const prettyMessages: PrettyMessage[] = messages
-    .concat(systemMessages)
-    .sort((a, b) => (a.sent.toDate() > b.sent.toDate() ? 1 : -1))
-    .map(message => {
-      const user = users.find(
-        u => u.identity.toHexString() === message.sender.toHexString()
-      );
-      const messageLikes = likes.filter(l => l.messageSent.microsSinceUnixEpoch === message.sent.microsSinceUnixEpoch);
-      return {
-        senderName: user?.name || message.sender.toHexString().substring(0, 8),
-        text: message.text,
-        sent: message.sent,
-        kind: Identity.zero().isEqual(message.sender) ? 'system' : 'user',
-        likeCount: messageLikes.length,
-        isLikedByMe: messageLikes.some(l => l.userIdentity.isEqual(identity!)),
-      };
-    });
+  // Use the shared hook to format messages
+  const { prettyMessages } = useChatMessages({
+    channelId: undefined, // No channel filtering for App.tsx (global chat)
+    identity,
+  });
 
   // Auto-scroll to bottom when NEW messages arrive, unless user has scrolled up
   const prevMessageCountRef = useRef(prettyMessages.length);
@@ -83,20 +72,21 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
     prevMessageCountRef.current = prettyMessages.length;
 
     if (autoScroll && hasNewMessage && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [prettyMessages.length, autoScroll]);
 
   // Detect when user scrolls up
   const handleScroll = () => {
     if (messagesContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const { scrollTop, scrollHeight, clientHeight } =
+        messagesContainerRef.current;
       const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
       setAutoScroll(isAtBottom);
     }
   };
 
-  console.log('connected:', connected, 'identity:', identity?.toHexString());
+  console.log("connected:", connected, "identity:", identity?.toHexString());
 
   if (!connected || !identity) {
     return (
@@ -107,8 +97,8 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
   }
 
   const name = (() => {
-    const user = users.find(u => u.identity.isEqual(identity));
-    return user?.name || identity?.toHexString().substring(0, 8) || '';
+    const user = users.find((u) => u.identity.isEqual(identity));
+    return user?.name || identity?.toHexString().substring(0, 8) || "";
   })();
 
   const onSubmitNewName = (e: React.FormEvent<HTMLFormElement>) => {
@@ -120,16 +110,16 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
   const onSubmitMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!generalChannel) {
-      console.error('No general channel available');
+      console.error("No general channel available");
       return;
     }
-    setNewMessage('');
+    setNewMessage("");
     sendMessage({ text: newMessage, channelId: generalChannel.id })
       .then(() => {
-        console.log('Message sent.');
+        console.log("Message sent.");
       })
-      .catch(err => {
-        console.error('Error sending message:', err);
+      .catch((err) => {
+        console.error("Error sending message:", err);
       });
   };
 
@@ -139,15 +129,18 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
 
   return (
     <div className="App">
-      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 16px'}}>
-        <div style={{fontWeight: 600}}>{name}</div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "8px 16px",
+        }}
+      >
+        <div style={{ fontWeight: 600 }}>{name}</div>
         <SessionWidget />
       </div>
-      {showToast && (
-        <div className="toast">
-          nah, that's not cool
-        </div>
-      )}
+      {showToast && <div className="toast">nah, that's not cool</div>}
       <div className="profile">
         <h1>Profile</h1>
         {!settingName ? (
@@ -161,13 +154,8 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
             >
               Edit Name
             </button>
-            <Link to="/stream">
-              Watch Alexx Stream
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="danger"
-            >
+            <Link to="/stream">Watch Alexx Stream</Link>
+            <button onClick={handleLogout} className="danger">
               Logout
             </button>
             <ThemeSwitcher />
@@ -178,7 +166,7 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
               type="text"
               aria-label="username input"
               value={newName}
-              onChange={e => setNewName(e.target.value)}
+              onChange={(e) => setNewName(e.target.value)}
             />
             <button type="submit">Submit</button>
           </form>
@@ -187,7 +175,11 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
       <div className="message-panel">
         <h1>Messages</h1>
         {prettyMessages.length < 1 && <p>No messages</p>}
-        <div className="messages" ref={messagesContainerRef} onScroll={handleScroll}>
+        <div
+          className="messages"
+          ref={messagesContainerRef}
+          onScroll={handleScroll}
+        >
           {prettyMessages.map((message, key) => {
             const sentDate = message.sent.toDate();
             const now = new Date();
@@ -197,33 +189,33 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
               now.getDate() !== sentDate.getDate();
 
             const timeString = sentDate.toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
+              hour: "2-digit",
+              minute: "2-digit",
             });
             const dateString = isOlderThanDay
               ? sentDate.toLocaleDateString([], {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                }) + ' '
-              : '';
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                }) + " "
+              : "";
 
             return (
               <div
                 key={key}
                 className={
-                  message.kind === 'system' ? 'system-message' : 'user-message'
+                  message.kind === "system" ? "system-message" : "user-message"
                 }
               >
                 <p>
                   <b>
-                    {message.kind === 'system' ? 'System' : message.senderName}
+                    {message.kind === "system" ? "System" : message.senderName}
                   </b>
                   <span
                     style={{
-                      fontSize: '0.8rem',
-                      marginLeft: '0.5rem',
-                      color: '#666',
+                      fontSize: "0.8rem",
+                      marginLeft: "0.5rem",
+                      color: "#666",
                     }}
                   >
                     {dateString}
@@ -231,10 +223,14 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
                   </span>
                 </p>
                 <p>{message.text}</p>
-                {ENABLE_MESSAGE_LIKES && message.kind === 'user' && (
+                {ENABLE_MESSAGE_LIKES && message.kind === "user" && (
                   <div className="message-actions">
                     <button
-                      className={message.isLikedByMe ? 'like-button liked' : 'like-button'}
+                      className={
+                        message.isLikedByMe
+                          ? "like-button liked"
+                          : "like-button"
+                      }
                       onClick={() => {
                         const isMyMessage = message.senderName === name;
                         if (isMyMessage) {
@@ -245,7 +241,7 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
                         }
                       }}
                     >
-                      {message.isLikedByMe ? '❤️' : '🤍'} {message.likeCount}
+                      {message.isLikedByMe ? "❤️" : "🤍"} {message.likeCount}
                     </button>
                   </div>
                 )}
@@ -255,7 +251,7 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <div className="online" style={{ whiteSpace: 'pre-wrap' }}>
+      <div className="online" style={{ whiteSpace: "pre-wrap" }}>
         <h1>Online</h1>
         <div>
           {onlineUsers.map((user, key) => (
@@ -301,17 +297,17 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
         <form
           onSubmit={onSubmitMessage}
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: '50%',
-            margin: '0 auto',
+            display: "flex",
+            flexDirection: "column",
+            width: "50%",
+            margin: "0 auto",
           }}
         >
           <h3>New Message</h3>
           <textarea
             aria-label="message input"
             value={newMessage}
-            onChange={e => setNewMessage(e.target.value)}
+            onChange={(e) => setNewMessage(e.target.value)}
           ></textarea>
           <button type="submit">Send</button>
         </form>
