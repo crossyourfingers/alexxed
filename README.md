@@ -58,6 +58,8 @@ A real-time chat application built with SpacetimeDB, React, and TypeScript, feat
 
 This project uses **OpenSpec** for spec-driven development. OpenSpec helps you and AI assistants agree on what to build before writing code.
 
+**For governance and architectural principles, see the [Project Constitution](.specify/memory/constitution.md).**
+
 ### What is Spec-Driven Development?
 
 Spec-driven development (SDD) is a workflow where you:
