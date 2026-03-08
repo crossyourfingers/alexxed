@@ -1,12 +1,11 @@
 /**
- * Auth hook abstraction
- * Routes to appropriate auth implementation based on AUTH_MODE
+ * Auth hook - thin wrapper around SpacetimeAuth (react-oidc-context)
  */
 
 import { useAuth as useOidcAuth } from 'react-oidc-context';
-import { AuthProvider } from './authProvider';
+import { type AuthProvider } from './authProvider';
 
-function useSpacetimeAuth(): AuthProvider {
+export function useAuth(): AuthProvider {
   const auth = useOidcAuth();
 
   return {
@@ -26,8 +25,4 @@ function useSpacetimeAuth(): AuthProvider {
     isLoading: auth.isLoading,
     error: auth.error || undefined,
   };
-}
-
-export function useAuth(): AuthProvider {
-  return useSpacetimeAuth();
 }

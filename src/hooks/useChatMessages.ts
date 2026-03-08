@@ -49,27 +49,7 @@ export function useChatMessages(options: {
         channelId: message.channelId,
       };
     }),
-    // System messages
-    ...filteredSystemMessages.map((sysMsg) => {
-      const user = users.find(
-        (u) => u.identity.toHexString() === sysMsg.userIdentity.toHexString(),
-      );
-      const userName =
-        user?.name || sysMsg.userIdentity.toHexString().substring(0, 8);
-      const action =
-        sysMsg.messageType === "connect"
-          ? "has connected."
-          : "has disconnected.";
-      return {
-        senderName: "System",
-        text: `${userName} ${action}`,
-        sent: sysMsg.createdAt,
-        kind: "system" as const,
-        likeCount: 0,
-        isLikedByMe: false,
-        channelId: sysMsg.channelId,
-      };
-    }),
+    // System messages (connect/disconnect) kept in DB but hidden from UI
   ].sort((a, b) => (a.sent.toDate() > b.sent.toDate() ? 1 : -1));
 
   return {

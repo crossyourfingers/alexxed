@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useAuth } from './auth/useAuth';
-import { AUTH_MODE } from './auth/authProvider';
 
 function RavenSVG({ coverEyes }: { coverEyes: boolean }) {
   return (

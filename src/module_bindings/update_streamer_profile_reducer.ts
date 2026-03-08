@@ -10,11 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.row({
-  id: __t.u64().primaryKey(),
-  name: __t.string(),
-  description: __t.string(),
-  createdBy: __t.identity().name("created_by"),
-  createdAt: __t.timestamp().name("created_at"),
-  isLiveChat: __t.bool().name("is_live_chat"),
-});
+export default {
+  name: __t.option(__t.string()),
+  bio: __t.option(__t.string()),
+  avatarUrl: __t.option(__t.string()),
+  socialLinks: __t.option(__t.string()),
+  streamStatus: __t.option(__t.string()),
+};

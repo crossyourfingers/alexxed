@@ -4,12 +4,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './index.css';
 import { StreamPage } from './pages/StreamPage.tsx';
 import { CommunityPage } from './pages/CommunityPage.tsx';
+import { StreamerProfilePage } from './pages/StreamerProfilePage.tsx';
+import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import { LoginForm } from './LoginForm.tsx';
 import { Identity } from 'spacetimedb';
-import { SpacetimeDBProvider, useSpacetimeDB } from 'spacetimedb/react';
-import { DbConnection, ErrorContext } from './module_bindings/index.ts';
+import { SpacetimeDBProvider, useSpacetimeDB, useTable } from 'spacetimedb/react';
+import { DbConnection, ErrorContext, tables } from './module_bindings/index.ts';
 import { AuthProvider } from 'react-oidc-context';
-import { ACTIVE_AUTH_CONFIG, AUTH_MODE } from './auth/authProvider.ts';
+import { ACTIVE_AUTH_CONFIG } from './auth/authProvider.ts';
 import { useAuth } from './auth/useAuth.tsx';
 
 const HOST = import.meta.env.VITE_SPACETIMEDB_HOST ?? 'ws://localhost:3000';
@@ -17,7 +19,8 @@ const DB_NAME = import.meta.env.VITE_SPACETIMEDB_DB_NAME ?? 'alexxed-u3k4f';
 
 function AuthGate() {
   const auth = useAuth();
-  const { isActive: connected } = useSpacetimeDB();
+  const { identity, isActive: connected } = useSpacetimeDB();
+  const [users] = useTable(tables.user);
 
   if (auth.isLoading || !connected) {
     return (
@@ -57,8 +60,10 @@ function AuthGate() {
     return <LoginForm />;
   }
 
-  const user = auth.getUser();
-  const username = user?.username || user?.name || user?.email || 'User';
+  // Get username from database (reactive to name changes) or fallback to auth profile
+  const currentUser = identity ? users.find(u => u.identity.isEqual(identity)) : null;
+  const authUser = auth.getUser();
+  const username = currentUser?.name || authUser?.username || authUser?.name || authUser?.email || identity?.toHexString().substring(0, 8) || 'User';
   const handleLogout = () => auth.logout();
 
   return (
@@ -67,6 +72,8 @@ function AuthGate() {
       <Route path="/community" element={<Navigate to="/community/general" replace />} />
       <Route path="/community/:channelName" element={<CommunityPage username={username} onLogout={handleLogout} />} />
       <Route path="/stream" element={<StreamPage username={username} onLogout={handleLogout} />} />
+      <Route path="/profile" element={<StreamerProfilePage username={username} onLogout={handleLogout} />} />
+      <Route path="*" element={<NotFoundPage username={username} onLogout={handleLogout} />} />
     </Routes>
   );
 }
@@ -125,7 +132,7 @@ function SpacetimeDBWrapper() {
   );
 }
 
-// OIDC configuration for SpacetimeAuth mode
+// OIDC configuration for SpacetimeAuth
 const oidcConfig = {
   authority: ACTIVE_AUTH_CONFIG.authority,
   client_id: ACTIVE_AUTH_CONFIG.clientId,
@@ -138,7 +145,6 @@ const oidcConfig = {
   },
 };
 
-// Always use the OIDC provider (SpacetimeAuth)
 const RootApp = () => (
   <AuthProvider {...oidcConfig}>
     <SpacetimeDBWrapper />

@@ -11,10 +11,7 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  id: __t.u64().primaryKey(),
-  name: __t.string(),
-  description: __t.string(),
-  createdBy: __t.identity().name("created_by"),
-  createdAt: __t.timestamp().name("created_at"),
-  isLiveChat: __t.bool().name("is_live_chat"),
+  dayNumber: __t.u32().primaryKey().name("day_number"),
+  theme: __t.string(),
+  description: __t.option(__t.string()),
 });

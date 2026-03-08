@@ -39,23 +39,30 @@ import CreateChannelReducer from "./create_channel_reducer";
 import DeleteChannelReducer from "./delete_channel_reducer";
 import InsertSystemMessageReducer from "./insert_system_message_reducer";
 import LoginReducer from "./login_reducer";
+import MarkChannelReadReducer from "./mark_channel_read_reducer";
+import PopulateScheduleReducer from "./populate_schedule_reducer";
 import RegisterReducer from "./register_reducer";
+import ReportMessageReducer from "./report_message_reducer";
 import SendMessageReducer from "./send_message_reducer";
 import SetNameReducer from "./set_name_reducer";
 import ToggleLikeReducer from "./toggle_like_reducer";
 import ToggleReactionReducer from "./toggle_reaction_reducer";
 import UpdateChannelReducer from "./update_channel_reducer";
+import UpdateStreamerProfileReducer from "./update_streamer_profile_reducer";
 
 // Import all procedure arg schemas
 import * as FetchLinkPreviewProcedure from "./fetch_link_preview_procedure";
 
 // Import all table schema definitions
+import AdminReportedMessagesRow from "./admin_reported_messages_table";
 import ChannelRow from "./channel_table";
 import LinkPreviewRow from "./link_preview_table";
 import MessageRow from "./message_table";
 import MessageLikeRow from "./message_like_table";
 import MessageReactionRow from "./message_reaction_table";
 import MySessionMetricsRow from "./my_session_metrics_table";
+import StreamScheduleDayRow from "./stream_schedule_day_table";
+import StreamerProfileRow from "./streamer_profile_table";
 import SystemMessageRow from "./system_message_table";
 import UserRow from "./user_table";
 
@@ -106,6 +113,28 @@ const tablesSchema = __schema({
     constraints: [
     ],
   }, MessageReactionRow),
+  stream_schedule_day: __table({
+    name: 'stream_schedule_day',
+    indexes: [
+      { name: 'day_number', algorithm: 'btree', columns: [
+        'dayNumber',
+      ] },
+    ],
+    constraints: [
+      { name: 'stream_schedule_day_day_number_key', constraint: 'unique', columns: ['dayNumber'] },
+    ],
+  }, StreamScheduleDayRow),
+  streamer_profile: __table({
+    name: 'streamer_profile',
+    indexes: [
+      { name: 'id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'streamer_profile_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, StreamerProfileRow),
   system_message: __table({
     name: 'system_message',
     indexes: [
@@ -128,6 +157,13 @@ const tablesSchema = __schema({
       { name: 'user_identity_key', constraint: 'unique', columns: ['identity'] },
     ],
   }, UserRow),
+  admin_reported_messages: __table({
+    name: 'admin_reported_messages',
+    indexes: [
+    ],
+    constraints: [
+    ],
+  }, AdminReportedMessagesRow),
   my_session_metrics: __table({
     name: 'my_session_metrics',
     indexes: [
@@ -144,12 +180,16 @@ const reducersSchema = __reducers(
   __reducerSchema("delete_channel", DeleteChannelReducer),
   __reducerSchema("insert_system_message", InsertSystemMessageReducer),
   __reducerSchema("login", LoginReducer),
+  __reducerSchema("mark_channel_read", MarkChannelReadReducer),
+  __reducerSchema("populate_schedule", PopulateScheduleReducer),
   __reducerSchema("register", RegisterReducer),
+  __reducerSchema("report_message", ReportMessageReducer),
   __reducerSchema("send_message", SendMessageReducer),
   __reducerSchema("set_name", SetNameReducer),
   __reducerSchema("toggle_like", ToggleLikeReducer),
   __reducerSchema("toggle_reaction", ToggleReactionReducer),
   __reducerSchema("update_channel", UpdateChannelReducer),
+  __reducerSchema("update_streamer_profile", UpdateStreamerProfileReducer),
 );
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */

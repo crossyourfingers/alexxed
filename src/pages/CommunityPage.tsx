@@ -15,6 +15,7 @@ import {
 } from '../components/Chat';
 import { Header } from '../components/Header';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
+import { useChannelUnread } from '../hooks/useChannelUnread';
 import './CommunityPage.css';
 
 interface CommunityPageProps {
@@ -46,6 +47,9 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
 
   // Subscribe to online users via shared hook
   const { onlineUsers, offlineUsers, allUsers: users } = useOnlineUsers();
+  
+  // Track unread channels (FR-L01, FR-L02)
+  const { unreadChannels, markAsRead } = useChannelUnread(identity ?? undefined);
 
   // Find active channel
   const activeChannel = channels.find(
@@ -89,23 +93,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
         channelId: message.channelId,
       };
     }),
-    // System messages
-    ...channelSystemMessages.map(sysMsg => {
-      const user = users.find(
-        u => u.identity.toHexString() === sysMsg.userIdentity.toHexString()
-      );
-      const userName = user?.name || sysMsg.userIdentity.toHexString().substring(0, 8);
-      const action = sysMsg.messageType === 'connect' ? 'has connected.' : 'has disconnected.';
-      return {
-        senderName: 'System',
-        text: `${userName} ${action}`,
-        sent: sysMsg.createdAt,
-        kind: 'system' as const,
-        likeCount: 0,
-        isLikedByMe: false,
-        channelId: sysMsg.channelId,
-      };
-    }),
+    // System messages (connect/disconnect) kept in DB but hidden from UI
   ].sort((a, b) => (a.sent.toDate() > b.sent.toDate() ? 1 : -1));
 
   // Current user name
@@ -237,6 +225,8 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
           onSelectChannel={handleSelectChannel}
           onCreateChannel={handleCreateChannel}
           onDeleteChannel={handleDeleteChannel}
+          unreadChannels={unreadChannels}
+          onMarkAsRead={markAsRead}
         />
 
         {/* Chat area */}
@@ -250,7 +240,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
                   <span className="channel-description">{activeChannel.description}</span>
                 )}
               </div>
-                enableAutoScroll={false},
+              <MessageList
                 messages={prettyMessages}
                 currentUserName={currentName}
                 onToggleLike={handleToggleLike}
