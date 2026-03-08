@@ -1,0 +1,82 @@
+/**
+ * Stream status indicator styles
+ * Discord/Slack/AIM style colored dot
+ */
+
+.stream-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.indicator-dot {
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color var(--transition-base);
+}
+
+/* Size variants */
+.stream-status-indicator.size-sm .indicator-dot {
+  width: 8px;
+  height: 8px;
+}
+
+.stream-status-indicator.size-md .indicator-dot {
+  width: 10px;
+  height: 10px;
+}
+
+.stream-status-indicator.size-lg .indicator-dot {
+  width: 14px;
+  height: 14px;
+}
+
+/* Status colors */
+.stream-status-indicator.online .indicator-dot {
+  background-color: var(--color-success);
+  box-shadow: 0 0 6px var(--color-success);
+  animation: pulse-online 2s infinite;
+}
+
+.stream-status-indicator.offline .indicator-dot {
+  background-color: var(--color-text-muted);
+}
+
+@keyframes pulse-online {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 6px var(--color-success);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 10px var(--color-success);
+  }
+}
+
+/* Label styling */
+.indicator-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.stream-status-indicator.online .indicator-label {
+  color: var(--color-success);
+}
+
+.stream-status-indicator.offline .indicator-label {
+  color: var(--color-text-muted);
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Rosie the Riveter Chibi Raven Mascot -->
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#0a0a0a" stroke="#22c55e" stroke-width="2"/>
+  
+  <!-- Body - dark feathers -->
+  <ellipse cx="50" cy="65" rx="25" ry="20" fill="#1f1f1f"/>
+  
+  <!-- Wing (flexed, Rosie style) -->
+  <path d="M 70 55 Q 85 40 80 30 Q 75 35 70 45 Q 65 50 70 55" fill="#2a2a2a"/>
+  
+  <!-- Head -->
+  <circle cx="50" cy="35" r="18" fill="#1f1f1f"/>
+  
+  <!-- Beak -->
+  <path d="M 50 38 L 58 42 L 50 46 Z" fill="#f59e0b"/>
+  
+  <!-- Eyes -->
+  <circle cx="43" cy="32" r="5" fill="white"/>
+  <circle cx="43" cy="32" r="2.5" fill="#0a0a0a"/>
+  <circle cx="42" cy="31" r="1" fill="white"/>
+  
+  <!-- Red bandana (Rosie style) -->
+  <path d="M 32 25 Q 50 18 68 25 Q 65 32 50 28 Q 35 32 32 25" fill="#dc2626"/>
+  <circle cx="45" cy="22" r="2" fill="#fef08a"/> <!-- Polka dot -->
+  <circle cx="55" cy="23" r="2" fill="#fef08a"/> <!-- Polka dot -->
+  
+  <!-- Bandana knot -->
+  <path d="M 68 25 L 75 20 M 68 25 L 72 30" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- "We Can Do It" arm pose hint -->
+  <path d="M 25 50 Q 20 40 25 30" stroke="#1f1f1f" stroke-width="6" stroke-linecap="round" fill="none"/>
+  
+  <!-- Feather tuft -->
+  <path d="M 50 17 Q 52 12 48 10 Q 54 8 50 17" fill="#2a2a2a"/>
+</svg>

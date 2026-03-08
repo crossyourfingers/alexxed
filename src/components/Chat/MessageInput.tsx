@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, KeyboardEvent } from 'react';
+import { MAX_MESSAGE_LENGTH } from '../../utils/constants';
 import './Chat.css';
 
 interface MessageInputProps {
@@ -6,6 +7,7 @@ interface MessageInputProps {
   placeholder?: string;
   disabled?: boolean;
   showFormatHint?: boolean;
+  maxLength?: number;
 }
 
 export function MessageInput({
@@ -13,15 +15,19 @@ export function MessageInput({
   placeholder = 'Type a message...',
   disabled = false,
   showFormatHint = true,
+  maxLength = MAX_MESSAGE_LENGTH,
 }: MessageInputProps) {
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  const isOverLimit = value.length > maxLength;
+  const isNearLimit = value.length > maxLength * 0.9; // Show warning at 90%
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
       const trimmed = value.trim();
-      if (!trimmed || disabled) return;
+      if (!trimmed || disabled || isOverLimit) return;
       onSend(trimmed);
       setValue('');
       // Reset textarea height
@@ -29,7 +35,7 @@ export function MessageInput({
         textareaRef.current.style.height = 'auto';
       }
     },
-    [value, disabled, onSend]
+    [value, disabled, isOverLimit, onSend]
   );
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -61,21 +67,29 @@ export function MessageInput({
       <form className="chat-input-form" onSubmit={handleSubmit}>
         <textarea
           ref={textareaRef}
-          className="chat-input"
+          className={`chat-input ${isOverLimit ? 'over-limit' : ''}`}
           value={value}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
           rows={1}
+          aria-invalid={isOverLimit}
         />
-        <button
-          type="submit"
-          className="chat-send-btn"
-          disabled={disabled || !value.trim()}
-        >
-          Send
-        </button>
+        <div className="chat-input-footer">
+          {(isNearLimit || isOverLimit) && (
+            <span className={`char-count ${isOverLimit ? 'over-limit' : 'near-limit'}`}>
+              {value.length}/{maxLength}
+            </span>
+          )}
+          <button
+            type="submit"
+            className="chat-send-btn"
+            disabled={disabled || !value.trim() || isOverLimit}
+          >
+            Send
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -10,6 +10,7 @@ const user = table(
     identity: t.identity().primaryKey(),
     name: t.string().optional(),
     online: t.bool(),
+    avatar_url: t.string().optional(),
   },
 );
 
@@ -45,6 +46,7 @@ const channel = table(
     description: t.string(),
     created_by: t.identity(),
     created_at: t.timestamp(),
+    is_live_chat: t.bool(),
   },
 );
 
@@ -171,6 +173,83 @@ const system_message = table(
   },
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// NEW TABLES FOR STREAMER FEATURES
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Streamer profile - single row for the platform admin/streamer
+ */
+const streamer_profile = table(
+  { name: "streamer_profile", public: true },
+  {
+    id: t.identity().primaryKey(), // Single streamer = ADMIN_IDENTITY
+    name: t.string(),
+    bio: t.string(),
+    avatar_url: t.string().optional(),
+    social_links: t.string(), // JSON array: [{platform, url}]
+    stream_status: t.string(), // 'online' or 'offline'
+  },
+);
+
+/**
+ * Weekly streaming schedule - 7 recurring days
+ */
+const stream_schedule_day = table(
+  { name: "stream_schedule_day", public: true },
+  {
+    day_number: t.u32().primaryKey(), // 1-7
+    theme: t.string(),
+    description: t.string().optional(),
+  },
+);
+
+/**
+ * Moderation queue - reported messages (admin-only view)
+ */
+const reported_message = table(
+  {
+    name: "reported_message",
+    public: false, // Private - accessed via admin-only view
+    indexes: [
+      {
+        name: "reported_message_status",
+        algorithm: "btree",
+        columns: ["status"],
+      },
+    ],
+  },
+  {
+    id: t.u64().primaryKey().autoInc(),
+    message_sent: t.timestamp(), // Reference to message by timestamp
+    reporter_identity: t.identity(),
+    reported_at: t.timestamp(),
+    status: t.string(), // 'pending', 'reviewed', 'resolved'
+  },
+);
+
+/**
+ * Channel unread tracking - per user/channel last read timestamp
+ */
+const channel_unread = table(
+  {
+    name: "channel_unread",
+    public: false, // Private per-user
+    indexes: [
+      {
+        name: "channel_unread_user",
+        algorithm: "btree",
+        columns: ["user_identity"],
+      },
+    ],
+  },
+  {
+    user_identity: t.identity(),
+    channel_id: t.u64(),
+    last_read_at: t.timestamp(),
+  },
+);
+
 const spacetimedb = schema({
   user,
   message,
@@ -181,6 +260,10 @@ const spacetimedb = schema({
   link_preview,
   user_session,
   system_message,
+  streamer_profile,
+  stream_schedule_day,
+  reported_message,
+  channel_unread,
 });
 export default spacetimedb;
 
@@ -199,8 +282,14 @@ export const set_name = spacetimedb.reducer(
   },
 );
 
+// Maximum message length (FR-B08)
+const MAX_MESSAGE_LENGTH = 2000;
+
 function validateMessage(text: string) {
   if (!text) throw new SenderError("Messages must not be empty");
+  if (text.length > MAX_MESSAGE_LENGTH) {
+    throw new SenderError(`Message exceeds ${MAX_MESSAGE_LENGTH} character limit`);
+  }
 }
 
 // Simple hash function for demo - IN PRODUCTION, hash passwords client-side!
@@ -258,6 +347,7 @@ export const register = spacetimedb.reducer(
         identity: ctx.sender,
         name: username,
         online: true,
+        avatar_url: undefined,
       });
     }
 
@@ -323,6 +413,20 @@ export const send_message = spacetimedb.reducer(
 export const toggle_like = spacetimedb.reducer(
   { message_sent: t.timestamp() },
   (ctx, { message_sent }) => {
+    // Find the message to check ownership
+    let targetMessage = undefined;
+    for (const msg of ctx.db.message.iter()) {
+      if (msg.sent.microsSinceUnixEpoch === message_sent.microsSinceUnixEpoch) {
+        targetMessage = msg;
+        break;
+      }
+    }
+    
+    // Prevent self-likes (FR-C04)
+    if (targetMessage && targetMessage.sender.isEqual(ctx.sender)) {
+      throw new SenderError("Cannot like your own message");
+    }
+
     let existing = undefined;
     for (const like of ctx.db.message_like.iter()) {
       if (
@@ -437,6 +541,7 @@ export const init = spacetimedb.init((ctx) => {
       description: "General discussion",
       created_by: ctx.sender,
       created_at: ctx.timestamp,
+      is_live_chat: false,
     });
     console.info("Created default #general channel");
   }
@@ -470,6 +575,7 @@ export const create_channel = spacetimedb.reducer(
       description: description || "",
       created_by: ctx.sender,
       created_at: ctx.timestamp,
+      is_live_chat: false,
     });
 
     console.info(
@@ -549,6 +655,7 @@ export const onConnect = spacetimedb.clientConnected((ctx) => {
       name: undefined,
       identity: ctx.sender,
       online: true,
+      avatar_url: undefined,
     });
   }
   // Create a session row for this connection
@@ -633,9 +740,9 @@ export const onDisconnect = spacetimedb.clientDisconnected((ctx) => {
   }
 });
 
-// Cleanup reducer: delete user_session rows older than 90 days
+// Cleanup reducer: delete user_session rows older than 7 days (FR-F08)
 export const cleanup_old_user_sessions = spacetimedb.reducer((ctx) => {
-  const retentionMicros = 90n * 24n * 60n * 60n * 1_000_000n;
+  const retentionMicros = 7n * 24n * 60n * 60n * 1_000_000n; // 7 days
   const cutoff = ctx.timestamp.microsSinceUnixEpoch - retentionMicros;
 
   const toDelete: bigint[] = [];
@@ -649,6 +756,195 @@ export const cleanup_old_user_sessions = spacetimedb.reducer((ctx) => {
     ctx.db.user_session.session_id.delete(id);
   }
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STREAMER & ADMIN REDUCERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Update streamer profile (admin-only)
+ * First user to create a profile becomes the admin
+ */
+export const update_streamer_profile = spacetimedb.reducer(
+  {
+    name: t.string().optional(),
+    bio: t.string().optional(),
+    avatar_url: t.string().optional(),
+    social_links: t.string().optional(),
+    stream_status: t.string().optional(),
+  },
+  (ctx, { name, bio, avatar_url, social_links, stream_status }) => {
+    const existing = ctx.db.streamer_profile.id.find(ctx.sender);
+    
+    if (existing) {
+      // Update existing profile
+      ctx.db.streamer_profile.id.update({
+        ...existing,
+        name: name ?? existing.name,
+        bio: bio ?? existing.bio,
+        avatar_url: avatar_url !== undefined ? avatar_url : existing.avatar_url,
+        social_links: social_links ?? existing.social_links,
+        stream_status: stream_status ?? existing.stream_status,
+      });
+    } else {
+      // Check if this is the first profile (admin bootstrap)
+      let hasAnyProfile = false;
+      for (const _ of ctx.db.streamer_profile.iter()) {
+        hasAnyProfile = true;
+        break;
+      }
+      
+      if (hasAnyProfile) {
+        throw new SenderError("Only admin can update profile");
+      }
+      
+      // Create new profile for admin
+      ctx.db.streamer_profile.insert({
+        id: ctx.sender,
+        name: name ?? "Streamer",
+        bio: bio ?? "",
+        avatar_url: avatar_url,
+        social_links: social_links ?? "[]",
+        stream_status: stream_status ?? "offline",
+      });
+    }
+    
+    console.info(`Streamer profile updated by ${ctx.sender}`);
+  },
+);
+
+/**
+ * Populate default weekly schedule (admin-only, idempotent)
+ */
+export const populate_schedule = spacetimedb.reducer((ctx) => {
+  // Check if caller is admin (has the streamer profile)
+  const profile = ctx.db.streamer_profile.id.find(ctx.sender);
+  if (!profile) {
+    // Allow if no profiles exist yet (first-time setup)
+    let hasAnyProfile = false;
+    for (const _ of ctx.db.streamer_profile.iter()) {
+      hasAnyProfile = true;
+      break;
+    }
+    if (hasAnyProfile) {
+      throw new SenderError("Only admin can populate schedule");
+    }
+  }
+  
+  const defaultThemes = [
+    { day: 1, theme: "Stardew Valley", description: "Cozy farming simulation" },
+    { day: 2, theme: "Farming Games", description: "Various farming and life sims" },
+    { day: 3, theme: "Fantasy Adventure", description: "Epic fantasy RPGs and adventures" },
+    { day: 4, theme: "Science Fiction", description: "Sci-fi games and space exploration" },
+    { day: 5, theme: "Horror/Scary", description: "Spooky and horror games" },
+    { day: 6, theme: "Puzzle/Platformer", description: "Brain teasers and platforming challenges" },
+    { day: 7, theme: "Any Category", description: "Viewer's choice or mixed bag" },
+  ];
+  
+  for (const { day, theme, description } of defaultThemes) {
+    const existing = ctx.db.stream_schedule_day.day_number.find(day);
+    if (existing) {
+      // Upsert - update if exists
+      ctx.db.stream_schedule_day.day_number.update({
+        ...existing,
+        theme,
+        description,
+      });
+    } else {
+      ctx.db.stream_schedule_day.insert({
+        day_number: day,
+        theme,
+        description,
+      });
+    }
+  }
+  
+  console.info("Schedule populated with default themes");
+});
+
+/**
+ * Report a message for moderation
+ */
+export const report_message = spacetimedb.reducer(
+  { message_sent: t.timestamp() },
+  (ctx, { message_sent }) => {
+    // Verify message exists
+    let messageExists = false;
+    for (const msg of ctx.db.message.iter()) {
+      if (msg.sent.microsSinceUnixEpoch === message_sent.microsSinceUnixEpoch) {
+        messageExists = true;
+        break;
+      }
+    }
+    
+    if (!messageExists) {
+      throw new SenderError("Message not found");
+    }
+    
+    // Check if already reported by this user
+    for (const report of ctx.db.reported_message.iter()) {
+      if (
+        report.message_sent.microsSinceUnixEpoch === message_sent.microsSinceUnixEpoch &&
+        report.reporter_identity.isEqual(ctx.sender)
+      ) {
+        throw new SenderError("You have already reported this message");
+      }
+    }
+    
+    ctx.db.reported_message.insert({
+      id: 0n,
+      message_sent,
+      reporter_identity: ctx.sender,
+      reported_at: ctx.timestamp,
+      status: "pending",
+    });
+    
+    console.info(`Message reported by ${ctx.sender}`);
+  },
+);
+
+/**
+ * Mark channel as read for current user
+ */
+export const mark_channel_read = spacetimedb.reducer(
+  { channel_id: t.u64() },
+  (ctx, { channel_id }) => {
+    // Verify channel exists
+    const channel = ctx.db.channel.id.find(channel_id);
+    if (!channel) {
+      throw new SenderError("Channel not found");
+    }
+    
+    // Find existing unread record for this user/channel
+    let existing = undefined;
+    for (const unread of ctx.db.channel_unread.iter()) {
+      if (
+        unread.user_identity.isEqual(ctx.sender) &&
+        unread.channel_id === channel_id
+      ) {
+        existing = unread;
+        break;
+      }
+    }
+    
+    if (existing) {
+      // Update existing record
+      ctx.db.channel_unread.delete(existing);
+      ctx.db.channel_unread.insert({
+        user_identity: ctx.sender,
+        channel_id,
+        last_read_at: ctx.timestamp,
+      });
+    } else {
+      // Create new record
+      ctx.db.channel_unread.insert({
+        user_identity: ctx.sender,
+        channel_id,
+        last_read_at: ctx.timestamp,
+      });
+    }
+  },
+);
 
 // Per-subscriber view exposing current user's session metrics
 export const my_session_metrics = spacetimedb.view(
@@ -671,6 +967,36 @@ export const my_session_metrics = spacetimedb.view(
         connectedAt: open ? open.connected_at : undefined,
       },
     ];
+  },
+);
+
+// Admin view for reported messages (only visible to streamer/admin)
+const ReportedMessageView = t.object("ReportedMessageView", {
+  id: t.u64(),
+  message_sent: t.timestamp(),
+  reporter_identity: t.identity(),
+  reported_at: t.timestamp(),
+  status: t.string(),
+});
+
+export const admin_reported_messages = spacetimedb.view(
+  { name: "admin_reported_messages", public: true },
+  t.array(ReportedMessageView),
+  (ctx) => {
+    // Only return reports if caller is the admin (has streamer profile)
+    const profile = ctx.db.streamer_profile.id.find(ctx.sender);
+    if (!profile) {
+      return [];
+    }
+    
+    // Return all reported messages
+    return [...ctx.db.reported_message.iter()].map((r) => ({
+      id: r.id,
+      message_sent: r.message_sent,
+      reporter_identity: r.reporter_identity,
+      reported_at: r.reported_at,
+      status: r.status,
+    }));
   },
 );
 

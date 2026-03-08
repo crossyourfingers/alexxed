@@ -10,14 +10,25 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const AdminReportedMessages = __t.object("AdminReportedMessages", {});
+export type AdminReportedMessages = __Infer<typeof AdminReportedMessages>;
+
 export const Channel = __t.object("Channel", {
   id: __t.u64(),
   name: __t.string(),
   description: __t.string(),
   createdBy: __t.identity(),
   createdAt: __t.timestamp(),
+  isLiveChat: __t.bool(),
 });
 export type Channel = __Infer<typeof Channel>;
+
+export const ChannelUnread = __t.object("ChannelUnread", {
+  userIdentity: __t.identity(),
+  channelId: __t.u64(),
+  lastReadAt: __t.timestamp(),
+});
+export type ChannelUnread = __Infer<typeof ChannelUnread>;
 
 export const Credentials = __t.object("Credentials", {
   identity: __t.identity(),
@@ -67,11 +78,46 @@ export type MessageReaction = __Infer<typeof MessageReaction>;
 export const MySessionMetrics = __t.object("MySessionMetrics", {});
 export type MySessionMetrics = __Infer<typeof MySessionMetrics>;
 
+export const ReportedMessage = __t.object("ReportedMessage", {
+  id: __t.u64(),
+  messageSent: __t.timestamp(),
+  reporterIdentity: __t.identity(),
+  reportedAt: __t.timestamp(),
+  status: __t.string(),
+});
+export type ReportedMessage = __Infer<typeof ReportedMessage>;
+
+export const ReportedMessageView = __t.object("ReportedMessageView", {
+  id: __t.u64(),
+  messageSent: __t.timestamp(),
+  reporterIdentity: __t.identity(),
+  reportedAt: __t.timestamp(),
+  status: __t.string(),
+});
+export type ReportedMessageView = __Infer<typeof ReportedMessageView>;
+
 export const SessionMetrics = __t.object("SessionMetrics", {
   sessionCount: __t.u64(),
   connectedAt: __t.option(__t.timestamp()),
 });
 export type SessionMetrics = __Infer<typeof SessionMetrics>;
+
+export const StreamScheduleDay = __t.object("StreamScheduleDay", {
+  dayNumber: __t.u32(),
+  theme: __t.string(),
+  description: __t.option(__t.string()),
+});
+export type StreamScheduleDay = __Infer<typeof StreamScheduleDay>;
+
+export const StreamerProfile = __t.object("StreamerProfile", {
+  id: __t.identity(),
+  name: __t.string(),
+  bio: __t.string(),
+  avatarUrl: __t.option(__t.string()),
+  socialLinks: __t.string(),
+  streamStatus: __t.string(),
+});
+export type StreamerProfile = __Infer<typeof StreamerProfile>;
 
 export const SystemMessage = __t.object("SystemMessage", {
   id: __t.u64(),
@@ -88,6 +134,7 @@ export const User = __t.object("User", {
   identity: __t.identity(),
   name: __t.option(__t.string()),
   online: __t.bool(),
+  avatarUrl: __t.option(__t.string()),
 });
 export type User = __Infer<typeof User>;
 

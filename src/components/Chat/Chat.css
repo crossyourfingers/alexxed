@@ -295,6 +295,7 @@
 
 .chat-input-form {
   display: flex;
+  flex-direction: column;
   gap: var(--spacing-2);
 }
 
@@ -316,8 +317,38 @@
   border-color: var(--color-primary);
 }
 
+.chat-input.over-limit {
+  border-color: var(--color-error);
+}
+
+.chat-input.over-limit:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
 .chat-input::placeholder {
   color: var(--color-text-muted);
+}
+
+.chat-input-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.char-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.char-count.near-limit {
+  color: var(--color-warning);
+}
+
+.char-count.over-limit {
+  color: var(--color-error);
+  font-weight: var(--font-weight-semibold);
 }
 
 .chat-send-btn {
@@ -492,6 +523,26 @@
   font-weight: var(--font-weight-medium);
 }
 
+/* Unread channel indicator (FR-L01, FR-L02) */
+.channel-name-unread {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.unread-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+  margin-left: var(--spacing-2);
+}
+
+.channel-item.unread .channel-icon {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
 .channel-delete-btn {
   opacity: 0;
   width: 20px;
@@ -596,6 +647,11 @@
 /* ============================================
    REACTION PICKER & DISPLAY
    ============================================ */
+
+.reaction-container {
+  position: relative;
+  display: inline-block;
+}
 
 .reaction-picker {
   position: absolute;

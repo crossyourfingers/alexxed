@@ -5,6 +5,7 @@ import { useSpacetimeDB, useTable, useReducer } from "spacetimedb/react";
 import { Timestamp } from "spacetimedb";
 import { streamSchedule, type ScheduleEntry } from "../data/streamSchedule";
 import { fallbackVideos, type VideoData } from "../data/fallbackVideos";
+import { streamerProfile } from "../data/streamerProfile";
 import { fetchChannelVideos } from "../services/youtubeApi";
 import { ENABLE_EMOJI_REACTIONS } from "../config/featureFlags";
 import {
@@ -16,6 +17,10 @@ import {
 import { Header } from "../components/Header";
 import { useChatMessages } from "../hooks/useChatMessages";
 import { useChannelByName } from "../hooks/useChannelByName";
+import { useOnlineUsers } from "../hooks/useOnlineUsers";
+import { useStreamStatus } from "../hooks/useStreamStatus";
+import { VideoPlaceholder } from "../components/VideoPlaceholder";
+import { StreamStatusIndicator } from "../components/StreamStatusIndicator";
 import "./StreamPage.css";
 
 interface StreamPageProps {
@@ -39,6 +44,9 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
   const toggleLike = useReducer(reducers.toggleLike);
   const toggleReaction = useReducer(reducers.toggleReaction);
 
+  // Stream status from server-side profile
+  const { isOnline, streamerName } = useStreamStatus();
+
   // Find the general channel using the shared hook
   const generalChannel = useChannelByName("general");
 
@@ -48,6 +56,9 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
   const [likes] = useTable(tables.message_like);
   const [reactions] = useTable(tables.message_reaction);
   const [users] = useTable(tables.user);
+  
+  // Online users for viewer count
+  const { onlineUsers } = useOnlineUsers();
 
   // Use the shared hook to format messages with channel filtering
   const { prettyMessages } = useChatMessages({
@@ -145,9 +156,21 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
       <div className="stream-content">
         {/* Main content area */}
         <main className="stream-main">
-          {/* Featured video player - compact to fit without scroll */}
+          {/* Stream status indicator in header area */}
+          <div className="stream-header-row">
+            <StreamStatusIndicator showLabel size="lg" />
+            <span className="viewer-count">{onlineUsers.length} viewers</span>
+          </div>
+          
+          {/* Featured video player or placeholder */}
           <section className="featured-player">
-            {selectedVideo ? (
+            {isOnline ? (
+              // Show VideoPlaceholder when live (would be replaced with actual live stream embed)
+              <VideoPlaceholder 
+                isLive={true} 
+                streamerName={streamerName || 'Streamer'} 
+              />
+            ) : selectedVideo ? (
               <>
                 <div className="player-container">
                   <iframe

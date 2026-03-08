@@ -118,6 +118,22 @@
   flex-direction: column;
 }
 
+/* Stream header row with status and viewer count */
+.stream-header-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+}
+
+.viewer-count {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
 /* ============================================
    Featured Player - Compact to fit viewport
    ============================================ */

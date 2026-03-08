@@ -13,6 +13,10 @@ interface ChannelSidebarProps {
   onSelectChannel: (channel: Channel) => void;
   onCreateChannel: (name: string, description: string) => void;
   onDeleteChannel: (channelId: bigint) => void;
+  /** Map of channel ID to unread status */
+  unreadChannels?: Map<bigint, boolean>;
+  /** Callback when channel is viewed (to mark as read) */
+  onMarkAsRead?: (channelId: bigint) => void;
 }
 
 export function ChannelSidebar({
@@ -21,10 +25,20 @@ export function ChannelSidebar({
   onSelectChannel,
   onCreateChannel,
   onDeleteChannel,
+  unreadChannels,
+  onMarkAsRead,
 }: ChannelSidebarProps) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newChannelName, setNewChannelName] = useState('');
   const [newChannelDescription, setNewChannelDescription] = useState('');
+  
+  const handleChannelClick = (channel: Channel) => {
+    onSelectChannel(channel);
+    // Mark as read when user switches to channel (FR-L06)
+    if (onMarkAsRead) {
+      onMarkAsRead(channel.id);
+    }
+  };
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,25 +110,29 @@ export function ChannelSidebar({
             </form>
           )}
 
-          {channels.map((channel) => (
-            <div
-              key={channel.id.toString()}
-              className={`channel-item ${activeChannelId === channel.id ? 'active' : ''}`}
-              onClick={() => onSelectChannel(channel)}
-            >
-              <span className="channel-icon">#</span>
-              <span className="channel-name">{channel.name}</span>
-              {channel.name !== 'general' && (
-                <button
-                  className="channel-delete-btn"
-                  onClick={(e) => handleDelete(e, channel.id, channel.name)}
-                  title="Delete channel"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          ))}
+          {channels.map((channel) => {
+            const hasUnread = unreadChannels?.get(channel.id) ?? false;
+            return (
+              <div
+                key={channel.id.toString()}
+                className={`channel-item ${activeChannelId === channel.id ? 'active' : ''} ${hasUnread ? 'unread' : ''}`}
+                onClick={() => handleChannelClick(channel)}
+              >
+                <span className="channel-icon">#</span>
+                <span className={`channel-name ${hasUnread ? 'channel-name-unread' : ''}`}>{channel.name}</span>
+                {hasUnread && <span className="unread-indicator" />}
+                {channel.name !== 'general' && (
+                  <button
+                    className="channel-delete-btn"
+                    onClick={(e) => handleDelete(e, channel.id, channel.name)}
+                    title="Delete channel"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            );
+          })}
 
           {channels.length === 0 && (
             <p style={{ padding: 'var(--spacing-2)', color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>

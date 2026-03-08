@@ -14,4 +14,5 @@ export default __t.row({
   identity: __t.identity().primaryKey(),
   name: __t.option(__t.string()),
   online: __t.bool(),
+  avatarUrl: __t.option(__t.string()).name("avatar_url"),
 });

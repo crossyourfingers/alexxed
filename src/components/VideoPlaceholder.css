@@ -1,0 +1,126 @@
+/**
+ * Video placeholder styles
+ * Maintains 16:9 aspect ratio across all viewports per FR-J01, FR-J02
+ */
+
+.video-placeholder-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.video-placeholder {
+  /* 16:9 aspect ratio using padding trick */
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 9/16 = 0.5625 */
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.video-placeholder-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  text-align: center;
+  padding: var(--space-4);
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.live {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.status-badge.offline {
+  background: var(--color-bg-overlay);
+  color: var(--color-text-muted);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-badge.live .status-dot {
+  background: #ef4444;
+  animation: pulse-live 2s infinite;
+}
+
+.status-badge.offline .status-dot {
+  background: var(--color-text-muted);
+}
+
+@keyframes pulse-live {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Text content */
+.placeholder-title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.placeholder-subtitle {
+  margin: 0;
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+}
+
+/* Go live button (admin only) */
+.go-live-btn {
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-6);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.go-live-btn:hover {
+  background: var(--color-primary-hover);
+}
+
+.go-live-btn:active {
+  background: var(--color-primary-active);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .placeholder-title {
+    font-size: var(--text-lg);
+  }
+  
+  .placeholder-subtitle {
+    font-size: var(--text-sm);
+  }
+}

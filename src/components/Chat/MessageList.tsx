@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Timestamp } from 'spacetimedb';
@@ -65,15 +65,56 @@ export const MessageList = ({
   getReactionsForMessage,
   onToggleReaction,
 }: MessageListProps) => {
-    const lastMessageRef = useCallback((node: HTMLDivElement | null) => {
-      if (node) {
-        node.scrollIntoView({ behavior: 'smooth' });
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isNearBottom, setIsNearBottom] = useState(true);
+    const prevMessageCountRef = useRef(messages.length);
+    // Track which message's reaction picker is open (by timestamp string)
+    const [openPickerMessageId, setOpenPickerMessageId] = useState<string | null>(null);
+    
+    // Threshold in pixels - considered "at bottom" if within this distance
+    const SCROLL_THRESHOLD = 100;
+    
+    // Check if user is near bottom (FR-B05, FR-B06)
+    const checkIfNearBottom = useCallback(() => {
+      const container = containerRef.current;
+      if (!container) return true;
+      
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      return distanceFromBottom <= SCROLL_THRESHOLD;
+    }, []);
+    
+    // Handle scroll events to detect when user scrolls up (FR-B06)
+    const handleScroll = useCallback(() => {
+      setIsNearBottom(checkIfNearBottom());
+    }, [checkIfNearBottom]);
+    
+    // Auto-scroll to bottom when new messages arrive (FR-B05)
+    useEffect(() => {
+      const container = containerRef.current;
+      if (!container) return;
+      
+      // Only auto-scroll if:
+      // 1. User is already near bottom, OR
+      // 2. This is the initial load (messages just appeared)
+      const isNewMessage = messages.length > prevMessageCountRef.current;
+      prevMessageCountRef.current = messages.length;
+      
+      if (isNearBottom && isNewMessage) {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, [messages.length, isNearBottom]);
+    
+    // Initial scroll to bottom on mount
+    useEffect(() => {
+      const container = containerRef.current;
+      if (container && messages.length > 0) {
+        container.scrollTop = container.scrollHeight;
       }
     }, []);
-
-
-
-
 
     const handleLikeClick = (message: PrettyMessage) => {
       const isMyMessage = message.senderName === currentUserName;
@@ -87,7 +128,9 @@ export const MessageList = ({
 
     return (
       <div
+        ref={containerRef}
         className="chat-messages-container"
+        onScroll={handleScroll}
       >
         {messages.length === 0 && (
           <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', padding: 'var(--spacing-4)' }}>
@@ -102,7 +145,7 @@ export const MessageList = ({
             <div
               key={index}
               className={`chat-message ${message.kind}`}
-            ref={index === messages.length - 1 ? lastMessageRef : undefined} >
+            >
               {message.kind === 'user' && (
                 <div className="message-header">
                   <span className="message-author">{message.senderName}</span>
@@ -133,31 +176,36 @@ export const MessageList = ({
                     <button
                       className={`like-btn ${message.isLikedByMe ? 'liked' : ''}`}
                       onClick={() => handleLikeClick(message)}
-                      ref={index === messages.length - 1 ? lastMessageRef : undefined}
+                    >
                       {message.isLikedByMe ? '❤️' : '🤍'} {message.likeCount > 0 && message.likeCount}
                     </button>
                   )}
                   {enableReactions && getReactionsForMessage && onToggleReaction && (
-                    <>
-                      {openPickerIndex === index && (
-                        <ReactionPicker
-                          onSelect={(emoji) => onToggleReaction(message.sent, emoji)}
-                          onClose={() => {}}
-                        />
-                      )}
+                    <div className="reaction-container">
                       <ReactionDisplay
                         reactions={getReactionsForMessage(message.sent)}
                         onToggle={(emoji) => onToggleReaction(message.sent, emoji)}
-                        onAddReaction={() => {}}
+                        onAddReaction={() => {
+                          const messageId = message.sent.microsSinceUnixEpoch.toString();
+                          setOpenPickerMessageId(prev => prev === messageId ? null : messageId);
+                        }}
                       />
-                    </>
+                      {openPickerMessageId === message.sent.microsSinceUnixEpoch.toString() && (
+                        <ReactionPicker
+                          onSelect={(emoji) => {
+                            onToggleReaction(message.sent, emoji);
+                            setOpenPickerMessageId(null);
+                          }}
+                          onClose={() => setOpenPickerMessageId(null)}
+                        />
+                      )}
+                    </div>
                   )}
                 </div>
               )}
             </div>
           );
         })}
-          </div>
+      </div>
     );
-  }
-);
+}

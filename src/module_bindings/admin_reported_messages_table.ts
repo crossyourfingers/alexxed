@@ -11,10 +11,9 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  id: __t.u64().primaryKey(),
-  name: __t.string(),
-  description: __t.string(),
-  createdBy: __t.identity().name("created_by"),
-  createdAt: __t.timestamp().name("created_at"),
-  isLiveChat: __t.bool().name("is_live_chat"),
+  id: __t.u64(),
+  messageSent: __t.timestamp().name("message_sent"),
+  reporterIdentity: __t.identity().name("reporter_identity"),
+  reportedAt: __t.timestamp().name("reported_at"),
+  status: __t.string(),
 });

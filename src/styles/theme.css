@@ -298,3 +298,29 @@
   
   color-scheme: light;
 }
+
+/* ============================================
+   ACCESSIBILITY: REDUCED MOTION (FR-T133)
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY: HIGH CONTRAST (FR-T134)
+   ============================================ */
+@media (prefers-contrast: more) {
+  :root {
+    --color-border: #404040;
+    --color-border-subtle: #333333;
+    --color-border-emphasis: #666666;
+    --color-text-muted: #b3b3b3;
+  }
+}
