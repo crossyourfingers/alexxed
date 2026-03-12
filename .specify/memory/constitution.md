@@ -104,6 +104,7 @@ Generated bindings are the contract between backend and frontend; manual edits a
 **Rationale**: Code generation eliminates type mismatches, ensures API contract adherence,
 and catches breaking changes at compile time rather than runtime.
 
+
 ### VI. Testing & Quality Standards
 
 All changes MUST include appropriate tests unless explicitly exempted.
@@ -116,6 +117,16 @@ All changes MUST include appropriate tests unless explicitly exempted.
 
 **Rationale**: Comprehensive testing prevents regressions, documents intended behavior,
 and enables confident refactoring.
+
+### VII. Secret & Sensitive Value Protection (CRITICAL)
+
+All secret or sensitive values (e.g., API keys, client secrets, authorization tokens, passwords, etc.) in this repository MUST only reside in files that are included in the `.gitignore`.
+
+- No secrets or sensitive credentials may be committed to version control under any circumstances
+- All configuration, environment, or secret files containing such values MUST be listed in `.gitignore`
+- Automated and manual reviews MUST check for accidental inclusion of secrets in tracked files
+
+**Rationale**: Protecting secrets and sensitive values is essential to prevent credential leaks, unauthorized access, and security breaches. This requirement is non-negotiable and applies to all contributors and automation.
 
 ## Technology Stack
 

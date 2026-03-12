@@ -1,5 +1,21 @@
+# Agent Constitution & Workflow
+All agents must always adhere to the guidelines and principles defined in [the constitution](.specify/memory/constitution.md) when considering code changes or systemic enhancements. The constitution file is mandatory for all agent actions, including code, documentation, and process improvements—no exceptions.
 
-# SpacetimeDB Rules (All Languages)
+Spec Kit ([https://speckit.org/](https://speckit.org/)) is available for specifications, workflows, and best practices, but its use is optional for the user. Agents should always ask the user if they prefer to use Spec Kit (spec-driven development: formal specs, plans, and tasks) or "vibe coding" (rapid, informal iteration) before starting work.
+
+Agents must record the user's identity (e.g., Alex or Marty) and their stated preference in this AGENTS.md file below. This ensures future agents and contributors respect the user's preferred workflow and can reference it easily.
+
+> **Note:** The `openspec` system was previously used for change management and specification, but is now deprecated. Agents must not use `openspec` for any new work.
+
+---
+
+# User Identity & Workflow Preference
+
+| User   | Preferred Mode         | Notes |
+|--------|------------------------|-------|
+|        |                        |       |
+
+# SpacetimeDB Rules
 ## Language-Specific Rules
 
 | Language | Rule File |

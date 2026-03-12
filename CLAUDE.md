@@ -1,2 +1,1 @@
-See [AGENTS.md](AGENTS.md) for SpacetimeDB coding guidelines.
-
+See [AGENTS.md](AGENTS.md)
