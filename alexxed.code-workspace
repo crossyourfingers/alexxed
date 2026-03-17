@@ -3,5 +3,10 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"workbench.editorAssociations": {
+			"*.md": "vscode.markdown.preview.editor"
+		}
+	}
 }
