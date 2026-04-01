@@ -134,11 +134,11 @@ const user_session = table(
 
 /**
  * System messages table for connection/disconnection events.
- * 
+ *
  * These messages are automatically inserted when users connect or disconnect,
  * and are broadcast to ALL channels. The `sender` is always `Identity.zero()`
  * to distinguish system messages from user messages.
- * 
+ *
  * Schema:
  * - id: Auto-increment primary key
  * - message_type: 'connect' or 'disconnect'
@@ -147,7 +147,7 @@ const user_session = table(
  * - user_identity: The actual user who connected/disconnected
  * - created_at: Server-side timestamp
  * - content: Optional additional text (for future extensibility)
- * 
+ *
  * Index: system_message_channel_id for efficient per-channel queries
  */
 const system_message = table(
@@ -250,6 +250,57 @@ const channel_unread = table(
   },
 );
 
+/**
+ * Game voting - basic tables
+ *
+ * These tables are intentionally minimal for the initial stub. We'll
+ * iterate on indexing and views when the feature is implemented fully.
+ */
+const game = table(
+  { name: "game", public: true },
+  {
+    id: t.u64().primaryKey().autoInc(),
+    title: t.string(),
+    cover_url: t.string().optional(),
+    purchase_link: t.string().optional(),
+    played: t.bool().optional(),
+  },
+);
+
+const user_vote = table(
+  {
+    name: "user_vote",
+    public: true,
+    indexes: [
+      { name: "user_vote_game_id", algorithm: "btree", columns: ["game_id"] },
+      {
+        name: "user_vote_user_identity",
+        algorithm: "btree",
+        columns: ["user_identity"],
+      },
+    ],
+  },
+  {
+    id: t.u64().primaryKey().autoInc(),
+    user_identity: t.identity(),
+    game_id: t.u64(),
+    vote: t.string(), // 'up' | 'down'
+  },
+);
+
+/**
+ * Aggregated vote counters per game. Maintained by reducers to avoid
+ * scanning `user_vote` for every client read.
+ */
+const game_vote_count = table(
+  { name: "game_vote_count", public: true },
+  {
+    game_id: t.u64().primaryKey(),
+    up: t.u64(),
+    down: t.u64(),
+  },
+);
+
 const spacetimedb = schema({
   user,
   message,
@@ -264,6 +315,9 @@ const spacetimedb = schema({
   stream_schedule_day,
   reported_message,
   channel_unread,
+  game,
+  user_vote,
+  game_vote_count,
 });
 export default spacetimedb;
 
@@ -288,7 +342,9 @@ const MAX_MESSAGE_LENGTH = 2000;
 function validateMessage(text: string) {
   if (!text) throw new SenderError("Messages must not be empty");
   if (text.length > MAX_MESSAGE_LENGTH) {
-    throw new SenderError(`Message exceeds ${MAX_MESSAGE_LENGTH} character limit`);
+    throw new SenderError(
+      `Message exceeds ${MAX_MESSAGE_LENGTH} character limit`,
+    );
   }
 }
 
@@ -421,7 +477,7 @@ export const toggle_like = spacetimedb.reducer(
         break;
       }
     }
-    
+
     // Prevent self-likes (FR-C04)
     if (targetMessage && targetMessage.sender.isEqual(ctx.sender)) {
       throw new SenderError("Cannot like your own message");
@@ -487,12 +543,12 @@ export const toggle_reaction = spacetimedb.reducer(
 
 /**
  * Reducer to manually insert system messages.
- * 
+ *
  * Note: Most system messages are inserted automatically by lifecycle hooks
  * (onConnect/onDisconnect). This reducer exists for programmatic insertion
  * and testing. The sender is set to Identity.zero() to mark it as a system
  * message rather than a user message.
- * 
+ *
  * @param message_type - Event type: 'connect', 'disconnect', or custom
  * @param channel_id - Target channel (must exist)
  * @param user_identity - The user the message is about
@@ -546,6 +602,117 @@ export const init = spacetimedb.init((ctx) => {
     console.info("Created default #general channel");
   }
 });
+
+// -----------------------------
+// Voting reducers (stubs)
+// -----------------------------
+
+/**
+ * Cast or update a vote for a game. Simple semantics for now:
+ * - vote: 'up' or 'down'
+ * - If a user's vote exists for that game, update it; otherwise insert
+ */
+export const cast_vote = spacetimedb.reducer(
+  { game_id: t.u64(), vote: t.string() },
+  (ctx, { game_id, vote }) => {
+    if (vote !== "up" && vote !== "down") {
+      throw new SenderError("Invalid vote value");
+    }
+
+    // Verify game exists (if not, create a placeholder stub row)
+    const g = ctx.db.game.id.find(game_id);
+    if (!g) {
+      // create a placeholder game row with unknown title
+      ctx.db.game.insert({
+        id: game_id,
+        title: "(unknown)",
+        cover_url: undefined,
+        purchase_link: undefined,
+        played: false,
+      });
+    }
+    // Find existing vote by this user (scan - safe and simple for now)
+    let existing = undefined;
+    for (const v of ctx.db.user_vote.iter()) {
+      if (v.game_id === game_id && v.user_identity.isEqual(ctx.sender)) {
+        existing = v;
+        break;
+      }
+    }
+
+    // Ensure aggregate counter exists for this game
+    let counter = ctx.db.game_vote_count.game_id.find(game_id);
+    if (!counter) {
+      ctx.db.game_vote_count.insert({ game_id, up: 0n, down: 0n });
+      counter = ctx.db.game_vote_count.game_id.find(game_id)!; // must exist after insert
+    }
+
+    if (existing) {
+      // No-op if vote unchanged
+      if (existing.vote === vote) return;
+
+      // Adjust counters according to previous vote
+      let newUp = counter.up;
+      let newDown = counter.down;
+      if (existing.vote === "up") newUp = newUp - 1n;
+      else if (existing.vote === "down") newDown = newDown - 1n;
+
+      if (vote === "up") newUp = newUp + 1n;
+      else newDown = newDown + 1n;
+
+      ctx.db.game_vote_count.game_id.update({
+        game_id: counter.game_id,
+        up: newUp,
+        down: newDown,
+      });
+      ctx.db.user_vote.id.update({ ...existing, vote });
+    } else {
+      // Insert new user vote and increment counter
+      ctx.db.user_vote.insert({
+        id: 0n,
+        user_identity: ctx.sender,
+        game_id,
+        vote,
+      });
+      if (vote === "up") {
+        ctx.db.game_vote_count.game_id.update({
+          game_id: counter.game_id,
+          up: counter.up + 1n,
+          down: counter.down,
+        });
+      } else {
+        ctx.db.game_vote_count.game_id.update({
+          game_id: counter.game_id,
+          up: counter.up,
+          down: counter.down + 1n,
+        });
+      }
+    }
+  },
+);
+
+/**
+ * Very small view to return aggregated vote counts per game.
+ * This is intentionally naive (scans user_vote) and will be replaced with
+ * indexed queries once we stabilise the schema.
+ */
+const GameVoteRow = t.object("GameVoteRow", {
+  gameId: t.u64(),
+  up: t.u64(),
+  down: t.u64(),
+});
+export const game_vote_counts = spacetimedb.anonymousView(
+  { name: "game_vote_counts", public: true },
+  t.array(GameVoteRow),
+  (ctx) => {
+    // Return pre-computed counters from `game_vote_count`
+    return [...ctx.db.game_vote_count.iter()].map((r) => ({
+      gameId: r.game_id,
+      up: r.up,
+      down: r.down,
+    }));
+  },
+);
 
 // Channel management reducers
 export const create_channel = spacetimedb.reducer(
@@ -631,14 +798,14 @@ export const update_channel = spacetimedb.reducer(
 
 /**
  * Lifecycle hook: Client Connected
- * 
+ *
  * Called automatically when a client establishes a connection.
- * 
+ *
  * Actions:
  * 1. Updates or creates user record with online: true
  * 2. Creates a user_session row for analytics
  * 3. Broadcasts 'connect' system message to ALL channels
- * 
+ *
  * The system message uses Identity.zero() as sender and stores
  * ctx.sender in user_identity so clients can display "Alice connected"
  */
@@ -686,14 +853,14 @@ export const onConnect = spacetimedb.clientConnected((ctx) => {
 
 /**
  * Lifecycle hook: Client Disconnected
- * 
+ *
  * Called automatically when a client connection is closed.
- * 
+ *
  * Actions:
  * 1. Sets user.online to false
  * 2. Closes the user_session row with disconnected_at timestamp
  * 3. Broadcasts 'disconnect' system message to ALL channels
- * 
+ *
  * The system message uses Identity.zero() as sender and stores
  * ctx.sender in user_identity so clients can display "Alice disconnected"
  */
@@ -775,7 +942,7 @@ export const update_streamer_profile = spacetimedb.reducer(
   },
   (ctx, { name, bio, avatar_url, social_links, stream_status }) => {
     const existing = ctx.db.streamer_profile.id.find(ctx.sender);
-    
+
     if (existing) {
       // Update existing profile
       ctx.db.streamer_profile.id.update({
@@ -793,11 +960,11 @@ export const update_streamer_profile = spacetimedb.reducer(
         hasAnyProfile = true;
         break;
       }
-      
+
       if (hasAnyProfile) {
         throw new SenderError("Only admin can update profile");
       }
-      
+
       // Create new profile for admin
       ctx.db.streamer_profile.insert({
         id: ctx.sender,
@@ -808,7 +975,7 @@ export const update_streamer_profile = spacetimedb.reducer(
         stream_status: stream_status ?? "offline",
       });
     }
-    
+
     console.info(`Streamer profile updated by ${ctx.sender}`);
   },
 );
@@ -830,17 +997,37 @@ export const populate_schedule = spacetimedb.reducer((ctx) => {
       throw new SenderError("Only admin can populate schedule");
     }
   }
-  
+
   const defaultThemes = [
     { day: 1, theme: "Stardew Valley", description: "Cozy farming simulation" },
-    { day: 2, theme: "Farming Games", description: "Various farming and life sims" },
-    { day: 3, theme: "Fantasy Adventure", description: "Epic fantasy RPGs and adventures" },
-    { day: 4, theme: "Science Fiction", description: "Sci-fi games and space exploration" },
+    {
+      day: 2,
+      theme: "Farming Games",
+      description: "Various farming and life sims",
+    },
+    {
+      day: 3,
+      theme: "Fantasy Adventure",
+      description: "Epic fantasy RPGs and adventures",
+    },
+    {
+      day: 4,
+      theme: "Science Fiction",
+      description: "Sci-fi games and space exploration",
+    },
     { day: 5, theme: "Horror/Scary", description: "Spooky and horror games" },
-    { day: 6, theme: "Puzzle/Platformer", description: "Brain teasers and platforming challenges" },
-    { day: 7, theme: "Any Category", description: "Viewer's choice or mixed bag" },
+    {
+      day: 6,
+      theme: "Puzzle/Platformer",
+      description: "Brain teasers and platforming challenges",
+    },
+    {
+      day: 7,
+      theme: "Any Category",
+      description: "Viewer's choice or mixed bag",
+    },
   ];
-  
+
   for (const { day, theme, description } of defaultThemes) {
     const existing = ctx.db.stream_schedule_day.day_number.find(day);
     if (existing) {
@@ -858,7 +1045,7 @@ export const populate_schedule = spacetimedb.reducer((ctx) => {
       });
     }
   }
-  
+
   console.info("Schedule populated with default themes");
 });
 
@@ -876,21 +1063,22 @@ export const report_message = spacetimedb.reducer(
         break;
       }
     }
-    
+
     if (!messageExists) {
       throw new SenderError("Message not found");
     }
-    
+
     // Check if already reported by this user
     for (const report of ctx.db.reported_message.iter()) {
       if (
-        report.message_sent.microsSinceUnixEpoch === message_sent.microsSinceUnixEpoch &&
+        report.message_sent.microsSinceUnixEpoch ===
+          message_sent.microsSinceUnixEpoch &&
         report.reporter_identity.isEqual(ctx.sender)
       ) {
         throw new SenderError("You have already reported this message");
       }
     }
-    
+
     ctx.db.reported_message.insert({
       id: 0n,
       message_sent,
@@ -898,7 +1086,7 @@ export const report_message = spacetimedb.reducer(
       reported_at: ctx.timestamp,
       status: "pending",
     });
-    
+
     console.info(`Message reported by ${ctx.sender}`);
   },
 );
@@ -914,7 +1102,7 @@ export const mark_channel_read = spacetimedb.reducer(
     if (!channel) {
       throw new SenderError("Channel not found");
     }
-    
+
     // Find existing unread record for this user/channel
     let existing = undefined;
     for (const unread of ctx.db.channel_unread.iter()) {
@@ -926,7 +1114,7 @@ export const mark_channel_read = spacetimedb.reducer(
         break;
       }
     }
-    
+
     if (existing) {
       // Update existing record
       ctx.db.channel_unread.delete(existing);
@@ -988,7 +1176,7 @@ export const admin_reported_messages = spacetimedb.view(
     if (!profile) {
       return [];
     }
-    
+
     // Return all reported messages
     return [...ctx.db.reported_message.iter()].map((r) => ({
       id: r.id,

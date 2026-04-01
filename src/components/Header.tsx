@@ -9,7 +9,7 @@ import "./Header.css";
 
 interface HeaderProps {
   /** Which page is currently active */
-  activePage?: "stream" | "community" | "profile";
+  activePage?: "stream" | "community" | "profile" | "vote";
   /** Current user's display name */
   username: string;
   /** Callback when user clicks logout */
@@ -30,7 +30,7 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(username);
   const setName = useReducer(reducers.setName);
-  
+
   // Sync edit name when username prop changes (e.g., after successful save)
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,19 +38,19 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
     if (trimmed && trimmed !== username) {
       setName({ name: trimmed })
         .then(() => setIsEditing(false))
-        .catch((err) => console.error('Failed to set name:', err));
+        .catch((err) => console.error("Failed to set name:", err));
     } else {
       setIsEditing(false);
     }
   };
-  
+
   const handleNameClick = () => {
     setEditName(username);
     setIsEditing(true);
   };
-  
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setIsEditing(false);
       setEditName(username);
     }
@@ -64,7 +64,11 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
           <span>{streamerProfile.displayName}</span>
         </Link>
         <nav className="app-nav">
-          <Link to="/stream" className={`nav-link ${activePage === "stream" ? "active" : ""}`} data-page="stream">
+          <Link
+            to="/stream"
+            className={`nav-link ${activePage === "stream" ? "active" : ""}`}
+            data-page="stream"
+          >
             Stream
           </Link>
           <Link
@@ -78,6 +82,12 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
             className={`nav-link ${activePage === "profile" ? "active" : ""}`}
           >
             Profile
+          </Link>
+          <Link
+            to="/vote"
+            className={`nav-link ${activePage === "vote" ? "active" : ""}`}
+          >
+            Vote
           </Link>
           <button onClick={onLogout} className="nav-link logout-btn">
             Logout
@@ -102,8 +112,8 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
             />
           </form>
         ) : (
-          <button 
-            className="user-badge" 
+          <button
+            className="user-badge"
             onClick={handleNameClick}
             title="Click to change your name"
           >

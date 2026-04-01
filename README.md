@@ -14,7 +14,7 @@ A real-time streaming community application built with SpacetimeDB, React, and T
 - 🎯 **Auto-scroll** - Intelligent pause when reading history
 - 📊 **Session Metrics** - Connection time and session count widget
 - 🔐 **SpacetimeAuth** - OIDC authentication via SpacetimeDB
-- 📋 **Spec-Driven Development** - OpenSpec framework integration
+- 📋 **Spec-Driven Development** - Project specs and proposals live in `domain_knowledge/` (see [domain_knowledge/index.md](domain_knowledge/index.md))
 
 ## Pages
 
@@ -136,15 +136,11 @@ VITE_ENABLE_USER_SESSION_METRICS=true  # Session widget (default: true)
 
 ```
 alexxed/
-├── openspec/                   # Spec-driven development
-│   ├── specs/                  # System specifications
-│   │   ├── chat/spec.md
-│   │   ├── auth/spec.md
-│   │   ├── emoji-reactions/spec.md
-│   │   ├── system-messages/spec.md
-│   │   └── ui-consistency/spec.md
-│   ├── changes/                # Active changes
-│   └── config.yaml             # Project context
+├── domain_knowledge/           # Human + LLM-friendly domain knowledge & specs
+│   ├── index.md                # TOC & entry points for domain knowledge
+│   ├── constitution.md         # Project constitution and core principles
+│   ├── devstral-gaps.md        # Maintainability gaps and recommendations
+│   └── game-voting-feature.md  # Game voting feature proposal summary
 ├── spacetimedb/                # Backend module
 │   └── src/
 │       ├── schema.ts           # Table definitions
@@ -169,39 +165,27 @@ alexxed/
 └── README.md
 ```
 
-## Development with OpenSpec
+## Project Domain Knowledge & Specs
 
-This project uses **OpenSpec** for spec-driven development.
+All canonical, human- and LLM-readable domain knowledge (specs, proposals, governance notes) lives in `domain_knowledge/`.
 
-### Commands
+Getting started:
 
-| Command | Purpose |
-|---------|---------|
-| `/opsx:propose` | Create change with planning artifacts |
-| `/opsx:explore` | Think through ideas before committing |
-| `/opsx:apply` | Implement tasks from tasks.md |
-| `/opsx:archive` | Archive completed change |
+1. Read the domain index: [domain_knowledge/index.md](domain_knowledge/index.md)
+2. Review the Project Constitution: [domain_knowledge/constitution.md](domain_knowledge/constitution.md)
+3. Read feature summaries (e.g., [game voting](domain_knowledge/game-voting-feature.md)) or gap analyses (e.g., [devstral gaps](domain_knowledge/devstral-gaps.md)).
 
-### Example Workflow
+Proposing changes:
 
-```bash
-# Propose a new feature
-/opsx:propose "add user typing indicators"
+- Draft a concise spec file in `domain_knowledge/` or open a GitHub issue linking to a short spec.
+- Specs should include: motivation, goals, data model, UX, integration points, and acceptance criteria.
+- Link specs to tasks and tests; include verification steps.
 
-# Implement the tasks
-/opsx:apply
+Notes:
 
-# Archive when complete
-/opsx:archive
-```
+- If you use an external spec workflow (Spec Kit or similar), ensure a human-readable spec summary is added to `domain_knowledge/`.
 
-### Existing Specs
-
-- `openspec/specs/chat/spec.md` - Core messaging and presence
-- `openspec/specs/auth/spec.md` - Authentication system
-- `openspec/specs/emoji-reactions/spec.md` - Reaction system
-- `openspec/specs/system-messages/spec.md` - Connection notifications
-- `openspec/specs/ui-consistency/spec.md` - UI/UX standards
+Existing domain docs: see [domain_knowledge/index.md](domain_knowledge/index.md)
 
 ## SpacetimeDB Commands
 
@@ -224,7 +208,6 @@ spacetime logs alexxed --follow
 
 ## Contributing
 
-1. Use OpenSpec: `/opsx:propose` → `/opsx:apply` → `/opsx:archive`
 2. Follow `AGENTS.md` for SpacetimeDB conventions
 3. Update specs when behavior changes
 4. Ensure reducers remain deterministic
@@ -233,5 +216,4 @@ spacetime logs alexxed --follow
 
 - [SpacetimeDB Docs](https://spacetimedb.com/docs)
 - [SpacetimeDB TypeScript SDK](https://spacetimedb.com/docs/sdks/typescript)
-- [OpenSpec Framework](https://github.com/Fission-AI/OpenSpec)
 - [SpacetimeDB Discord](https://discord.gg/spacetimedb)

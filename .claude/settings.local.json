@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(openspec list:*)",
-      "Bash(openspec:*)"
+      "Bash(domain_knowledge/scripts/*)",
+      "Bash(domain_knowledge/scripts/*:*)"
     ]
   }
 }

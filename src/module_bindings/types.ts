@@ -37,6 +37,32 @@ export const Credentials = __t.object("Credentials", {
 });
 export type Credentials = __Infer<typeof Credentials>;
 
+export const Game = __t.object("Game", {
+  id: __t.u64(),
+  title: __t.string(),
+  coverUrl: __t.option(__t.string()),
+  purchaseLink: __t.option(__t.string()),
+  played: __t.option(__t.bool()),
+});
+export type Game = __Infer<typeof Game>;
+
+export const GameVoteCount = __t.object("GameVoteCount", {
+  gameId: __t.u64(),
+  up: __t.u64(),
+  down: __t.u64(),
+});
+export type GameVoteCount = __Infer<typeof GameVoteCount>;
+
+export const GameVoteCounts = __t.object("GameVoteCounts", {});
+export type GameVoteCounts = __Infer<typeof GameVoteCounts>;
+
+export const GameVoteRow = __t.object("GameVoteRow", {
+  gameId: __t.u64(),
+  up: __t.u64(),
+  down: __t.u64(),
+});
+export type GameVoteRow = __Infer<typeof GameVoteRow>;
+
 export const LinkPreview = __t.object("LinkPreview", {
   url: __t.string(),
   title: __t.string(),
@@ -146,4 +172,12 @@ export const UserSession = __t.object("UserSession", {
   disconnectedAt: __t.option(__t.timestamp()),
 });
 export type UserSession = __Infer<typeof UserSession>;
+
+export const UserVote = __t.object("UserVote", {
+  id: __t.u64(),
+  userIdentity: __t.identity(),
+  gameId: __t.u64(),
+  vote: __t.string(),
+});
+export type UserVote = __Infer<typeof UserVote>;
 

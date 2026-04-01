@@ -1,21 +1,26 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import './index.css';
-import { StreamPage } from './pages/StreamPage.tsx';
-import { CommunityPage } from './pages/CommunityPage.tsx';
-import { StreamerProfilePage } from './pages/StreamerProfilePage.tsx';
-import { NotFoundPage } from './pages/NotFoundPage.tsx';
-import { LoginForm } from './LoginForm.tsx';
-import { Identity } from 'spacetimedb';
-import { SpacetimeDBProvider, useSpacetimeDB, useTable } from 'spacetimedb/react';
-import { DbConnection, ErrorContext, tables } from './module_bindings/index.ts';
-import { AuthProvider } from 'react-oidc-context';
-import { ACTIVE_AUTH_CONFIG } from './auth/authProvider.ts';
-import { useAuth } from './auth/useAuth.tsx';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import "./index.css";
+import { StreamPage } from "./pages/StreamPage.tsx";
+import { CommunityPage } from "./pages/CommunityPage.tsx";
+import { StreamerProfilePage } from "./pages/StreamerProfilePage.tsx";
+import { NotFoundPage } from "./pages/NotFoundPage.tsx";
+import { LoginForm } from "./LoginForm.tsx";
+import { VotePage } from "./pages/VotePage";
+import { Identity } from "spacetimedb";
+import {
+  SpacetimeDBProvider,
+  useSpacetimeDB,
+  useTable,
+} from "spacetimedb/react";
+import { DbConnection, ErrorContext, tables } from "./module_bindings/index.ts";
+import { AuthProvider } from "react-oidc-context";
+import { ACTIVE_AUTH_CONFIG } from "./auth/authProvider.ts";
+import { useAuth } from "./auth/useAuth.tsx";
 
-const HOST = import.meta.env.VITE_SPACETIMEDB_HOST ?? 'ws://localhost:3000';
-const DB_NAME = import.meta.env.VITE_SPACETIMEDB_DB_NAME ?? 'alexxed-u3k4f';
+const HOST = import.meta.env.VITE_SPACETIMEDB_HOST ?? "ws://localhost:3000";
+const DB_NAME = import.meta.env.VITE_SPACETIMEDB_DB_NAME ?? "alexxed-u3k4f";
 
 function AuthGate() {
   const auth = useAuth();
@@ -24,15 +29,18 @@ function AuthGate() {
 
   if (auth.isLoading || !connected) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
-        color: '#22c55e',
-        fontSize: '18px',
-      }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          background:
+            "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
+          color: "#22c55e",
+          fontSize: "18px",
+        }}
+      >
         Connecting...
       </div>
     );
@@ -40,17 +48,20 @@ function AuthGate() {
 
   if (auth.error) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
-        color: '#fca5a5',
-        fontSize: '18px',
-        padding: '20px',
-        textAlign: 'center',
-      }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          background:
+            "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
+          color: "#fca5a5",
+          fontSize: "18px",
+          padding: "20px",
+          textAlign: "center",
+        }}
+      >
         Authentication error: {auth.error.message}
       </div>
     );
@@ -61,19 +72,48 @@ function AuthGate() {
   }
 
   // Get username from database (reactive to name changes) or fallback to auth profile
-  const currentUser = identity ? users.find(u => u.identity.isEqual(identity)) : null;
+  const currentUser = identity
+    ? users.find((u) => u.identity.isEqual(identity))
+    : null;
   const authUser = auth.getUser();
-  const username = currentUser?.name || authUser?.username || authUser?.name || authUser?.email || identity?.toHexString().substring(0, 8) || 'User';
+  const username =
+    currentUser?.name ||
+    authUser?.username ||
+    authUser?.name ||
+    authUser?.email ||
+    identity?.toHexString().substring(0, 8) ||
+    "User";
   const handleLogout = () => auth.logout();
 
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/community/general" replace />} />
-      <Route path="/community" element={<Navigate to="/community/general" replace />} />
-      <Route path="/community/:channelName" element={<CommunityPage username={username} onLogout={handleLogout} />} />
-      <Route path="/stream" element={<StreamPage username={username} onLogout={handleLogout} />} />
-      <Route path="/profile" element={<StreamerProfilePage username={username} onLogout={handleLogout} />} />
-      <Route path="*" element={<NotFoundPage username={username} onLogout={handleLogout} />} />
+      <Route
+        path="/community"
+        element={<Navigate to="/community/general" replace />}
+      />
+      <Route
+        path="/community/:channelName"
+        element={<CommunityPage username={username} onLogout={handleLogout} />}
+      />
+      <Route
+        path="/vote"
+        element={<VotePage username={username} onLogout={handleLogout} />}
+      />
+      <Route
+        path="/stream"
+        element={<StreamPage username={username} onLogout={handleLogout} />}
+      />
+      <Route
+        path="/profile"
+        element={
+          <StreamerProfilePage username={username} onLogout={handleLogout} />
+        }
+      />
+      <Route
+        path="*"
+        element={<NotFoundPage username={username} onLogout={handleLogout} />}
+      />
     </Routes>
   );
 }
@@ -82,7 +122,10 @@ function SpacetimeDBWrapper() {
   const auth = useAuth();
 
   const onConnect = (conn: DbConnection, identity: Identity, token: string) => {
-    console.log('Connected to SpacetimeDB with identity:', identity.toHexString());
+    console.log(
+      "Connected to SpacetimeDB with identity:",
+      identity.toHexString(),
+    );
     try {
       const id = identity.toHexString();
       const startedKey = `session_connected_at_${id}`;
@@ -92,26 +135,26 @@ function SpacetimeDBWrapper() {
         const now = String(Date.now());
         sessionStorage.setItem(startedKey, now);
         // Increment overall session count in localStorage once per tab session
-        const prev = parseInt(localStorage.getItem(countKey) || '0', 10) || 0;
+        const prev = parseInt(localStorage.getItem(countKey) || "0", 10) || 0;
         localStorage.setItem(countKey, String(prev + 1));
       }
     } catch (e) {
-      console.warn('Failed to set sessionStorage on connect', e);
+      console.warn("Failed to set sessionStorage on connect", e);
     }
   };
 
   const onDisconnect = () => {
-    console.log('Disconnected from SpacetimeDB');
+    console.log("Disconnected from SpacetimeDB");
     try {
       // Do not clear sessionStorage here to avoid resetting when navigating between pages.
       // The browser will clear sessionStorage when the tab/window is closed.
     } catch (e) {
-      console.warn('Error during onDisconnect cleanup', e);
+      console.warn("Error during onDisconnect cleanup", e);
     }
   };
 
   const onConnectError = (_ctx: ErrorContext, err: Error) => {
-    console.error('Error connecting to SpacetimeDB:', err);
+    console.error("Error connecting to SpacetimeDB:", err);
   };
 
   // Use OIDC token for SpacetimeDB authentication
@@ -138,7 +181,7 @@ const oidcConfig = {
   client_id: ACTIVE_AUTH_CONFIG.clientId,
   redirect_uri: ACTIVE_AUTH_CONFIG.redirectUri,
   scope: ACTIVE_AUTH_CONFIG.scope,
-  response_type: 'code',
+  response_type: "code",
   onSigninCallback: () => {
     // Remove query params after auth
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -151,10 +194,10 @@ const RootApp = () => (
   </AuthProvider>
 );
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <RootApp />
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );

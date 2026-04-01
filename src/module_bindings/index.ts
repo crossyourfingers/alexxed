@@ -34,6 +34,7 @@ import {
 } from "spacetimedb";
 
 // Import all reducer arg schemas
+import CastVoteReducer from "./cast_vote_reducer";
 import CleanupOldUserSessionsReducer from "./cleanup_old_user_sessions_reducer";
 import CreateChannelReducer from "./create_channel_reducer";
 import DeleteChannelReducer from "./delete_channel_reducer";
@@ -56,6 +57,9 @@ import * as FetchLinkPreviewProcedure from "./fetch_link_preview_procedure";
 // Import all table schema definitions
 import AdminReportedMessagesRow from "./admin_reported_messages_table";
 import ChannelRow from "./channel_table";
+import GameRow from "./game_table";
+import GameVoteCountRow from "./game_vote_count_table";
+import GameVoteCountsRow from "./game_vote_counts_table";
 import LinkPreviewRow from "./link_preview_table";
 import MessageRow from "./message_table";
 import MessageLikeRow from "./message_like_table";
@@ -65,6 +69,7 @@ import StreamScheduleDayRow from "./stream_schedule_day_table";
 import StreamerProfileRow from "./streamer_profile_table";
 import SystemMessageRow from "./system_message_table";
 import UserRow from "./user_table";
+import UserVoteRow from "./user_vote_table";
 
 /** Type-only namespace exports for generated type groups. */
 
@@ -81,6 +86,28 @@ const tablesSchema = __schema({
       { name: 'channel_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, ChannelRow),
+  game: __table({
+    name: 'game',
+    indexes: [
+      { name: 'id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'game_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, GameRow),
+  game_vote_count: __table({
+    name: 'game_vote_count',
+    indexes: [
+      { name: 'game_id', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+    ],
+    constraints: [
+      { name: 'game_vote_count_game_id_key', constraint: 'unique', columns: ['gameId'] },
+    ],
+  }, GameVoteCountRow),
   link_preview: __table({
     name: 'link_preview',
     indexes: [
@@ -157,6 +184,17 @@ const tablesSchema = __schema({
       { name: 'user_identity_key', constraint: 'unique', columns: ['identity'] },
     ],
   }, UserRow),
+  user_vote: __table({
+    name: 'user_vote',
+    indexes: [
+      { name: 'id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'user_vote_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, UserVoteRow),
   admin_reported_messages: __table({
     name: 'admin_reported_messages',
     indexes: [
@@ -164,6 +202,13 @@ const tablesSchema = __schema({
     constraints: [
     ],
   }, AdminReportedMessagesRow),
+  game_vote_counts: __table({
+    name: 'game_vote_counts',
+    indexes: [
+    ],
+    constraints: [
+    ],
+  }, GameVoteCountsRow),
   my_session_metrics: __table({
     name: 'my_session_metrics',
     indexes: [
@@ -175,6 +220,7 @@ const tablesSchema = __schema({
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
+  __reducerSchema("cast_vote", CastVoteReducer),
   __reducerSchema("cleanup_old_user_sessions", CleanupOldUserSessionsReducer),
   __reducerSchema("create_channel", CreateChannelReducer),
   __reducerSchema("delete_channel", DeleteChannelReducer),

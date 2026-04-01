@@ -1,5 +1,0 @@
-name: simplify-codebase
-title: Simplify codebase by removing duplication and consolidating files
-description: Remove unused files, consolidate duplicative AI instruction files, extract shared code into reusable hooks, and co-locate related files for a cleaner, more maintainable codebase.
-owner: TBD
-date: 2026-02-28

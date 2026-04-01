@@ -1,5 +1,0 @@
-name: add-user-session-metrics
-title: Add user session metrics (connection duration + session rows)
-description: Track per-session rows on connect/disconnect and show current user's connection duration and total session count in the global header.
-owner: TBD
-date: 2026-02-28

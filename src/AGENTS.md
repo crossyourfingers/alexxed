@@ -1,6 +1,6 @@
 # Frontend (React/TypeScript) Guidelines
 
-Parent: [../AGENTS.md](../AGENTS.md) | Constitution: [../.specify/memory/constitution.md](../.specify/memory/constitution.md)
+Parent: [../AGENTS.md](../AGENTS.md) | Constitution: [Project Constitution](../domain_knowledge/constitution.md)
 
 **CRITICAL:** Never read `.env` files. Use `.env.example` only. See [secrets policy](../AGENTS.md#critical-secrets-protection-non-negotiable).
 
@@ -84,7 +84,7 @@ src/
 
 ## Known Technical Debt
 
-From [../.specify/proposals/devstral-gaps.md](../.specify/proposals/devstral-gaps.md):
+From [Devstral Gaps](../domain_knowledge/devstral-gaps.md):
 
 1. **Message display logic duplicated** between `App.tsx` and `StreamPage.tsx`
 2. **Inconsistent component architecture** — some pages use inline rendering, others use reusable components

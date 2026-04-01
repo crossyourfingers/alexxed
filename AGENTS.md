@@ -4,7 +4,7 @@
 
 > Build a real-time streaming community platform for Alex and his audience.
 
-Full principles: [Constitution](.specify/memory/constitution.md)
+Full principles: [Project Constitution](domain_knowledge/constitution.md)
 
 ---
 
@@ -47,7 +47,6 @@ Any agent that reads `.env` files is violating Alex's explicit security policy. 
 
 **Workflow Policy:** Alex owns this project. He can vibe code whenever he wants—no justification needed. Agents should ask preference if unclear, but never block Alex from rapid iteration.
 
-> **Note:** The `openspec` system is deprecated. Use Spec Kit for new spec-driven work.
 
 ---
 
@@ -57,7 +56,7 @@ Any agent that reads `.env` files is violating Alex's explicit security policy. 
 | -------------- | -------------------------- | ---------------------------------------------- |
 | `/src`         | React frontend             | [src/AGENTS.md](src/AGENTS.md)                 |
 | `/spacetimedb` | SpacetimeDB backend module | [spacetimedb/AGENTS.md](spacetimedb/AGENTS.md) |
-| `/.specify`    | Proposals, specs, memory   | [.specify/AGENTS.md](.specify/AGENTS.md)       |
+| `/domain_knowledge`    | Proposals, specs, memory   | [domain_knowledge/index.md](domain_knowledge/index.md)       |
 
 ---
 
@@ -76,7 +75,7 @@ Community members vote on which games Alex should play next. Key aspects:
 - Only logged-in users can vote
 - Votes stored in SpacetimeDB, tied to user identity
 
-See full proposal: [.specify/proposals/game-voting-feature.md](.specify/proposals/game-voting-feature.md)
+See full proposal: [Game Voting Feature](domain_knowledge/game-voting-feature.md)
 
 # SpacetimeDB Rules
 

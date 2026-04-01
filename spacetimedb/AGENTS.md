@@ -1,6 +1,6 @@
 # Backend (SpacetimeDB) Guidelines
 
-Parent: [../AGENTS.md](../AGENTS.md) | Constitution: [../.specify/memory/constitution.md](../.specify/memory/constitution.md)
+Parent: [../AGENTS.md](../AGENTS.md) | Constitution: [Project Constitution](../domain_knowledge/constitution.md)
 
 **CRITICAL:** Never read `.env` files. Use `.env.example` only. See [secrets policy](../AGENTS.md#critical-secrets-protection-non-negotiable).
 
@@ -147,4 +147,4 @@ The next major backend work involves:
 - Reducers for casting/changing votes
 - Procedures for fetching game metadata from external APIs (Steam, IGDB)
 
-See: [../.specify/proposals/game-voting-feature.md](../.specify/proposals/game-voting-feature.md)
+See: ../domain_knowledge/game-voting-feature.md

@@ -43,17 +43,8 @@
 
 | Source | Status |
 |--------|--------|
-| `openspec/specs/auth/spec.md` | ✅ Incorporated into Section A |
-| `openspec/specs/chat/spec.md` | ✅ Incorporated into Sections B, C, E, F |
-| `openspec/specs/emoji-reactions/spec.md` | ✅ Incorporated into Section D |
-| `openspec/specs/system-messages/spec.md` | ✅ Incorporated into Section E |
-| `openspec/specs/ui-consistency/spec.md` | ✅ Incorporated into Section G |
-| `openspec/changes/archive/2026-02-28-add-user-session-metrics/` | ✅ Incorporated into Section F |
-| `openspec/changes/archive/2026-02-28-simplify-codebase/` | ✅ Referenced (codebase simplification out of scope for spec) |
-| `openspec/changes/archive/2026-03-01-add-system-messages-and-align-ui/` | ✅ Incorporated into Sections E, G |
 
 ## Notes
 
 - This spec serves as the authoritative "level set" for the Alexxed platform
-- Original OpenSpec experiments can be deleted after this spec is accepted
 - Ready for `/speckit.plan` to generate implementation tasks

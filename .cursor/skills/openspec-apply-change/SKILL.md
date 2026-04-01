@@ -1,15 +1,11 @@
 ---
-name: openspec-apply-change
-description: Implement tasks from an OpenSpec change. Use when the user wants to start implementing, continue implementation, or work through tasks.
 license: MIT
-compatibility: Requires openspec CLI.
+compatibility: Uses domain_knowledge scaffolding and specs/ directory (domain_knowledge/scripts/).
 metadata:
-  author: openspec
   version: "1.0"
   generatedBy: "1.2.0"
 ---
 
-Implement tasks from an OpenSpec change.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
@@ -20,32 +16,27 @@ Implement tasks from an OpenSpec change.
    If a name is provided, use it. Otherwise:
    - Infer from conversation context if the user mentioned a change
    - Auto-select if only one active change exists
-   - If ambiguous, run `openspec list --json` to get available changes and use the **AskUserQuestion tool** to let the user select
+   - If ambiguous, inspect the `specs/` directory (e.g., `ls specs/`) to get available feature specs and use the **AskUserQuestion tool** to let the user select
 
    Always announce: "Using change: <name>" and how to override (e.g., `/opsx:apply <other>`).
 
 2. **Check status to understand the schema**
-   ```bash
-   openspec status --change "<name>" --json
-   ```
-   Parse the JSON to understand:
+   Inspect the feature's spec and associated artifacts (spec, design, tasks) to understand schema and artifact locations.
+   For machine consumption, run `domain_knowledge/scripts/create-new-feature.sh --json` against the spec directory if you have a wrapper tool that emits status.
    - `schemaName`: The workflow being used (e.g., "spec-driven")
    - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
 
 3. **Get apply instructions**
 
-   ```bash
-   openspec instructions apply --change "<name>" --json
-   ```
+   Use the spec's structure and templates under `domain_knowledge/templates/` to derive apply instructions for implementation.
 
-   This returns:
+   This yields:
    - Context file paths (varies by schema - could be proposal/specs/design/tasks or spec/tests/implementation/docs)
    - Progress (total, complete, remaining)
    - Task list with status
    - Dynamic instruction based on current state
 
    **Handle states:**
-   - If `state: "blocked"` (missing artifacts): show message, suggest using openspec-continue-change
    - If `state: "all_done"`: congratulate, suggest archive
    - Otherwise: proceed to implementation
 

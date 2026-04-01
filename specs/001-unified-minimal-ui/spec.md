@@ -3,7 +3,6 @@
 **Feature Branch**: `001-unified-minimal-ui`  
 **Created**: 2026-03-06  
 **Status**: Active  
-**Consolidates**: OpenSpec experiments (auth, chat, emoji-reactions, system-messages, ui-consistency, user-session-metrics, simplify-codebase)
 
 ## Vision
 
@@ -17,7 +16,6 @@ Alexxed is a streamer community platform built on SpacetimeDB with:
 - **Channel Navigation**: Sidebar with unread indicators (passive notifications)
 - **Unified UI**: Minimal green/black theme with WCAG AAA accessibility
 
-This spec consolidates all prior OpenSpec experiments into a single authoritative document.
 
 ## Clarifications
 

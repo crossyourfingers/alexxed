@@ -1,17 +1,14 @@
 ---
-name: openspec-explore
 description: Enter explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements. Use when the user wants to think through something before or during a change.
 license: MIT
-compatibility: Requires openspec CLI.
+compatibility: Uses domain_knowledge artifacts and scaffolding (specs/ and domain_knowledge/scripts/).
 metadata:
-  author: openspec
   version: "1.0"
   generatedBy: "1.2.0"
 ---
 
 Enter explore mode. Think deeply. Visualize freely. Follow the conversation wherever it goes.
 
-**IMPORTANT: Explore mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must NEVER write code or implement features. If the user asks you to implement something, remind them to exit explore mode first and create a change proposal. You MAY create OpenSpec artifacts (proposals, designs, specs) if the user asks—that's capturing thinking, not implementing.
 
 **This is a stance, not a workflow.** There are no fixed steps, no required sequence, no mandatory outputs. You're a thinking partner helping the user explore.
 
@@ -75,20 +72,18 @@ Depending on what the user brings, you might:
 
 ---
 
-## OpenSpec Awareness
 
-You have full context of the OpenSpec system. Use it naturally, don't force it.
 
 ### Check for context
 
-At the start, quickly check what exists:
+At the start, quickly check what exists (inspect the `specs/` directory or the feature branch):
 ```bash
-openspec list --json
+ls specs/
 ```
 
 This tells you:
-- If there are active changes
-- Their names, schemas, and status
+- If there are active feature specs
+- Their names and locations
 - What the user might be working on
 
 ### When no change exists
@@ -103,10 +98,10 @@ Think freely. When insights crystallize, you might offer:
 If the user mentions a change or you detect one is relevant:
 
 1. **Read existing artifacts for context**
-   - `openspec/changes/<name>/proposal.md`
-   - `openspec/changes/<name>/design.md`
-   - `openspec/changes/<name>/tasks.md`
-   - etc.
+     - `specs/<feature>/proposal.md` (if present)
+     - `specs/<feature>/design.md` (if present)
+     - `specs/<feature>/tasks.md` (if present)
+     - etc.
 
 2. **Reference them naturally in conversation**
    - "Your design mentions using Redis, but we just realized SQLite fits better..."
@@ -278,7 +273,6 @@ But this summary is optional. Sometimes the thinking IS the value.
 
 ## Guardrails
 
-- **Don't implement** - Never write code or implement features. Creating OpenSpec artifacts is fine, writing application code is not.
 - **Don't fake understanding** - If something is unclear, dig deeper
 - **Don't rush** - Discovery is thinking time, not task time
 - **Don't force structure** - Let patterns emerge naturally

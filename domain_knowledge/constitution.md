@@ -1,6 +1,6 @@
 # Project Constitution
 
-This file encodes the core programming and workflow principles for the Alexxed project, as ratified in the .specify/memory/constitution.md. It is intended as a domain knowledge reference for LLMs and agents.
+This file encodes the core programming and workflow principles for the Alexxed project. It is intended as a domain knowledge reference for LLMs and agents.
 
 ## Core Principles
 
@@ -29,7 +29,7 @@ This file encodes the core programming and workflow principles for the Alexxed p
 - All features require a committed specification before implementation.
 - Any spec framework is allowed; specs must be in source control.
 - User stories must be testable and deliverable.
-- Recommended: OpenSpec workflow (propose → specify → design → implement → archive).
+- Recommended: Spec-driven workflow (propose → specify → design → implement → archive).
 
 ### 5. Type Safety & Code Generation
 - Generated bindings are the contract between backend and frontend; never edit manually.
@@ -65,7 +65,7 @@ This file encodes the core programming and workflow principles for the Alexxed p
 
 ## Gaps & Open Questions
 
-This section tracks known compliance gaps, maintainability issues, and open questions identified in the project. For full details, see `.specify/memory/constitution-gaps.md` and `.specify/proposals/devstral-gaps.md`.
+This section tracks known compliance gaps, maintainability issues, and open questions identified in the project. For full details, see [Constitution Gaps](constitution-gaps.md) and [Devstral Gaps](devstral-gaps.md).
 
 ### Constitution Compliance Gaps (as of 2026-03-06)
 
@@ -97,7 +97,7 @@ This section tracks known compliance gaps, maintainability issues, and open ques
 - Separate presentation and container components
 - Centralize feature flags and shared state
 
-**See also:** [devstral-gaps.md](../../.specify/proposals/devstral-gaps.md)
+**See also:** devstral-gaps.md
 
 ---
 

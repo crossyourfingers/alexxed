@@ -1,3 +1,16 @@
+## Operating Constraints
+
+**STRICTLY READ-ONLY**: Do **not** modify any files. Output a structured analysis report. Offer an optional remediation plan (user must explicitly approve before any follow-up editing commands would be invoked manually).
+
+**Constitution Authority**: The project constitution (`domain_knowledge/constitution.md`) is **non-negotiable** within this analysis scope. Constitution conflicts are automatically CRITICAL and require adjustment of the spec, plan, or tasks—not dilution, reinterpretation, or silent ignoring of the principle. If a principle itself needs to change, that must occur in a separate, explicit constitution update outside the analysis command.
+
+### 7. Provide Next Actions
+
+At end of report, output a concise Next Actions block:
+
+- If CRITICAL issues exist: Recommend resolving before `/speckit.implement`
+- If only LOW/MEDIUM: User may proceed, but provide improvement suggestions
+- Provide explicit command suggestions: e.g., "Create or refine the spec using the feature-spec workflow (domain_knowledge/scripts/create-new-feature.sh)", "Run speckit.plan to adjust architecture", "Manually edit tasks.md to add coverage for 'performance-metrics'"
 ---
 description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
 ---
@@ -14,17 +27,13 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Identify inconsistencies, duplications, ambiguities, and underspecified items across the three core artifacts (`spec.md`, `plan.md`, `tasks.md`) before implementation. This command MUST run only after `/speckit.tasks` has successfully produced a complete `tasks.md`.
 
-## Operating Constraints
-
-**STRICTLY READ-ONLY**: Do **not** modify any files. Output a structured analysis report. Offer an optional remediation plan (user must explicitly approve before any follow-up editing commands would be invoked manually).
-
-**Constitution Authority**: The project constitution (`.specify/memory/constitution.md`) is **non-negotiable** within this analysis scope. Constitution conflicts are automatically CRITICAL and require adjustment of the spec, plan, or tasks—not dilution, reinterpretation, or silent ignoring of the principle. If a principle itself needs to change, that must occur in a separate, explicit constitution update outside `/speckit.analyze`.
+## Execution Steps
 
 ## Execution Steps
 
 ### 1. Initialize Analysis Context
 
-Run `.specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks` once from repo root and parse JSON for FEATURE_DIR and AVAILABLE_DOCS. Derive absolute paths:
+Run `domain_knowledge/scripts/check-prerequisites.sh --json --require-tasks --include-tasks` once from repo root and parse JSON for FEATURE_DIR and AVAILABLE_DOCS. Derive absolute paths:
 
 - SPEC = FEATURE_DIR/spec.md
 - PLAN = FEATURE_DIR/plan.md
@@ -62,7 +71,7 @@ Load only the minimal necessary context from each artifact:
 
 **From constitution:**
 
-- Load `.specify/memory/constitution.md` for principle validation
+- Load `domain_knowledge/constitution.md` for principle validation
 
 ### 3. Build Semantic Models
 
@@ -156,7 +165,7 @@ At end of report, output a concise Next Actions block:
 
 - If CRITICAL issues exist: Recommend resolving before `/speckit.implement`
 - If only LOW/MEDIUM: User may proceed, but provide improvement suggestions
-- Provide explicit command suggestions: e.g., "Run /speckit.specify with refinement", "Run /speckit.plan to adjust architecture", "Manually edit tasks.md to add coverage for 'performance-metrics'"
+- Provide explicit command suggestions: e.g., "Create or refine the spec using the feature-spec workflow (domain_knowledge/scripts/create-new-feature.sh)", "Run speckit.plan to adjust architecture", "Manually edit tasks.md to add coverage for 'performance-metrics'"
 
 ### 8. Offer Remediation
 
