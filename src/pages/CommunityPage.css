@@ -101,9 +101,34 @@
 
 /* Main content layout */
 .community-content {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr;
   flex: 1;
   overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .community-content {
+    grid-template-columns: 200px 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .community-content {
+    grid-template-columns: 240px 1fr 240px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .community-content {
+    grid-template-columns: minmax(240px, 1fr) 2fr minmax(240px, 1fr);
+  }
+}
+
+@media (min-width: 1920px) {
+  .community-content {
+    grid-template-columns: 1fr 2fr 1fr;
+  }
 }
 
 /* Chat area (center) */
@@ -151,7 +176,6 @@
 
 /* Members sidebar (right) */
 .community-members {
-  width: 240px;
   min-width: 200px;
   background: var(--color-bg-elevated);
   border-left: 1px solid var(--color-border);

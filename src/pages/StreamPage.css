@@ -105,10 +105,38 @@
    ============================================ */
 .stream-content {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr;
   flex: 1;
   overflow: hidden;
   min-height: 0;
+}
+
+/* Desktop baseline: main + chat */
+@media (min-width: 1024px) {
+  .stream-content {
+    grid-template-columns: 1fr 340px;
+  }
+}
+
+/* Wide: allow chat to grow proportionally */
+@media (min-width: 1440px) {
+  .stream-content {
+    grid-template-columns: 1fr minmax(340px, 400px);
+  }
+}
+
+/* Ultra-wide: three-column layout (main / chat / schedule) */
+@media (min-width: 1920px) {
+  .stream-content {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+}
+
+/* Super ultra-wide: increase main column share */
+@media (min-width: 2560px) {
+  .stream-content {
+    grid-template-columns: 3fr 1fr 1fr;
+  }
 }
 
 .stream-main {
@@ -244,7 +272,7 @@
 }
 
 .tab-btn.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -275,7 +303,10 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
   border: 2px solid transparent;
 }
 
@@ -359,7 +390,9 @@
   padding: var(--space-5);
   position: relative;
   border-left: 4px solid var(--color-info);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .schedule-card:hover {
@@ -564,7 +597,9 @@
   text-decoration: none;
   font-weight: 600;
   font-size: var(--text-sm);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .social-btn:hover {
@@ -583,7 +618,14 @@
 }
 
 .social-btn.instagram {
-  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  background: linear-gradient(
+    45deg,
+    #f09433,
+    #e6683c,
+    #dc2743,
+    #cc2366,
+    #bc1888
+  );
   color: #fff;
 }
 
@@ -596,6 +638,20 @@
   background: var(--color-bg-surface);
   border-left: 1px solid var(--color-border);
   overflow: hidden;
+}
+
+.stream-schedule-preview {
+  display: none;
+}
+
+@media (min-width: 1920px) {
+  .stream-schedule-preview {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg-elevated);
+    border-left: 1px solid var(--color-border);
+    overflow: hidden;
+  }
 }
 
 /* Override shared chat styles for stream sidebar */
@@ -635,7 +691,7 @@
 }
 
 .viewers-count::before {
-  content: '';
+  content: "";
   width: 8px;
   height: 8px;
   background-color: var(--color-success);

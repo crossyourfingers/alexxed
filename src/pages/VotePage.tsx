@@ -1,6 +1,8 @@
 import React from "react";
 import { Header } from "../components/Header";
 import "./CommunityPage.css";
+import "./VotePage.css";
+import VoteStatsPanel from "../components/VoteStatsPanel";
 import { useTable, useReducer } from "spacetimedb/react";
 import { tables, reducers } from "../module_bindings";
 import SwipeVote from "./SwipeVote";
@@ -49,15 +51,21 @@ export function VotePage({ username, onLogout }: VotePageProps) {
   return (
     <div className="community-page">
       <Header username={username} onLogout={onLogout} />
-      <div className="community-content">
-        <div style={{ padding: 16 }}>
-          <h2>Game Voting</h2>
-          <p>Vote for the next game. Counts update in real-time.</p>
+      <div className="vote-content">
+        <div className="vote-deck-area">
+          <div style={{ padding: 16 }}>
+            <h2>Game Voting</h2>
+            <p>Vote for the next game. Counts update in real-time.</p>
 
-          <div style={{ paddingTop: 16 }}>
-            <SwipeVote />
+            <div style={{ paddingTop: 16 }}>
+              <SwipeVote />
+            </div>
           </div>
         </div>
+
+        <aside className="vote-stats-panel">
+          <VoteStatsPanel />
+        </aside>
       </div>
     </div>
   );

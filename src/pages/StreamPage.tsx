@@ -21,6 +21,7 @@ import { useOnlineUsers } from "../hooks/useOnlineUsers";
 import { useStreamStatus } from "../hooks/useStreamStatus";
 import { VideoPlaceholder } from "../components/VideoPlaceholder";
 import { StreamStatusIndicator } from "../components/StreamStatusIndicator";
+import SchedulePreview from "../components/SchedulePreview";
 import "./StreamPage.css";
 
 interface StreamPageProps {
@@ -56,7 +57,7 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
   const [likes] = useTable(tables.message_like);
   const [reactions] = useTable(tables.message_reaction);
   const [users] = useTable(tables.user);
-  
+
   // Online users for viewer count
   const { onlineUsers } = useOnlineUsers();
 
@@ -161,14 +162,14 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
             <StreamStatusIndicator showLabel size="lg" />
             <span className="viewer-count">{onlineUsers.length} viewers</span>
           </div>
-          
+
           {/* Featured video player or placeholder */}
           <section className="featured-player">
             {isOnline ? (
               // Show VideoPlaceholder when live (would be replaced with actual live stream embed)
-              <VideoPlaceholder 
-                isLive={true} 
-                streamerName={streamerName || 'Streamer'} 
+              <VideoPlaceholder
+                isLive={true}
+                streamerName={streamerName || "Streamer"}
               />
             ) : selectedVideo ? (
               <>
@@ -388,6 +389,10 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
             showFormatHint={false}
             disabled={!generalChannel}
           />
+        </aside>
+        {/* Schedule preview - visible on wide/ultrawide */}
+        <aside className="stream-schedule-preview">
+          <SchedulePreview />
         </aside>
       </div>
     </div>
