@@ -23,7 +23,7 @@ interface VotePageProps {
  */
 export function VotePage({ username, onLogout }: VotePageProps) {
   const [games, gamesLoading] = useTable(tables.game);
-  const [counts] = useTable(tables.gameVoteCounts);
+  const [counts] = useTable(tables.game_vote_counts);
   const castVote = useReducer(reducers.castVote);
 
   const getCountsFor = (gameId: bigint) => {
