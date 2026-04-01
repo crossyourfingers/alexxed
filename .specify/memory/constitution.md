@@ -50,6 +50,7 @@ Code MUST be clean, readable, and as concise as reasonably possible.
 - Avoid magic numbers and strings; use named constants
 
 **Anti-patterns to avoid**:
+
 - Inline complex operations that could be a named function
 - Performance hacks scattered throughout codebase (encapsulate in utility modules)
 - Copy-paste code (extract to shared functions)
@@ -104,7 +105,6 @@ Generated bindings are the contract between backend and frontend; manual edits a
 **Rationale**: Code generation eliminates type mismatches, ensures API contract adherence,
 and catches breaking changes at compile time rather than runtime.
 
-
 ### VI. Testing & Quality Standards
 
 All changes MUST include appropriate tests unless explicitly exempted.
@@ -122,11 +122,26 @@ and enables confident refactoring.
 
 All secret or sensitive values (e.g., API keys, client secrets, authorization tokens, passwords, etc.) in this repository MUST only reside in files that are included in the `.gitignore`.
 
+**For Git/Source Control:**
+
 - No secrets or sensitive credentials may be committed to version control under any circumstances
 - All configuration, environment, or secret files containing such values MUST be listed in `.gitignore`
 - Automated and manual reviews MUST check for accidental inclusion of secrets in tracked files
 
-**Rationale**: Protecting secrets and sensitive values is essential to prevent credential leaks, unauthorized access, and security breaches. This requirement is non-negotiable and applies to all contributors and automation.
+**For AI/LLM Agents (NON-NEGOTIABLE):**
+
+- Agents MUST NEVER read `.env` files — not even to "check" or "verify" values
+- Agents MUST NEVER read any file matching `.env*` patterns (`.env`, `.env.local`, `.env.production`, etc.)
+- If agents need to reference secret structure, use `.env.example` or `*.public.secrets` files ONLY
+- If agents need actual secret values, they MUST ask the user — never attempt to read them
+
+**Allowed Files for Agents:**
+| File | Purpose |
+|------|---------|
+| `.env.example` | Template showing required variables (no real values) |
+| `*.public.secrets` | Explicitly marked safe for agent consumption |
+
+**Rationale**: Protecting secrets and sensitive values is essential to prevent credential leaks, unauthorized access, and security breaches. AI agents with file system access pose additional risk — they must never have access to actual secret values. This requirement is non-negotiable and applies to all contributors, automation, and AI agents.
 
 ## Technology Stack
 
