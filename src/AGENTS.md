@@ -4,6 +4,8 @@ Parent: [../AGENTS.md](../AGENTS.md) | Constitution: [Project Constitution](../d
 
 **CRITICAL:** Never read `.env` files. Use `.env.example` only. See [secrets policy](../AGENTS.md#critical-secrets-protection-non-negotiable).
 
+Note on agent permissions: this repository may include a top-level `.agent-permissions.json` file that grants the assistant limited runtime permissions (for example `allow_assistant_commit_push`). If that file exists and grants permission, agents MAY stage, commit, and push non-sensitive changes without asking each time, but MUST still respect any `disallowed_actions` listed (for example `"read_env_files"`).
+
 ---
 
 ## Tech Stack

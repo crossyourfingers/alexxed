@@ -27,6 +27,8 @@ Full principles: [Project Constitution](domain_knowledge/constitution.md)
 
 Agents MUST check the repository-root file `.agent-permissions.json` for explicit runtime permissions before performing repository-modifying actions (for example, committing or pushing). That file may include `allow_assistant_commit_push` and a `disallowed_actions` list (for example `"read_env_files"`). The file is a convenience, human-editable flag tracked in source control and is not a substitute for repository access controls — treat it as authoritative for agent behaviour in this repo, but not cryptographically binding.
 
+Agent runtime behaviour: if `.agent-permissions.json` exists at the repository root and contains `"allow_assistant_commit_push": true`, agents MAY proceed to stage, commit, and push non-sensitive repository changes without asking for explicit approval each time. Agents MUST still respect any `disallowed_actions` present in that file (for example `"read_env_files"`) and MUST NOT read any `.env*` file. When acting under this permission, agents should include a concise commit message and a short explanation in their response describing what was changed and why.
+
 ### Allowed Files for Agents
 
 | File               | Purpose                                              |
