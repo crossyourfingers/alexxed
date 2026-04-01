@@ -13,11 +13,18 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
     let startX = 0;
     let currentX = 0;
     let dragging = false;
+    let activeCard: HTMLElement | null = null;
 
     function onStart(e: TouchEvent | MouseEvent) {
       dragging = true;
       startX =
         "touches" in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+      // lift the top card visually so it stays above the stack during drag
+      activeCard = el.firstElementChild as HTMLElement | null;
+      if (activeCard) {
+        activeCard.style.zIndex = "9999";
+        activeCard.style.willChange = "transform";
+      }
     }
     function onMove(e: TouchEvent | MouseEvent) {
       if (!dragging) return;
@@ -46,8 +53,14 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
       } else {
         card.style.transform = `translateX(0)`;
       }
+      // clear transition and restore z-index after animation completes
       setTimeout(() => {
         card.style.transition = "";
+        if (activeCard) {
+          activeCard.style.zIndex = "";
+          activeCard.style.willChange = "";
+          activeCard = null;
+        }
       }, 300);
     }
 
@@ -199,12 +212,14 @@ export default function SwipeVote() {
             const voted = votedIds.has(card.id.toString());
             const style: React.CSSProperties = {
               position: "absolute",
-              top: `${idx * 12}px`,
+              top: `${idx * 18}px`,
               left: 0,
               right: 0,
               margin: "0 auto",
               zIndex: 100 - idx,
-              transform: `translateY(${idx * 8}px) scale(${1 - idx * 0.03})`,
+              // stronger depth: translate down, reduce scale, and increase perspective shift
+              transform: `translateY(${idx * 12}px) scale(${1 - idx * 0.06}) rotate(${idx * 1.2}deg)`,
+              opacity: 1 - idx * 0.06,
             };
             return (
               <div
@@ -216,35 +231,44 @@ export default function SwipeVote() {
               >
                 <img className="poster" src={card.image} alt={card.title} />
                 {voted && <div className="disabled-badge">VOTED</div>}
-                <div className="card-body">
-                  <div className="card-title">{card.title}</div>
-                  <div className="card-subtitle">{card.subtitle}</div>
-                  <div className="vote-row">
-                    <div
-                      style={{ fontSize: 14, color: "rgba(230,238,248,0.95)" }}
-                    >
-                      Score: {String(getCount(card.id))}
-                    </div>
-                    <div className="vote-buttons">
-                      <button
-                        className="vote-btn down"
-                        onClick={() => handleButton("left")}
-                        disabled={voted}
-                        aria-disabled={voted}
+                {isTop ? (
+                  <div className="card-body">
+                    <div className="card-title">{card.title}</div>
+                    <div className="card-subtitle">{card.subtitle}</div>
+                    <div className="vote-row">
+                      <div
+                        style={{
+                          fontSize: 14,
+                          color: "rgba(230,238,248,0.95)",
+                        }}
                       >
-                        👎
-                      </button>
-                      <button
-                        className="vote-btn up"
-                        onClick={() => handleButton("right")}
-                        disabled={voted}
-                        aria-disabled={voted}
-                      >
-                        👍
-                      </button>
+                        Score: {String(getCount(card.id))}
+                      </div>
+                      <div className="vote-buttons">
+                        <button
+                          className="vote-btn down"
+                          onClick={() => handleButton("left")}
+                          disabled={voted}
+                          aria-disabled={voted}
+                        >
+                          👎
+                        </button>
+                        <button
+                          className="vote-btn up"
+                          onClick={() => handleButton("right")}
+                          disabled={voted}
+                          aria-disabled={voted}
+                        >
+                          👍
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="score-badge">
+                    Score: {String(getCount(card.id))}
+                  </div>
+                )}
               </div>
             );
           })
