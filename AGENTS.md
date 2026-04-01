@@ -25,6 +25,8 @@ Full principles: [Project Constitution](domain_knowledge/constitution.md)
 - If you need to reference secret structure, use `.env.example` or `.public.secrets` files ONLY
 - If you need actual secret values, **ask the user** — do not attempt to read them
 
+Agents MUST check the repository-root file `.agent-permissions.json` for explicit runtime permissions before performing repository-modifying actions (for example, committing or pushing). That file may include `allow_assistant_commit_push` and a `disallowed_actions` list (for example `"read_env_files"`). The file is a convenience, human-editable flag tracked in source control and is not a substitute for repository access controls — treat it as authoritative for agent behaviour in this repo, but not cryptographically binding.
+
 ### Allowed Files for Agents
 
 | File               | Purpose                                              |
@@ -47,16 +49,15 @@ Any agent that reads `.env` files is violating Alex's explicit security policy. 
 
 **Workflow Policy:** Alex owns this project. He can vibe code whenever he wants—no justification needed. Agents should ask preference if unclear, but never block Alex from rapid iteration.
 
-
 ---
 
 ## Project Structure
 
-| Directory      | Purpose                    | AGENTS.md                                      |
-| -------------- | -------------------------- | ---------------------------------------------- |
-| `/src`         | React frontend             | [src/AGENTS.md](src/AGENTS.md)                 |
-| `/spacetimedb` | SpacetimeDB backend module | [spacetimedb/AGENTS.md](spacetimedb/AGENTS.md) |
-| `/domain_knowledge`    | Proposals, specs, memory   | [domain_knowledge/index.md](domain_knowledge/index.md)       |
+| Directory           | Purpose                    | AGENTS.md                                              |
+| ------------------- | -------------------------- | ------------------------------------------------------ |
+| `/src`              | React frontend             | [src/AGENTS.md](src/AGENTS.md)                         |
+| `/spacetimedb`      | SpacetimeDB backend module | [spacetimedb/AGENTS.md](spacetimedb/AGENTS.md)         |
+| `/domain_knowledge` | Proposals, specs, memory   | [domain_knowledge/index.md](domain_knowledge/index.md) |
 
 ---
 

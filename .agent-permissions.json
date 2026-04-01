@@ -4,5 +4,6 @@
   "branches": ["main"],
   "granted_by": "user",
   "granted_at": "2026-04-01T00:00:00Z",
-  "notes": "User granted the assistant permission to commit and push in this repository. Agents should check this file before performing git operations. This file is intentionally non-secret and tracked in source control."
+  "notes": "User granted the assistant permission to commit and push in this repository. Agents should check this file before performing git operations. This file is intentionally non-secret and tracked in source control.",
+  "disallowed_actions": ["read_env_files"]
 }
