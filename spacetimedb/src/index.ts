@@ -1145,28 +1145,33 @@ export const mark_channel_read = spacetimedb.reducer(
 );
 
 // Per-subscriber view exposing current user's session metrics
-export const my_session_metrics = spacetimedb.view(
-  { name: "my_session_metrics", public: true },
-  t.array(
-    t.object("SessionMetrics", {
-      sessionCount: t.u64(),
-      connectedAt: t.timestamp().optional(),
-    }),
-  ),
-  (ctx) => {
-    // Find all sessions for this sender by scanning and filtering (safe server-side)
-    const sessions = [...ctx.db.user_session.iter()].filter((s) =>
-      s.user_identity.isEqual(ctx.sender),
-    );
-    const open = sessions.find((s) => !s.disconnected_at);
-    return [
-      {
-        sessionCount: BigInt(sessions.length),
-        connectedAt: open ? open.connected_at : undefined,
-      },
-    ];
-  },
-);
+// NOTE: my_session_metrics view temporarily disabled.
+// The view caused a runtime error during module publish (fatal error in
+// view/table initialization). The client has a safe fallback (sessionStorage
+// / localStorage) and the feature can be reintroduced later with a query-
+// builder based view or after resolving the index/accessor mapping.
+
+// export const my_session_metrics = spacetimedb.view(
+//   { name: "my_session_metrics", public: true },
+//   t.array(
+//     t.object("SessionMetrics", {
+//       sessionCount: t.u64(),
+//       connectedAt: t.timestamp().optional(),
+//     }),
+//   ),
+//   (ctx) => {
+//     const sessions = [...ctx.db.user_session.iter()].filter((s) =>
+//       s.user_identity.isEqual(ctx.sender),
+//     );
+//     const open = sessions.find((s) => !s.disconnected_at);
+//     return [
+//       {
+//         sessionCount: BigInt(sessions.length),
+//         connectedAt: open ? open.connected_at : undefined,
+//       },
+//     ];
+//   },
+// );
 
 // Admin view for reported messages (only visible to streamer/admin)
 const ReportedMessageView = t.object("ReportedMessageView", {
