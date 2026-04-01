@@ -75,17 +75,38 @@ export default function SwipeVote() {
   const castVote = useReducer(reducers.castVote);
 
   // local set of ids we've voted on — prevents duplicate reducer calls
-  const [votedIds, setVotedIds] = useState<Set<string>>(() => new Set());
+  const [votedIds, setVotedIds] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem("swipe_voted_ids");
+      if (raw) {
+        const arr = JSON.parse(raw) as string[];
+        return new Set(arr);
+      }
+    } catch (e) {
+      // ignore
+    }
+    return new Set();
+  });
   const markVoted = (id: string) =>
     setVotedIds((s) => {
       const n = new Set(s);
       n.add(id);
+      try {
+        localStorage.setItem("swipe_voted_ids", JSON.stringify(Array.from(n)));
+      } catch (e) {
+        /* ignore storage errors */
+      }
       return n;
     });
   const unmarkVoted = (id: string) =>
     setVotedIds((s) => {
       const n = new Set(s);
       n.delete(id);
+      try {
+        localStorage.setItem("swipe_voted_ids", JSON.stringify(Array.from(n)));
+      } catch (e) {
+        /* ignore storage errors */
+      }
       return n;
     });
 
