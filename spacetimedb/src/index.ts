@@ -615,6 +615,16 @@ export const init = spacetimedb.init((ctx) => {
 export const cast_vote = spacetimedb.reducer(
   { game_id: t.u64(), vote: t.string() },
   (ctx, { game_id, vote }) => {
+    // Debugging logs: surface reducer invocations to server logs so we can
+    // trace whether client calls are reaching the server and with what types.
+    try {
+      console.info(
+        `cast_vote invoked: sender=${ctx.sender.toHexString()}, game_id=${game_id}, vote=${vote}`,
+      );
+    } catch (e) {
+      // Best-effort logging; don't fail the reducer because of logging issues
+      console.warn("cast_vote logging failed:", e);
+    }
     if (vote !== "up" && vote !== "down") {
       throw new SenderError("Invalid vote value");
     }
