@@ -17,8 +17,9 @@ function makePosterDataUri(
 ) {
   const w = 600;
   const h = 900;
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-  <svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'>
+  // NOTE: omit the XML prolog for better compatibility when inlining
+  const svg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
     <defs>
       <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
         <stop offset='0' stop-color='${colorA}' />
@@ -36,7 +37,15 @@ function makePosterDataUri(
     </g>
   </svg>`;
 
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  // Base64-encode the SVG for maximum compatibility (handles UTF-8 safely).
+  // btoa expects a binary string, so use the standard UTF-8 -> binary shim.
+  try {
+    const base64 = btoa(unescape(encodeURIComponent(svg)));
+    return `data:image/svg+xml;base64,${base64}`;
+  } catch (e) {
+    // Fallback to URI-encoded form if btoa isn't available for some reason.
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  }
 }
 
 export type PosterCard = {

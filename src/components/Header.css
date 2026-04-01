@@ -49,6 +49,56 @@
   gap: var(--spacing-2);
 }
 
+/* Mobile nav toggle (hamburger) */
+.mobile-nav-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.hamburger {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--color-text-primary);
+  position: relative;
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
+}
+.hamburger::before,
+.hamburger::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 2px;
+  background: var(--color-text-primary);
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+.hamburger::before {
+  top: -6px;
+}
+.hamburger::after {
+  top: 6px;
+}
+.hamburger.open {
+  background: transparent;
+}
+.hamburger.open::before {
+  transform: translateY(6px) rotate(45deg);
+}
+.hamburger.open::after {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
 .app-header-right {
   display: flex;
   align-items: center;
@@ -95,4 +145,92 @@
 
 .name-edit-input:focus {
   box-shadow: 0 0 0 2px var(--color-primary-subtle);
+}
+
+/* Mobile drawer styles */
+.mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  pointer-events: none;
+  transition: background 180ms ease;
+  z-index: calc(var(--z-header) - 1);
+}
+.mobile-drawer-backdrop.open {
+  background: rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+}
+
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 280px;
+  background: var(--color-bg-elevated);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.12);
+  transform: translateX(-100%);
+  transition: transform 200ms ease;
+  z-index: var(--z-header);
+  display: flex;
+  flex-direction: column;
+}
+.mobile-drawer.open {
+  transform: translateX(0);
+}
+
+.mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mobile-drawer-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-4);
+  gap: var(--spacing-3);
+}
+
+.mobile-drawer-footer {
+  margin-top: auto;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.mobile-logout {
+  text-align: left;
+}
+
+/* Small screens: hide desktop nav and show mobile toggle */
+@media (max-width: 768px) {
+  .app-nav {
+    display: none;
+  }
+
+  .mobile-nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-badge.mobile {
+    display: inline-block;
+  }
+
+  .name-edit-form.mobile {
+    width: 100%;
+  }
 }
