@@ -64,7 +64,6 @@ import LinkPreviewRow from "./link_preview_table";
 import MessageRow from "./message_table";
 import MessageLikeRow from "./message_like_table";
 import MessageReactionRow from "./message_reaction_table";
-import MySessionMetricsRow from "./my_session_metrics_table";
 import StreamScheduleDayRow from "./stream_schedule_day_table";
 import StreamerProfileRow from "./streamer_profile_table";
 import SystemMessageRow from "./system_message_table";
@@ -209,13 +208,6 @@ const tablesSchema = __schema({
     constraints: [
     ],
   }, GameVoteCountsRow),
-  my_session_metrics: __table({
-    name: 'my_session_metrics',
-    indexes: [
-    ],
-    constraints: [
-    ],
-  }, MySessionMetricsRow),
 });
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */

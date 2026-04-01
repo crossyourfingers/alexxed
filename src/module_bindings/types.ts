@@ -101,9 +101,6 @@ export const MessageReaction = __t.object("MessageReaction", {
 });
 export type MessageReaction = __Infer<typeof MessageReaction>;
 
-export const MySessionMetrics = __t.object("MySessionMetrics", {});
-export type MySessionMetrics = __Infer<typeof MySessionMetrics>;
-
 export const ReportedMessage = __t.object("ReportedMessage", {
   id: __t.u64(),
   messageSent: __t.timestamp(),
@@ -121,12 +118,6 @@ export const ReportedMessageView = __t.object("ReportedMessageView", {
   status: __t.string(),
 });
 export type ReportedMessageView = __Infer<typeof ReportedMessageView>;
-
-export const SessionMetrics = __t.object("SessionMetrics", {
-  sessionCount: __t.u64(),
-  connectedAt: __t.option(__t.timestamp()),
-});
-export type SessionMetrics = __Infer<typeof SessionMetrics>;
 
 export const StreamScheduleDay = __t.object("StreamScheduleDay", {
   dayNumber: __t.u32(),

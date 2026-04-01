@@ -131,10 +131,18 @@ export default function SwipeVote() {
 
     if (!votedIds.has(idStr)) {
       markVoted(idStr);
-      castVote({ gameId: top.id, vote }).catch((err: any) => {
-        console.error("Failed to cast vote:", err);
-        unmarkVoted(idStr);
+      // Debug: log outgoing reducer payload
+      console.debug("castVote ->", {
+        gameId: top.id,
+        vote,
+        type: typeof top.id,
       });
+      castVote({ gameId: top.id, vote })
+        .then(() => console.debug("castVote succeeded", top.id, vote))
+        .catch((err: any) => {
+          console.error("Failed to cast vote:", err);
+          unmarkVoted(idStr);
+        });
     }
 
     // animate then rotate deck so we always have cards
@@ -166,10 +174,17 @@ export default function SwipeVote() {
 
     if (!votedIds.has(idStr)) {
       markVoted(idStr);
-      castVote({ gameId: top.id, vote }).catch((err: any) => {
-        console.error("Failed to cast vote:", err);
-        unmarkVoted(idStr);
+      console.debug("castVote ->", {
+        gameId: top.id,
+        vote,
+        type: typeof top.id,
       });
+      castVote({ gameId: top.id, vote })
+        .then(() => console.debug("castVote succeeded", top.id, vote))
+        .catch((err: any) => {
+          console.error("Failed to cast vote:", err);
+          unmarkVoted(idStr);
+        });
     }
 
     const el = ref.current?.firstElementChild as HTMLElement | undefined;
