@@ -3,6 +3,7 @@ import { Header } from "../components/Header";
 import "./CommunityPage.css";
 import { useTable, useReducer } from "spacetimedb/react";
 import { tables, reducers } from "../module_bindings";
+import SwipeVote from "./SwipeVote";
 
 interface VotePageProps {
   username: string;
@@ -53,64 +54,8 @@ export function VotePage({ username, onLogout }: VotePageProps) {
           <h2>Game Voting</h2>
           <p>Vote for the next game. Counts update in real-time.</p>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: 12,
-            }}
-          >
-            {gamesLoading ? (
-              <div>Loading games...</div>
-            ) : (
-              games.map((g: any) => {
-                const c = getCountsFor(g.id);
-                return (
-                  <div
-                    key={g.id.toString()}
-                    style={{
-                      border: "1px solid var(--color-border)",
-                      padding: 12,
-                      borderRadius: 8,
-                    }}
-                  >
-                    <div style={{ fontWeight: 600 }}>{g.title}</div>
-                    {g.cover_url && (
-                      <img
-                        src={g.cover_url}
-                        alt={g.title}
-                        style={{
-                          width: "100%",
-                          height: 120,
-                          objectFit: "cover",
-                          marginTop: 8,
-                        }}
-                      />
-                    )}
-                    <div style={{ marginTop: 8 }}>
-                      <button onClick={() => handleVote(g.id, "up")}>
-                        👍 Up
-                      </button>
-                      <button
-                        style={{ marginLeft: 8 }}
-                        onClick={() => handleVote(g.id, "down")}
-                      >
-                        👎 Down
-                      </button>
-                      <button
-                        style={{ marginLeft: 8 }}
-                        onClick={() => window.alert("Open details UI - stub")}
-                      >
-                        Details
-                      </button>
-                    </div>
-                    <div style={{ marginTop: 8, fontSize: 13 }}>
-                      Up: {String(c.up)} • Down: {String(c.down)}
-                    </div>
-                  </div>
-                );
-              })
-            )}
+          <div style={{ paddingTop: 16 }}>
+            <SwipeVote />
           </div>
         </div>
       </div>
