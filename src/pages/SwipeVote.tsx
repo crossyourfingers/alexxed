@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import posterCards from "../data/posterData";
 import "./SwipeVote.css";
 import { useTable, useReducer } from "spacetimedb/react";
@@ -26,6 +26,7 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
       const dx = currentX - startX;
       const card = el.firstElementChild as HTMLElement | null;
       if (!card) return;
+      // move top card during drag
       card.style.transform = `translateX(${dx}px) rotate(${dx / 20}deg)`;
     }
     function onEnd() {
@@ -70,25 +71,73 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
 
 export default function SwipeVote() {
   const [deck, setDeck] = useState(() => posterCards.slice());
-  const [games] = useTable(tables.game);
   const [counts] = useTable(tables.game_vote_counts);
   const castVote = useReducer(reducers.castVote);
+
+  // local set of ids we've voted on — prevents duplicate reducer calls
+  const [votedIds, setVotedIds] = useState<Set<string>>(() => new Set());
+  const markVoted = (id: string) =>
+    setVotedIds((s) => {
+      const n = new Set(s);
+      n.add(id);
+      return n;
+    });
+  const unmarkVoted = (id: string) =>
+    setVotedIds((s) => {
+      const n = new Set(s);
+      n.delete(id);
+      return n;
+    });
 
   const ref = useSwipe((dir) => {
     const top = deck[0];
     if (!top) return;
+    const idStr = top.id.toString();
     const vote = dir === "right" ? "up" : "down";
-    // cast vote but don't block UI
-    castVote({ gameId: top.id, vote }).catch(console.error);
-    setDeck((d) => d.slice(1));
+
+    if (!votedIds.has(idStr)) {
+      markVoted(idStr);
+      castVote({ gameId: top.id, vote }).catch((err: any) => {
+        console.error("Failed to cast vote:", err);
+        unmarkVoted(idStr);
+      });
+    }
+
+    // animate then rotate deck so we always have cards
+    const el = ref.current?.firstElementChild as HTMLElement | undefined;
+    if (el) {
+      // the visual move has already been applied by useSwipe's onEnd — rotate after a short delay
+      setTimeout(() => {
+        setDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
+        // clear transforms to restore stacked layout
+        setTimeout(() => {
+          const container = ref.current;
+          if (!container) return;
+          for (const child of Array.from(container.children) as HTMLElement[]) {
+            child.style.transition = "";
+            child.style.transform = "";
+          }
+        }, 120);
+      }, 220);
+    } else {
+      setDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
+    }
   });
 
   const handleButton = (dir: "left" | "right") => {
     const top = deck[0];
     if (!top) return;
+    const idStr = top.id.toString();
     const vote = dir === "right" ? "up" : "down";
-    castVote({ gameId: top.id, vote }).catch(console.error);
-    // animate then remove
+
+    if (!votedIds.has(idStr)) {
+      markVoted(idStr);
+      castVote({ gameId: top.id, vote }).catch((err: any) => {
+        console.error("Failed to cast vote:", err);
+        unmarkVoted(idStr);
+      });
+    }
+
     const el = ref.current?.firstElementChild as HTMLElement | undefined;
     if (el) {
       el.style.transition = "transform 300ms ease";
@@ -96,9 +145,19 @@ export default function SwipeVote() {
         dir === "right"
           ? "translateX(1000px) rotate(30deg)"
           : "translateX(-1000px) rotate(-30deg)";
-      setTimeout(() => setDeck((d) => d.slice(1)), 260);
+      setTimeout(() => {
+        setDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
+        setTimeout(() => {
+          const container = ref.current;
+          if (!container) return;
+          for (const child of Array.from(container.children) as HTMLElement[]) {
+            child.style.transition = "";
+            child.style.transform = "";
+          }
+        }, 120);
+      }, 260);
     } else {
-      setDeck((d) => d.slice(1));
+      setDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
     }
   };
 
@@ -110,28 +169,38 @@ export default function SwipeVote() {
 
   return (
     <div className="swipe-container">
-      <div ref={ref} style={{ width: "100%", maxWidth: 420 }}>
+      <div ref={ref} className="deck" aria-live="polite">
         {deck.length === 0 ? (
-          <div style={{ color: "#9fb0c8" }}>No more cards</div>
+          <div className="no-cards">No cards</div>
         ) : (
-          deck
-            .map((card, idx) => (
+          deck.slice(0, 3).map((card, idx) => {
+            const isTop = idx === 0;
+            const voted = votedIds.has(card.id.toString());
+            const style: React.CSSProperties = {
+              position: "absolute",
+              top: `${idx * 12}px`,
+              left: 0,
+              right: 0,
+              margin: "0 auto",
+              zIndex: 100 - idx,
+              transform: `translateY(${idx * 8}px) scale(${1 - idx * 0.03})`,
+            };
+            return (
               <div
-                key={card.id.toString()}
-                className="card"
-                style={{
-                  position: idx === 0 ? "relative" : "absolute",
-                  top: 0,
-                  left: 0,
-                }}
+                key={card.id.toString() + "-" + idx}
+                className={"card" + (voted ? " disabled" : "")}
+                style={style}
+                role="article"
+                aria-label={`${card.title} card`}
               >
                 <img className="poster" src={card.image} alt={card.title} />
+                {voted && <div className="disabled-badge">VOTED</div>}
                 <div className="card-body">
                   <div className="card-title">{card.title}</div>
                   <div className="card-subtitle">{card.subtitle}</div>
                   <div className="vote-row">
                     <div
-                      style={{ fontSize: 14, color: "rgba(230,238,248,0.9)" }}
+                      style={{ fontSize: 14, color: "rgba(230,238,248,0.95)" }}
                     >
                       Score: {String(getCount(card.id))}
                     </div>
@@ -139,12 +208,16 @@ export default function SwipeVote() {
                       <button
                         className="vote-btn down"
                         onClick={() => handleButton("left")}
+                        disabled={voted}
+                        aria-disabled={voted}
                       >
                         👎
                       </button>
                       <button
                         className="vote-btn up"
                         onClick={() => handleButton("right")}
+                        disabled={voted}
+                        aria-disabled={voted}
                       >
                         👍
                       </button>
@@ -152,8 +225,8 @@ export default function SwipeVote() {
                   </div>
                 </div>
               </div>
-            ))
-            .slice(0, 3)
+            );
+          })
         )}
       </div>
     </div>
