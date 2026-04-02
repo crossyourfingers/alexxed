@@ -10,7 +10,10 @@ import CommunityPage from './pages/CommunityPage';
 const HOST = 'ws://localhost:3000';
 const DB_NAME = 'alexxed-u3k4f';
 
-describe('Community Integration Test', () => {
+const runIntegration = !!process.env.RUN_SPACETIME_INTEGRATION;
+const describeIf = runIntegration ? describe : describe.skip;
+
+describeIf('Community Integration Test', () => {
   const renderWithProviders = () => {
     const connectionBuilder = DbConnection.builder()
       .withUri(HOST)
