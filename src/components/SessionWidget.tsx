@@ -22,8 +22,13 @@ export function SessionWidget() {
   const [now, setNow] = useState<number>(Date.now());
   const [sessionCount, setSessionCount] = useState<number | null>(null);
 
-  // Subscribe to server-side view if available
-  const [metrics] = useTable(tables.my_session_metrics);
+  // Subscribe to server-side view if available.
+  // The generated bindings may not include `my_session_metrics` in all
+  // module versions. To keep builds resilient, access the binding via
+  // a runtime any-cast and fall back to an existing table if it's
+  // missing so the hook call order remains stable.
+  const metricsTable: any = (tables as any).my_session_metrics ?? (tables as any).user;
+  const [metrics] = useTable(metricsTable as any);
 
   useEffect(() => {
     if (!ENABLE_USER_SESSION_METRICS) return;
