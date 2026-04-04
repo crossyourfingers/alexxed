@@ -2,6 +2,7 @@
   "allow_assistant_commit_push": true,
   "scope": "repo",
   "branches": ["main"],
+  "agent_allowed_paths": ["agent_workspace/"],
   "granted_by": "user",
   "granted_at": "2026-04-01T00:00:00Z",
   "notes": "User granted the assistant permission to commit and push in this repository. Agents should check this file before performing git operations. This file is intentionally non-secret and tracked in source control.",
