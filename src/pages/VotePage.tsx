@@ -32,15 +32,17 @@ export function VotePage({ username, onLogout }: VotePageProps) {
 
   const [sheetUrl, setSheetUrl] = React.useState("");
   const [syncing, setSyncing] = React.useState(false);
+  const [hasAttemptedSync, setHasAttemptedSync] = React.useState(false);
 
   // Automatically trigger sync if no games are found
   React.useEffect(() => {
-    if (isActive && identity && !gamesLoading && games.length === 0 && !syncing) {
+    if (isActive && identity && !gamesLoading && games.length === 0 && !syncing && !hasAttemptedSync) {
       console.log("No games found, triggering automatic sync from Google Sheets...");
       const conn = getConnection();
       if (conn) {
         setSyncing(true);
-        conn.procedures.syncGamesFromSheet({})
+        setHasAttemptedSync(true);
+        conn.procedures.syncGamesFromSheet({ url: "" })
           .then(() => {
             console.log("Automatic game sync successful");
           })
@@ -50,7 +52,7 @@ export function VotePage({ username, onLogout }: VotePageProps) {
           .finally(() => setSyncing(false));
       }
     }
-  }, [isActive, identity, gamesLoading, games.length, syncing, getConnection]);
+  }, [isActive, identity, gamesLoading, games.length, syncing, hasAttemptedSync, getConnection]);
 
   const handleSync = () => {
     if (!sheetUrl) return;

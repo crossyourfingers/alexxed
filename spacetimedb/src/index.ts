@@ -616,7 +616,7 @@ const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1VayJrz5E92IJ1
  * (Headers are ignored)
  */
 export const sync_games_from_sheet = spacetimedb.procedure(
-  { url: t.string().optional() },
+  { url: t.string() },
   t.unit(),
   (ctx, { url }) => {
     const targetUrl = url || DEFAULT_SHEET_URL;
