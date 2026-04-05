@@ -1,6 +1,6 @@
 import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./index.css";
 import { StreamPage } from "./pages/StreamPage.tsx";
 import { CommunityPage } from "./pages/CommunityPage.tsx";
@@ -240,7 +240,7 @@ const oidcConfig = {
   response_type: "code",
   onSigninCallback: () => {
     // Remove query params after auth
-    window.history.replaceState({}, document.title, window.location.pathname);
+    window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
   },
 };
 
@@ -254,8 +254,8 @@ const RootApp = () => {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <RootApp />
-    </BrowserRouter>
+    </HashRouter>
   </StrictMode>,
 );
