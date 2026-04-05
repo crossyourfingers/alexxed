@@ -194,11 +194,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
   );
 
   if (!connected || !identity) {
-    return (
-      <div className="community-page">
-        <div className="community-loading">Connecting...</div>
-      </div>
-    );
+    return null;
   }
 
   return (

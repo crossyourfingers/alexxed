@@ -27,7 +27,7 @@ function AuthGate() {
   const { identity, isActive: connected } = useSpacetimeDB();
   const [users] = useTable(tables.user);
 
-  if (auth.isLoading || !connected) {
+  if (auth.isLoading || !connected || !identity) {
     const authStatus = auth.isLoading ? "Loading Auth..." : (auth.isAuthenticated ? "Authenticated" : "Not Authenticated");
     const dbStatus = connected ? "Connected" : "Reconnecting...";
     

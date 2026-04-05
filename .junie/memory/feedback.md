@@ -22,3 +22,11 @@
     "NEW INSTRUCTION": "WHEN user shares disconnect console logs THEN request full console and Network HAR from production"
 }
 
+[2026-04-05 10:31] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Loading/routing mismatch",
+    "EXPECTATION": "The diagnostic loading screen should remain until auth and DB connection are ready, without being replaced by the legacy 'community-loading' overlay or premature routing.",
+    "NEW INSTRUCTION": "WHEN 'community-loading' appears during startup THEN remove it and gate routes on AuthGate readiness"
+}
+

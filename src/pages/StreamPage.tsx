@@ -140,11 +140,7 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
   );
 
   if (!connected || !identity) {
-    return (
-      <div className="stream-page">
-        <div className="stream-loading">Connecting...</div>
-      </div>
-    );
+    return null;
   }
 
   return (
