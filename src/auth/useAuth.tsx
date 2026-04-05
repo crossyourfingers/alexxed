@@ -11,6 +11,7 @@ export function useAuth(): AuthProvider {
   return {
     login: () => auth.signinRedirect(),
     logout: () => auth.signoutRedirect(),
+    removeUser: () => auth.removeUser(),
     getUser: () => {
       if (!auth.user) return null;
       return {

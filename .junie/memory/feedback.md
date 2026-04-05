@@ -102,3 +102,11 @@
     "NEW INSTRUCTION": "WHEN proposing changes or diagnostics THEN explain purpose, scope, and rollback plan"
 }
 
+[2026-04-05 11:22] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Build type mismatches",
+    "EXPECTATION": "The build should not reference methods that are not defined on the project's AuthProvider type.",
+    "NEW INSTRUCTION": "WHEN TS reports 'Property does not exist on type AuthProvider' THEN update calls to match AuthProvider interface or implement the method consistently"
+}
+

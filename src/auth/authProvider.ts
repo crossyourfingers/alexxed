@@ -19,6 +19,7 @@ export interface AuthConfig {
 export interface AuthProvider {
   login: () => Promise<void>;
   logout: () => Promise<void>;
+  removeUser: () => Promise<void>;
   getUser: () => AuthUser | null;
   getToken: () => string | null;
   isAuthenticated: boolean;
