@@ -146,14 +146,16 @@ export default function SwipeVote() {
     });
 
   const isAnimating = useRef(false);
+  const [animatingId, setAnimatingId] = useState<string | null>(null);
 
   const handleVote = (dir: "left" | "right") => {
     if (isAnimating.current) return;
     const top = displayDeck[0];
     if (!top) return;
 
-    isAnimating.current = true;
     const idStr = top.id.toString();
+    isAnimating.current = true;
+    setAnimatingId(idStr);
     const vote = dir === "right" ? "up" : "down";
 
     if (!votedIds.has(idStr)) {
@@ -178,6 +180,7 @@ export default function SwipeVote() {
 
       setTimeout(() => {
         setDisplayDeck((d) => (d.length <= 1 ? [] : d.slice(1)));
+        setAnimatingId(null);
         isAnimating.current = false;
         // The displayDeck update will cause a re-render.
         // We don't need to manually clear styles on the old 'el' because it will be removed/moved
@@ -185,6 +188,7 @@ export default function SwipeVote() {
       }, 350);
     } else {
       setDisplayDeck((d) => (d.length <= 1 ? [] : d.slice(1)));
+      setAnimatingId(null);
       isAnimating.current = false;
     }
   };
@@ -207,7 +211,9 @@ export default function SwipeVote() {
         ) : (
           displayDeck.slice(0, 3).map((card, idx) => {
             const isTop = idx === 0;
-            const voted = votedIds.has(card.id.toString());
+            const cardIdStr = card.id.toString();
+            const voted = votedIds.has(cardIdStr);
+            const animating = animatingId === cardIdStr;
             const style: React.CSSProperties = {
               position: "absolute",
               top: `${idx * 18}px`,
@@ -222,7 +228,7 @@ export default function SwipeVote() {
             return (
               <div
                 key={card.id.toString()}
-                className={"card" + (voted ? " disabled" : "")}
+                className={"card" + (voted || animating ? " disabled" : "")}
                 style={style}
                 role="article"
                 aria-label={`${card.title} card`}
@@ -243,7 +249,7 @@ export default function SwipeVote() {
                     }
                   }}
                 />
-                {voted && <div className="disabled-badge">VOTED</div>}
+                { (voted || animating) && <div className="disabled-badge">VOTED</div>}
                 {isTop ? (
                   <div className="card-body">
                     <div className="card-title">{card.title}</div>
@@ -264,8 +270,8 @@ export default function SwipeVote() {
                             e.stopPropagation();
                             handleVote("left");
                           }}
-                          disabled={voted}
-                          aria-disabled={voted}
+                          disabled={voted || animating}
+                          aria-disabled={voted || animating}
                         >
                           👎
                         </button>
@@ -275,8 +281,8 @@ export default function SwipeVote() {
                             e.stopPropagation();
                             handleVote("right");
                           }}
-                          disabled={voted}
-                          aria-disabled={voted}
+                          disabled={voted || animating}
+                          aria-disabled={voted || animating}
                         >
                           👍
                         </button>
