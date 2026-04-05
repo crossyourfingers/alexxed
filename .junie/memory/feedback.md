@@ -62,3 +62,11 @@
     "NEW INSTRUCTION": "WHEN user reports stuck on Connecting THEN request console+Network HAR and verify HOST and DB_NAME"
 }
 
+[2026-04-05 11:10] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Build failure - React import",
+    "EXPECTATION": "The project should build cleanly; files that reference React.* must import React explicitly.",
+    "NEW INSTRUCTION": "WHEN TS reports 'React refers to a UMD global' THEN add 'import React from \"react\"' to that file"
+}
+
