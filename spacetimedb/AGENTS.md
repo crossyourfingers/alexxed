@@ -4,7 +4,7 @@ Parent: [../AGENTS.md](../AGENTS.md) | Constitution: [Project Constitution](../d
 
 **CRITICAL:** Never read `.env` files. Use `.env.example` only. See [secrets policy](../AGENTS.md#critical-secrets-protection-non-negotiable).
 
-Note on agent permissions: if the repository root contains a `.agent-permissions.json` file that sets `allow_assistant_commit_push` to `true`, agents MAY perform repository-modifying actions (staging, committing, and pushing non-sensitive changes) without explicit approval each time. Agents MUST still follow any `disallowed_actions` in that file (for example `"read_env_files"`).
+Note on agent permissions: if the repository root contains a `.agent-permissions.json` file that sets `allow_assistant_commit_push` to `true`, agents MAY perform repository-modifying actions (staging, committing, and pushing non-sensitive changes) without explicit approval each time. Agents MUST still follow any `disallowed_actions` in that file (for example `"read_env_files"`). **NEVER use `git add .`** — stage specific files only.
 
 ---
 

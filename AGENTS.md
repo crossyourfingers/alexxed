@@ -17,6 +17,7 @@ Full principles: [Project Constitution](domain_knowledge/constitution.md)
 - **NEVER commit secrets** to version control (API keys, tokens, passwords, client secrets)
 - All secrets must reside in `.gitignore`-listed files only
 - Review all commits for accidental secret inclusion
+- **NEVER use `git add .`** — always stage specific files or use interactive staging (`git add -p`) to prevent accidental inclusion of sensitive or unrelated files
 
 ### For AI/LLM Agents
 
