@@ -270,6 +270,8 @@ function SpacetimeDBWrapper() {
   // Use OIDC token for SpacetimeDB authentication
   const token = auth.getToken();
 
+  console.log("SpacetimeDBWrapper: Token present:", !!token, "Authenticated:", auth.isAuthenticated);
+
   const connectionBuilder = DbConnection.builder()
     .withUri(HOST)
     .withDatabaseName(DB_NAME)
@@ -284,7 +286,7 @@ function SpacetimeDBWrapper() {
   });
 
   return (
-    <SpacetimeDBProvider connectionBuilder={connectionBuilder}>
+    <SpacetimeDBProvider key={token || "unauthenticated"} connectionBuilder={connectionBuilder}>
       <AuthGate />
     </SpacetimeDBProvider>
   );

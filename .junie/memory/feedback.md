@@ -38,3 +38,11 @@
     "NEW INSTRUCTION": "WHEN unauthenticated and not isLoading THEN call signinRedirect automatically"
 }
 
+[2026-04-05 10:47] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Post-auth connection hang",
+    "EXPECTATION": "After successful authentication, the app should advance past the Connecting screen and load the home UI once the SpacetimeDB connection and identity are ready.",
+    "NEW INSTRUCTION": "WHEN isAuthenticated is true but identity stays null THEN request console+Network HAR and verify HOST/DB_NAME"
+}
+
