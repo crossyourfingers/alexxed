@@ -647,16 +647,13 @@ export const sync_games_from_sheet = spacetimedb.procedure(
 
       const csv = response.text();
       const lines = csv.split(/\r?\n/);
-
-      // Skip header if it exists (assuming first line starts with 'id' or similar)
-      const startIdx =
-        lines[0].toLowerCase().startsWith("id") ||
-        lines[0].toLowerCase().startsWith("game")
-          ? 1
-          : 0;
+      console.info(`Fetched CSV with ${lines.length} lines`);
 
       ctx.withTx((tx) => {
-        for (let i = startIdx; i < lines.length; i++) {
+        let importedCount = 0;
+        let errorCount = 0;
+
+        for (let i = 0; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
 
@@ -684,7 +681,21 @@ export const sync_games_from_sheet = spacetimedb.procedure(
 
           if (parts.length < 2) continue;
 
-          const id = BigInt(parts[0]);
+          // Robust ID parsing: skip header or invalid rows
+          let id: bigint;
+          try {
+            // Try to parse as BigInt. If it's the header "id", it will throw.
+            id = BigInt(parts[0]);
+          } catch (e) {
+            if (i === 0 || parts[0].toLowerCase() === "id") {
+              console.info(`Skipping header or non-numeric ID at line ${i + 1}: ${parts[0]}`);
+            } else {
+              console.warn(`Failed to parse ID at line ${i + 1}: ${parts[0]}. Error: ${e}`);
+              errorCount++;
+            }
+            continue;
+          }
+
           const title = parts[1];
           const subtitle = parts[2] || undefined;
           const cover_url = parts[3] || undefined;
@@ -716,9 +727,10 @@ export const sync_games_from_sheet = spacetimedb.procedure(
           if (!tx.db.game_vote_count.game_id.find(id)) {
             tx.db.game_vote_count.insert({ game_id: id, up: 0n, down: 0n });
           }
+          importedCount++;
         }
+        console.info(`Game sync completed: ${importedCount} imported, ${errorCount} errors`);
       });
-      console.info(`Synced ${lines.length - startIdx} games from sheet`);
       return {};
     } catch (e: any) {
       console.warn("Game sync failed:", e);
