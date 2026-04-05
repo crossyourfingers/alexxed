@@ -608,23 +608,39 @@ export const init = spacetimedb.init((ctx) => {
 // Voting & Game Sync reducers
 // -----------------------------
 
+const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1VayJrz5E92IJ1LY3srwHXOrZ850mvphheqsZCeqrR-w/export?format=csv";
+
 /**
  * Sync games from a public Google Sheets CSV export.
  * Expected CSV format: id, title, subtitle, cover_url, purchase_link, played
  * (Headers are ignored)
  */
 export const sync_games_from_sheet = spacetimedb.procedure(
-  { url: t.string() },
+  { url: t.string().optional() },
   t.unit(),
   (ctx, { url }) => {
-    // Only admin can sync games
-    const profile = ctx.withTx((tx) => tx.db.streamer_profile.id.find(ctx.sender));
-    if (!profile) {
-      throw new SenderError("Only admin can sync games from sheet");
+    const targetUrl = url || DEFAULT_SHEET_URL;
+
+    // Only admin can sync games, UNLESS the game table is currently empty
+    let gameCount = 0;
+    ctx.withTx((tx) => {
+      for (const _ of tx.db.game.iter()) {
+        gameCount++;
+        if (gameCount > 0) break;
+      }
+    });
+
+    if (gameCount > 0) {
+      const profile = ctx.withTx((tx) =>
+        tx.db.streamer_profile.id.find(ctx.sender),
+      );
+      if (!profile) {
+        throw new SenderError("Only admin can sync games from sheet");
+      }
     }
 
     try {
-      const response = ctx.http.fetch(url);
+      const response = ctx.http.fetch(targetUrl);
       if (response.status !== 200) {
         throw new SenderError(`Failed to fetch sheet: ${response.status}`);
       }

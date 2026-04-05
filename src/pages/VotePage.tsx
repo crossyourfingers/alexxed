@@ -28,10 +28,29 @@ export function VotePage({ username, onLogout }: VotePageProps) {
   const [games, gamesLoading] = useTable(tables.game);
   const [counts] = useTable(tables.game_vote_counts);
   const castVote = useReducer(reducers.castVote);
-  const { getConnection } = useSpacetimeDB();
+  const { getConnection, isActive, identity } = useSpacetimeDB();
 
   const [sheetUrl, setSheetUrl] = React.useState("");
   const [syncing, setSyncing] = React.useState(false);
+
+  // Automatically trigger sync if no games are found
+  React.useEffect(() => {
+    if (isActive && identity && !gamesLoading && games.length === 0 && !syncing) {
+      console.log("No games found, triggering automatic sync from Google Sheets...");
+      const conn = getConnection();
+      if (conn) {
+        setSyncing(true);
+        conn.procedures.syncGamesFromSheet({})
+          .then(() => {
+            console.log("Automatic game sync successful");
+          })
+          .catch((err) => {
+            console.error("Automatic sync failed:", err);
+          })
+          .finally(() => setSyncing(false));
+      }
+    }
+  }, [isActive, identity, gamesLoading, games.length, syncing, getConnection]);
 
   const handleSync = () => {
     if (!sheetUrl) return;
