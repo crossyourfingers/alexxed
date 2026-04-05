@@ -110,3 +110,11 @@
     "NEW INSTRUCTION": "WHEN TS reports 'Property does not exist on type AuthProvider' THEN update calls to match AuthProvider interface or implement the method consistently"
 }
 
+[2026-04-05 11:48] - Updated by Junie
+{
+    "TYPE": "correction",
+    "CATEGORY": "Anonymous auth identity expectation",
+    "EXPECTATION": "Even with SpacetimeAuth Anonymous, the app should still receive a SpacetimeDB identity; 'none' is not expected and should not block routing.",
+    "NEW INSTRUCTION": "WHEN user mentions Anonymous Auth and identity is none THEN explain identity must exist and request console+HAR"
+}
+

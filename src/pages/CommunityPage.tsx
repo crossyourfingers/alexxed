@@ -78,7 +78,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
     // Regular messages
     ...channelMessages.map(message => {
       const user = users.find(
-        u => u.identity.toHexString() === message.sender.toHexString()
+        u => u.userIdentity.toHexString() === message.sender.toHexString()
       );
       const messageLikes = likes.filter(
         l => l.messageSent.microsSinceUnixEpoch === message.sent.microsSinceUnixEpoch
@@ -97,7 +97,7 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
   ].sort((a, b) => (a.sent.toDate() > b.sent.toDate() ? 1 : -1));
 
   // Current user name
-  const currentUser = users.find(u => identity && u.identity.isEqual(identity));
+  const currentUser = users.find(u => identity && u.userIdentity.isEqual(identity));
   const currentName = currentUser?.name || identity?.toHexString().substring(0, 8) || '';
 
   // Handlers
@@ -260,7 +260,10 @@ export function CommunityPage({ username, onLogout }: CommunityPageProps) {
 
         {/* Members sidebar */}
         <div className="community-members">
-          <OnlineUsers onlineUsers={onlineUsers} offlineUsers={offlineUsers} />
+          <OnlineUsers 
+            onlineUsers={onlineUsers.map(u => ({ ...u, userIdentity: u.userIdentity }))} 
+            offlineUsers={offlineUsers.map(u => ({ ...u, userIdentity: u.userIdentity }))} 
+          />
         </div>
       </div>
     </div>

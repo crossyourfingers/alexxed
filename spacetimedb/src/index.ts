@@ -7,7 +7,7 @@ import { Identity } from "spacetimedb";
 const user = table(
   { name: "user", public: true },
   {
-    identity: t.identity().primaryKey(),
+    user_identity: t.identity().primaryKey(),
     name: t.string().optional(),
     online: t.bool(),
     avatar_url: t.string().optional(),
@@ -27,7 +27,7 @@ const credentials = table(
     ],
   },
   {
-    identity: t.identity().primaryKey(),
+    user_identity: t.identity().primaryKey(),
     username: t.string(),
     passwordHash: t.string(),
   },
@@ -330,10 +330,10 @@ export const set_name = spacetimedb.reducer(
   { name: t.string() },
   (ctx, { name }) => {
     validateName(name);
-    const user = ctx.db.user.identity.find(ctx.sender);
+    const user = ctx.db.user.user_identity.find(ctx.sender);
     if (!user) throw new SenderError("Cannot set name for unknown user");
     console.info(`User ${ctx.sender} sets name to ${name}`);
-    ctx.db.user.identity.update({ ...user, name });
+    ctx.db.user.user_identity.update({ ...user, name });
   },
 );
 
@@ -386,22 +386,22 @@ export const register = spacetimedb.reducer(
     // Hash password and store credentials
     const passwordHash = simpleHash(password);
     ctx.db.credentials.insert({
-      identity: ctx.sender,
+      user_identity: ctx.sender,
       username,
       passwordHash,
     });
 
     // Update existing user record (created by onConnect) or create new one
-    const existingUser = ctx.db.user.identity.find(ctx.sender);
+    const existingUser = ctx.db.user.user_identity.find(ctx.sender);
     if (existingUser) {
-      ctx.db.user.identity.update({
+      ctx.db.user.user_identity.update({
         ...existingUser,
         name: username,
         online: true,
       });
     } else {
       ctx.db.user.insert({
-        identity: ctx.sender,
+        user_identity: ctx.sender,
         name: username,
         online: true,
         avatar_url: undefined,
@@ -434,9 +434,9 @@ export const login = spacetimedb.reducer(
     }
 
     // Update user to online
-    const user = ctx.db.user.identity.find(creds.identity);
+    const user = ctx.db.user.user_identity.find(creds.user_identity);
     if (user) {
-      ctx.db.user.identity.update({ ...user, online: true });
+      ctx.db.user.user_identity.update({ ...user, online: true });
     }
 
     console.info(`User logged in: ${username}`);
@@ -925,17 +925,17 @@ export const update_channel = spacetimedb.reducer(
  * ctx.sender in user_identity so clients can display "Alice connected"
  */
 export const onConnect = spacetimedb.clientConnected((ctx) => {
-  const user = ctx.db.user.identity.find(ctx.sender);
+  const user = ctx.db.user.user_identity.find(ctx.sender);
   if (user) {
     // If this is a returning user, i.e. we already have a `User` with this `Identity`,
-    // set `online: true`, but leave `name` and `identity` unchanged.
-    ctx.db.user.identity.update({ ...user, online: true });
+    // set `online: true`, but leave `name` and `user_identity` unchanged.
+    ctx.db.user.user_identity.update({ ...user, online: true });
   } else {
     // If this is a new user, create a `User` row for the `Identity`,
     // which is online, but hasn't set a name.
     ctx.db.user.insert({
       name: undefined,
-      identity: ctx.sender,
+      user_identity: ctx.sender,
       online: true,
       avatar_url: undefined,
     });
@@ -980,9 +980,9 @@ export const onConnect = spacetimedb.clientConnected((ctx) => {
  * ctx.sender in user_identity so clients can display "Alice disconnected"
  */
 export const onDisconnect = spacetimedb.clientDisconnected((ctx) => {
-  const user = ctx.db.user.identity.find(ctx.sender);
+  const user = ctx.db.user.user_identity.find(ctx.sender);
   if (user) {
-    ctx.db.user.identity.update({ ...user, online: false });
+    ctx.db.user.user_identity.update({ ...user, online: false });
     // Close any open session rows for this user
     try {
       let openSession = undefined;

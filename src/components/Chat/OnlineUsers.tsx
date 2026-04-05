@@ -2,7 +2,7 @@ import React from 'react';
 import './Chat.css';
 
 interface User {
-  identity: { toHexString: () => string };
+  userIdentity: { toHexString: () => string };
   name?: string;
   online: boolean;
 }
@@ -13,7 +13,7 @@ interface OnlineUsersProps {
 }
 
 function getUserDisplayName(user: User): string {
-  return user.name || user.identity.toHexString().substring(0, 8);
+  return user.name || user.userIdentity.toHexString().substring(0, 8);
 }
 
 export function OnlineUsers({ onlineUsers, offlineUsers }: OnlineUsersProps) {

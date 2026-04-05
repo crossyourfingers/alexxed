@@ -69,7 +69,7 @@ export function StreamPage({ username, onLogout }: StreamPageProps) {
 
   // Current user name
   const currentUser = users.find(
-    (u) => identity && u.identity.isEqual(identity),
+    (u) => identity && u.userIdentity.isEqual(identity),
   );
   const currentName =
     currentUser?.name || identity?.toHexString().substring(0, 8) || "";

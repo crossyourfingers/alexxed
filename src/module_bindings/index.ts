@@ -176,12 +176,12 @@ const tablesSchema = __schema({
   user: __table({
     name: 'user',
     indexes: [
-      { name: 'identity', algorithm: 'btree', columns: [
-        'identity',
+      { name: 'user_identity', algorithm: 'btree', columns: [
+        'userIdentity',
       ] },
     ],
     constraints: [
-      { name: 'user_identity_key', constraint: 'unique', columns: ['identity'] },
+      { name: 'user_identity_key', constraint: 'unique', columns: ['userIdentity'] },
     ],
   }, UserRow),
   user_vote: __table({

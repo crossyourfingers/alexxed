@@ -30,7 +30,7 @@ export function useChatMessages(options: {
     // Regular messages
     ...filteredMessages.map((message) => {
       const user = users.find(
-        (u) => u.identity.toHexString() === message.sender.toHexString(),
+        (u) => u.userIdentity.toHexString() === message.sender.toHexString(),
       );
       const messageLikes = likes.filter(
         (l) =>

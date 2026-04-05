@@ -31,7 +31,7 @@ export const ChannelUnread = __t.object("ChannelUnread", {
 export type ChannelUnread = __Infer<typeof ChannelUnread>;
 
 export const Credentials = __t.object("Credentials", {
-  identity: __t.identity(),
+  userIdentity: __t.identity(),
   username: __t.string(),
   passwordHash: __t.string(),
 });
@@ -149,7 +149,7 @@ export const SystemMessage = __t.object("SystemMessage", {
 export type SystemMessage = __Infer<typeof SystemMessage>;
 
 export const User = __t.object("User", {
-  identity: __t.identity(),
+  userIdentity: __t.identity(),
   name: __t.option(__t.string()),
   online: __t.bool(),
   avatarUrl: __t.option(__t.string()),

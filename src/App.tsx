@@ -97,7 +97,7 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
   }
 
   const name = (() => {
-    const user = users.find((u) => u.identity.isEqual(identity));
+    const user = users.find((u) => u.userIdentity.isEqual(identity));
     return user?.name || identity?.toHexString().substring(0, 8) || "";
   })();
 
@@ -256,7 +256,7 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
         <div>
           {onlineUsers.map((user, key) => (
             <div key={key}>
-              <p>{user.name || user.identity.toHexString().substring(0, 8)}</p>
+              <p>{user.name || user.userIdentity.toHexString().substring(0, 8)}</p>
             </div>
           ))}
         </div>
@@ -266,7 +266,7 @@ function App({ username: loggedInUsername, onLogout }: AppProps) {
             {offlineUsers.map((user, key) => (
               <div key={key}>
                 <p>
-                  {user.name || user.identity.toHexString().substring(0, 8)}
+                  {user.name || user.userIdentity.toHexString().substring(0, 8)}
                 </p>
               </div>
             ))}
