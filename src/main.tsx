@@ -130,6 +130,16 @@ function AuthGate({ isGuestMode, onToggleGuestMode }: { isGuestMode: boolean, on
     const dbStatus = connected ? "Connected" : "Reconnecting...";
     const token = auth.getToken();
     const tokenInfo = token ? `Yes (Starts with ${token.substring(0, 8)}...)` : "No";
+    const ctx = useSpacetimeDB();
+    
+    console.log("AuthGate diagnostic:", {
+      connected,
+      identity: identity?.toHexString(),
+      isActive: ctx.isActive,
+      ctxIdentity: ctx.identity?.toHexString(),
+      isAuthenticated: auth.isAuthenticated,
+      isGuestMode
+    });
     
     return (
       <div
@@ -348,6 +358,10 @@ function SpacetimeDBWrapper({ isGuestMode, onToggleGuestMode }: { isGuestMode: b
 
     // Subscribe to all public tables on connect to ensure the connection transitions to active
     builder.onConnect((conn, identity, token) => {
+      console.log("SpacetimeDBWrapper: onConnect callback fired", {
+        identity: identity.toHexString(),
+        token: token ? "present" : "absent"
+      });
       onConnect(conn, identity, token);
       conn.subscriptionBuilder().subscribe("SELECT * FROM channel");
     });
