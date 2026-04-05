@@ -122,6 +122,11 @@ See full proposal: [Game Voting Feature](domain_knowledge/game-voting-feature.md
 
 ## SpacetimeDB Development
 
+### Core Principles
+
+1. **Backend-First Logic** — Place as much business logic as possible in the SpacetimeDB module. The frontend should be a thin UI layer that calls reducers and reacts to table updates.
+2. **Direct Testing** — You are encouraged to call SpacetimeDB reducers and procedures directly via the CLI for rapid testing and verification (e.g., `spacetime call`).
+
 **See comprehensive guides:**
 - **[SpacetimeDB TypeScript Guide](domain_knowledge/spacetimedb-typescript-guide.md)** — Complete TypeScript SDK reference (common mistakes, tables, indexes, reducers, procedures, React integration)
 - **[Backend Guidelines](spacetimedb/AGENTS.md)** — SpacetimeDB backend-specific rules

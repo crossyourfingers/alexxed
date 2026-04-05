@@ -17,10 +17,11 @@ Note on agent permissions: if the repository root contains a `.agent-permissions
 
 ## Core Principles
 
-1. **Reducers are transactional** — they do not return data to callers
-2. **Reducers must be deterministic** — no filesystem, network, timers, or random
-3. **Read data via tables/subscriptions** — not reducer return values
-4. **`ctx.sender` is the authenticated principal** — never trust identity args
+1. **Backend-First Logic** — As much business logic as possible should be in the SpacetimeDB backend. The frontend should only be responsible for rendering and user interaction.
+2. **Reducers are transactional** — they do not return data to callers.
+3. **Reducers must be deterministic** — no filesystem, network, timers, or random.
+4. **Read data via tables/subscriptions** — not reducer return values.
+5. **`ctx.sender` is the authenticated principal** — never trust identity args.
 
 ---
 
@@ -114,7 +115,23 @@ spacetime generate --lang typescript --out-dir src/module_bindings --module-path
 
 # View logs
 spacetime logs alexxed
+
+# Call a reducer directly (for testing)
+spacetime call alexxed set_name "Alex"
+
+# Call a procedure directly (for testing)
+spacetime call alexxed sync_games_from_sheet ""
+
+# For more details, see: TESTING.md
 ```
+
+---
+
+## Testing
+
+For detailed instructions on how to test reducers and procedures using the CLI, refer to the [Testing Guide](TESTING.md).
+
+CLI testing is encouraged for rapid verification of backend logic.
 
 ---
 

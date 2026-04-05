@@ -1,0 +1,200 @@
+2026-04-05T19:34:20.426893Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 75: FNAF: Security Breach 2D. Error: SyntaxError: Cannot convert FNAF: Security Breach 2D to a BigInt
+2026-04-05T19:34:20.426996Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 76: For Honor. Error: SyntaxError: Cannot convert For Honor to a BigInt
+2026-04-05T19:34:20.427112Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 77: Forest. Error: SyntaxError: Cannot convert Forest to a BigInt
+2026-04-05T19:34:20.427201Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 78: Fork Road. Error: SyntaxError: Cannot convert Fork Road to a BigInt
+2026-04-05T19:34:20.427273Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 79: FOUNDRY. Error: SyntaxError: Cannot convert FOUNDRY to a BigInt
+2026-04-05T19:34:20.427362Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 80: Fran Bow. Error: SyntaxError: Cannot convert Fran Bow to a BigInt
+2026-04-05T19:34:20.427442Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 81: Freddy Fazbear's Bear Hunter. Error: SyntaxError: Cannot convert Freddy Fazbear's Bear Hunter to a BigInt
+2026-04-05T19:34:20.427579Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 82: From the Depths. Error: SyntaxError: Cannot convert From the Depths to a BigInt
+2026-04-05T19:34:20.427659Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 83: Frostpunk 2. Error: SyntaxError: Cannot convert Frostpunk 2 to a BigInt
+2026-04-05T19:34:20.427735Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 84: Frostpunk 2. Error: SyntaxError: Cannot convert Frostpunk 2 to a BigInt
+2026-04-05T19:34:20.427816Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 85: Gang Beasts. Error: SyntaxError: Cannot convert Gang Beasts to a BigInt
+2026-04-05T19:34:20.427905Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 86: Gears of War. Error: SyntaxError: Cannot convert Gears of War to a BigInt
+2026-04-05T19:34:20.427998Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 87: Geometry Dash. Error: SyntaxError: Cannot convert Geometry Dash to a BigInt
+2026-04-05T19:34:20.428101Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 88: Ghost of Tsushima. Error: SyntaxError: Cannot convert Ghost of Tsushima to a BigInt
+2026-04-05T19:34:20.428218Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 89: Ghost of Yotei. Error: SyntaxError: Cannot convert Ghost of Yotei to a BigInt
+2026-04-05T19:34:20.428286Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 90: Girls. Error: SyntaxError: Cannot convert Girls to a BigInt
+2026-04-05T19:34:20.428385Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 91: Goat Simulator 3. Error: SyntaxError: Cannot convert Goat Simulator 3 to a BigInt
+2026-04-05T19:34:20.428472Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 92: Gorogoa. Error: SyntaxError: Cannot convert Gorogoa to a BigInt
+2026-04-05T19:34:20.428516Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 93: Granny. Error: SyntaxError: Cannot convert Granny to a BigInt
+2026-04-05T19:34:20.428567Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 94: Graveyard Keeper. Error: SyntaxError: Cannot convert Graveyard Keeper to a BigInt
+2026-04-05T19:34:20.428603Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 95: Great God Grove. Error: SyntaxError: Cannot convert Great God Grove to a BigInt
+2026-04-05T19:34:20.428645Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 96: Greyhill Incident. Error: SyntaxError: Cannot convert Greyhill Incident to a BigInt
+2026-04-05T19:34:20.428683Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 97: Griftlands. Error: SyntaxError: Cannot convert Griftlands to a BigInt
+2026-04-05T19:34:20.428722Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 98: Guilty Gear -Strive. Error: SyntaxError: Cannot convert Guilty Gear -Strive to a BigInt
+2026-04-05T19:34:20.428768Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 99: Hello Kitty Island Adventure. Error: SyntaxError: Cannot convert Hello Kitty Island Adventure to a BigInt
+2026-04-05T19:34:20.428811Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 100: Hitman. Error: SyntaxError: Cannot convert Hitman to a BigInt
+2026-04-05T19:34:20.428852Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 101: Home Sweet Home (2007). Error: SyntaxError: Cannot convert Home Sweet Home (2007) to a BigInt
+2026-04-05T19:34:20.428896Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 102: House. Error: SyntaxError: Cannot convert House to a BigInt
+2026-04-05T19:34:20.428936Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 103: House Flipper. Error: SyntaxError: Cannot convert House Flipper to a BigInt
+2026-04-05T19:34:20.428972Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 104: Humanity. Error: SyntaxError: Cannot convert Humanity to a BigInt
+2026-04-05T19:34:20.429004Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 105: imposter-syndrome. Error: SyntaxError: Cannot convert imposter-syndrome to a BigInt
+2026-04-05T19:34:20.429054Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 106: In Sound Mind. Error: SyntaxError: Cannot convert In Sound Mind to a BigInt
+2026-04-05T19:34:20.429089Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 107: Indigo Park: Chapter 1. Error: SyntaxError: Cannot convert Indigo Park: Chapter 1 to a BigInt
+2026-04-05T19:34:20.429122Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 108: Infinity Nikki. Error: SyntaxError: Cannot convert Infinity Nikki to a BigInt
+2026-04-05T19:34:20.429152Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 109: Inkulinati. Error: SyntaxError: Cannot convert Inkulinati to a BigInt
+2026-04-05T19:34:20.429201Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 110: Inscryption. Error: SyntaxError: Cannot convert Inscryption to a BigInt
+2026-04-05T19:34:20.429244Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 111: Is This Seat Taken?. Error: SyntaxError: Cannot convert Is This Seat Taken? to a BigInt
+2026-04-05T19:34:20.429282Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 112: Journey. Error: SyntaxError: Cannot convert Journey to a BigInt
+2026-04-05T19:34:20.429311Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 113: Just Dance. Error: SyntaxError: Cannot convert Just Dance to a BigInt
+2026-04-05T19:34:20.429345Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 114: Karma: The Dark World. Error: SyntaxError: Cannot convert Karma: The Dark World to a BigInt
+2026-04-05T19:34:20.429391Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 115: Killer Frequency. Error: SyntaxError: Cannot convert Killer Frequency to a BigInt
+2026-04-05T19:34:20.429418Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 116: Klonoa. Error: SyntaxError: Cannot convert Klonoa to a BigInt
+2026-04-05T19:34:20.429452Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 117: Koloro. Error: SyntaxError: Cannot convert Koloro to a BigInt
+2026-04-05T19:34:20.429489Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 118: Layers of Fear. Error: SyntaxError: Cannot convert Layers of Fear to a BigInt
+2026-04-05T19:34:20.429525Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 119: Leo's Fortune. Error: SyntaxError: Cannot convert Leo's Fortune to a BigInt
+2026-04-05T19:34:20.429557Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 120: Let's Build a Zoo. Error: SyntaxError: Cannot convert Let's Build a Zoo to a BigInt
+2026-04-05T19:34:20.429634Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 121: Level Devil. Error: SyntaxError: Cannot convert Level Devil to a BigInt
+2026-04-05T19:34:20.429683Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 122: LiDAR Exploration Program. Error: SyntaxError: Cannot convert LiDAR Exploration Program to a BigInt
+2026-04-05T19:34:20.429722Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 123: Lies Of P. Error: SyntaxError: Cannot convert Lies Of P to a BigInt
+2026-04-05T19:34:20.429768Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 124: Life is Strange: Double Exposure. Error: SyntaxError: Cannot convert Life is Strange: Double Exposure to a BigInt
+2026-04-05T19:34:20.429808Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 125: Lightyear Frontier. Error: SyntaxError: Cannot convert Lightyear Frontier to a BigInt
+2026-04-05T19:34:20.429838Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 126: LISA. Error: SyntaxError: Cannot convert LISA to a BigInt
+2026-04-05T19:34:20.429869Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 127: Lisa: The First. Error: SyntaxError: Cannot convert Lisa: The First to a BigInt
+2026-04-05T19:34:20.429905Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 128: Little Jack's Adventures. Error: SyntaxError: Cannot convert Little Jack's Adventures to a BigInt
+2026-04-05T19:34:20.429961Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 129: Little Nightmares. Error: SyntaxError: Cannot convert Little Nightmares to a BigInt
+2026-04-05T19:34:20.430016Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 130: Little Nightmares. Error: SyntaxError: Cannot convert Little Nightmares to a BigInt
+2026-04-05T19:34:20.430047Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 131: Lobotomy. Error: SyntaxError: Cannot convert Lobotomy to a BigInt
+2026-04-05T19:34:20.430084Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 132: Lost in Random. Error: SyntaxError: Cannot convert Lost in Random to a BigInt
+2026-04-05T19:34:20.430125Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 133: Lovers in a Dangerous Spacetime. Error: SyntaxError: Cannot convert Lovers in a Dangerous Spacetime to a BigInt
+2026-04-05T19:34:20.430161Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 134: Lushfoil Photography Sim. Error: SyntaxError: Cannot convert Lushfoil Photography Sim to a BigInt
+2026-04-05T19:34:20.430199Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 135: Magical Mic Duel: Senpai, Hear My Spell. Error: SyntaxError: Cannot convert Magical Mic Duel: Senpai, Hear My Spell to a BigInt
+2026-04-05T19:34:20.430239Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 136: Make Good Choices. Error: SyntaxError: Cannot convert Make Good Choices to a BigInt
+2026-04-05T19:34:20.430427Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 137: Marie's Room. Error: SyntaxError: Cannot convert Marie's Room to a BigInt
+2026-04-05T19:34:20.430482Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 138: Mario + Rabbids Kingdom Battle. Error: SyntaxError: Cannot convert Mario + Rabbids Kingdom Battle to a BigInt
+2026-04-05T19:34:20.430524Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 139: Minami Lane. Error: SyntaxError: Cannot convert Minami Lane to a BigInt
+2026-04-05T19:34:20.430564Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 140: Minecraft Legends. Error: SyntaxError: Cannot convert Minecraft Legends to a BigInt
+2026-04-05T19:34:20.430612Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 141: Minecraft: Story Mode. Error: SyntaxError: Cannot convert Minecraft: Story Mode to a BigInt
+2026-04-05T19:34:20.430646Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 142: Mirthwood. Error: SyntaxError: Cannot convert Mirthwood to a BigInt
+2026-04-05T19:34:20.430680Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 143: Monument Valley. Error: SyntaxError: Cannot convert Monument Valley to a BigInt
+2026-04-05T19:34:20.430716Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 144: Moonlighter. Error: SyntaxError: Cannot convert Moonlighter to a BigInt
+2026-04-05T19:34:20.430751Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 145: Moshi Monsters. Error: SyntaxError: Cannot convert Moshi Monsters to a BigInt
+2026-04-05T19:34:20.430790Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 146: Mouthwashing. Error: SyntaxError: Cannot convert Mouthwashing to a BigInt
+2026-04-05T19:34:20.430827Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 147: My Pet Rock. Error: SyntaxError: Cannot convert My Pet Rock to a BigInt
+2026-04-05T19:34:20.430862Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 148: Neva. Error: SyntaxError: Cannot convert Neva to a BigInt
+2026-04-05T19:34:20.430901Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 149: Night in the Woods. Error: SyntaxError: Cannot convert Night in the Woods to a BigInt
+2026-04-05T19:34:20.430933Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 150: NIGHT OF THE CONSUMERS. Error: SyntaxError: Cannot convert NIGHT OF THE CONSUMERS to a BigInt
+2026-04-05T19:34:20.430976Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 151: No Man's Sky. Error: SyntaxError: Cannot convert No Man's Sky to a BigInt
+2026-04-05T19:34:20.431023Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 152: No, I'm Not a Human. Error: SyntaxError: Cannot convert No, I'm Not a Human to a BigInt
+2026-04-05T19:34:20.431064Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 153: OMORI. Error: SyntaxError: Cannot convert OMORI to a BigInt
+2026-04-05T19:34:20.431119Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 154: Once Human. Error: SyntaxError: Cannot convert Once Human to a BigInt
+2026-04-05T19:34:20.431164Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 155: One Hour One Life. Error: SyntaxError: Cannot convert One Hour One Life to a BigInt
+2026-04-05T19:34:20.431205Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 156: One Man's Trash is Another's Treasure. Error: SyntaxError: Cannot convert One Man's Trash is Another's Treasure to a BigInt
+2026-04-05T19:34:20.431236Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 157: OneShot. Error: SyntaxError: Cannot convert OneShot to a BigInt
+2026-04-05T19:34:20.431283Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 158: Orebound. Error: SyntaxError: Cannot convert Orebound to a BigInt
+2026-04-05T19:34:20.431328Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 159: Ori and the Will of the Wisps. Error: SyntaxError: Cannot convert Ori and the Will of the Wisps to a BigInt
+2026-04-05T19:34:20.431367Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 160: Out of Sight. Error: SyntaxError: Cannot convert Out of Sight to a BigInt
+2026-04-05T19:34:20.431405Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 161: Out of Sight. Error: SyntaxError: Cannot convert Out of Sight to a BigInt
+2026-04-05T19:34:20.431447Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 162: Outlast. Error: SyntaxError: Cannot convert Outlast to a BigInt
+2026-04-05T19:34:20.431483Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 163: Outlast 2. Error: SyntaxError: Cannot convert Outlast 2 to a BigInt
+2026-04-05T19:34:20.431554Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 164: Oxenfree. Error: SyntaxError: Cannot convert Oxenfree to a BigInt
+2026-04-05T19:34:20.431589Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 165: Palworld. Error: SyntaxError: Cannot convert Palworld to a BigInt
+2026-04-05T19:34:20.431621Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 166: PANICORE. Error: SyntaxError: Cannot convert PANICORE to a BigInt
+2026-04-05T19:34:20.431767Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 167: Papa's Cupcakeria HD. Error: SyntaxError: Cannot convert Papa's Cupcakeria HD to a BigInt
+2026-04-05T19:34:20.431809Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 168: Papa's Scooperia. Error: SyntaxError: Cannot convert Papa's Scooperia to a BigInt
+2026-04-05T19:34:20.431842Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 169: Papas freezeria. Error: SyntaxError: Cannot convert Papas freezeria to a BigInt
+2026-04-05T19:34:20.431880Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 170: Papers, Please. Error: SyntaxError: Cannot convert Papers, Please to a BigInt
+2026-04-05T19:34:20.431918Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 171: Papers, Please. Error: SyntaxError: Cannot convert Papers, Please to a BigInt
+2026-04-05T19:34:20.431954Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 172: Pato Box. Error: SyntaxError: Cannot convert Pato Box to a BigInt
+2026-04-05T19:34:20.431995Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 173: PC Building Simulator. Error: SyntaxError: Cannot convert PC Building Simulator to a BigInt
+2026-04-05T19:34:20.432039Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 174: Peak. Error: SyntaxError: Cannot convert Peak to a BigInt
+2026-04-05T19:34:20.432073Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 175: Phasmophobia. Error: SyntaxError: Cannot convert Phasmophobia to a BigInt
+2026-04-05T19:34:20.432106Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 176: Pilgrim. Error: SyntaxError: Cannot convert Pilgrim to a BigInt
+2026-04-05T19:34:20.432178Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 177: Pineapple on pizza. Error: SyntaxError: Cannot convert Pineapple on pizza to a BigInt
+2026-04-05T19:34:20.432219Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 178: Pony Island. Error: SyntaxError: Cannot convert Pony Island to a BigInt
+2026-04-05T19:34:20.432254Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 179: Poppy Playtime. Error: SyntaxError: Cannot convert Poppy Playtime to a BigInt
+2026-04-05T19:34:20.432286Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 180: Portal 2. Error: SyntaxError: Cannot convert Portal 2 to a BigInt
+2026-04-05T19:34:20.432326Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 181: Potion Craft: Alchemist Simulator. Error: SyntaxError: Cannot convert Potion Craft: Alchemist Simulator to a BigInt
+2026-04-05T19:34:20.432362Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 182: PowerWash Simulator. Error: SyntaxError: Cannot convert PowerWash Simulator to a BigInt
+2026-04-05T19:34:20.432412Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 183: Prey. Error: SyntaxError: Cannot convert Prey to a BigInt
+2026-04-05T19:34:20.432449Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 184: Project Zomboid. Error: SyntaxError: Cannot convert Project Zomboid to a BigInt
+2026-04-05T19:34:20.432494Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 185: PUMPKIN PANIC. Error: SyntaxError: Cannot convert PUMPKIN PANIC to a BigInt
+2026-04-05T19:34:20.432524Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 186: Raft. Error: SyntaxError: Cannot convert Raft to a BigInt
+2026-04-05T19:34:20.432565Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 187: Refind Self: The Personality Test Game. Error: SyntaxError: Cannot convert Refind Self: The Personality Test Game to a BigInt
+2026-04-05T19:34:20.432610Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 188: Resident Evil. Error: SyntaxError: Cannot convert Resident Evil to a BigInt
+2026-04-05T19:34:20.432646Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 189: ROGUE LIGHT DECK BUILDER. Error: SyntaxError: Cannot convert ROGUE LIGHT DECK BUILDER to a BigInt
+2026-04-05T19:34:20.432687Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 190: Rusty Lake Hotel. Error: SyntaxError: Cannot convert Rusty Lake Hotel to a BigInt
+2026-04-05T19:34:20.432721Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 191: Satisfactory. Error: SyntaxError: Cannot convert Satisfactory to a BigInt
+2026-04-05T19:34:20.432756Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 192: Shadow Harvest: Phantom Ops. Error: SyntaxError: Cannot convert Shadow Harvest: Phantom Ops to a BigInt
+2026-04-05T19:34:20.432794Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 193: Shadows Over Loathing. Error: SyntaxError: Cannot convert Shadows Over Loathing to a BigInt
+2026-04-05T19:34:20.432830Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 194: Shelter. Error: SyntaxError: Cannot convert Shelter to a BigInt
+2026-04-05T19:34:20.432862Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 195: Shelter 2. Error: SyntaxError: Cannot convert Shelter 2 to a BigInt
+2026-04-05T19:34:20.432900Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 196: Shift Happens. Error: SyntaxError: Cannot convert Shift Happens to a BigInt
+2026-04-05T19:34:20.432942Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 197: Shrek Forever After: The Game. Error: SyntaxError: Cannot convert Shrek Forever After: The Game to a BigInt
+2026-04-05T19:34:20.432973Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 198: SILENT BREATH. Error: SyntaxError: Cannot convert SILENT BREATH to a BigInt
+2026-04-05T19:34:20.433006Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 199: Silent Hill. Error: SyntaxError: Cannot convert Silent Hill to a BigInt
+2026-04-05T19:34:20.433049Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 200: Sky: Children of the Light. Error: SyntaxError: Cannot convert Sky: Children of the Light to a BigInt
+2026-04-05T19:34:20.433087Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 201: Slime Rancher. Error: SyntaxError: Cannot convert Slime Rancher to a BigInt
+2026-04-05T19:34:20.433119Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 202: SOMA. Error: SyntaxError: Cannot convert SOMA to a BigInt
+2026-04-05T19:34:20.433147Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 203: sonic.exe. Error: SyntaxError: Cannot convert sonic.exe to a BigInt
+2026-04-05T19:34:20.433183Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 204: Sons of the Forest. Error: SyntaxError: Cannot convert Sons of the Forest to a BigInt
+2026-04-05T19:34:20.433223Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 205: Spiritfarer. Error: SyntaxError: Cannot convert Spiritfarer to a BigInt
+2026-04-05T19:34:20.433257Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 206: Split Fiction. Error: SyntaxError: Cannot convert Split Fiction to a BigInt
+2026-04-05T19:34:20.433295Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 207: Squirrel with a Gun. Error: SyntaxError: Cannot convert Squirrel with a Gun to a BigInt
+2026-04-05T19:34:20.433336Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 208: Star Wars Jedi: Survivor. Error: SyntaxError: Cannot convert Star Wars Jedi: Survivor to a BigInt
+2026-04-05T19:34:20.433375Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 209: Stardew Valley. Error: SyntaxError: Cannot convert Stardew Valley to a BigInt
+2026-04-05T19:34:20.433425Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 210: Still Wakes the Deep. Error: SyntaxError: Cannot convert Still Wakes the Deep to a BigInt
+2026-04-05T19:34:20.433460Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 211: Storyteller. Error: SyntaxError: Cannot convert Storyteller to a BigInt
+2026-04-05T19:34:20.433487Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 212: Strashna 2. Error: SyntaxError: Cannot convert Strashna 2 to a BigInt
+2026-04-05T19:34:20.433537Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 213: Stray. Error: SyntaxError: Cannot convert Stray to a BigInt
+2026-04-05T19:34:20.433612Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 214: Stray Gods: The Roleplaying Musical. Error: SyntaxError: Cannot convert Stray Gods: The Roleplaying Musical to a BigInt
+2026-04-05T19:34:20.433658Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 215: SubLiminal. Error: SyntaxError: Cannot convert SubLiminal to a BigInt
+2026-04-05T19:34:20.433707Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 216: Subnautica. Error: SyntaxError: Cannot convert Subnautica to a BigInt
+2026-04-05T19:34:20.433751Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 217: Supernormal. Error: SyntaxError: Cannot convert Supernormal to a BigInt
+2026-04-05T19:34:20.433785Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 218: Supernormal. Error: SyntaxError: Cannot convert Supernormal to a BigInt
+2026-04-05T19:34:20.433818Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 219: Sword of the Sea. Error: SyntaxError: Cannot convert Sword of the Sea to a BigInt
+2026-04-05T19:34:20.433854Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 220: Tanuki Sunset. Error: SyntaxError: Cannot convert Tanuki Sunset to a BigInt
+2026-04-05T19:34:20.433888Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 221: TCG Card Shop Simulator. Error: SyntaxError: Cannot convert TCG Card Shop Simulator to a BigInt
+2026-04-05T19:34:20.433927Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 222: Techtonica. Error: SyntaxError: Cannot convert Techtonica to a BigInt
+2026-04-05T19:34:20.433957Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 223: Tekken 5. Error: SyntaxError: Cannot convert Tekken 5 to a BigInt
+2026-04-05T19:34:20.433993Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 224: Ten Bells. Error: SyntaxError: Cannot convert Ten Bells to a BigInt
+2026-04-05T19:34:20.434059Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 225: Thank Goodness You're Here!. Error: SyntaxError: Cannot convert Thank Goodness You're Here! to a BigInt
+2026-04-05T19:34:20.434118Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 226: That's Not My Neighbor. Error: SyntaxError: Cannot convert That's Not My Neighbor to a BigInt
+2026-04-05T19:34:20.434155Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 227: The Alters. Error: SyntaxError: Cannot convert The Alters to a BigInt
+2026-04-05T19:34:20.434209Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 228: The Bunker. Error: SyntaxError: Cannot convert The Bunker to a BigInt
+2026-04-05T19:34:20.434257Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 229: The Coffin of Andy and Leyley. Error: SyntaxError: Cannot convert The Coffin of Andy and Leyley to a BigInt
+2026-04-05T19:34:20.434297Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 230: The Deadseat. Error: SyntaxError: Cannot convert The Deadseat to a BigInt
+2026-04-05T19:34:20.434332Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 231: THE DEVIL HAUNTS ME. Error: SyntaxError: Cannot convert THE DEVIL HAUNTS ME to a BigInt
+2026-04-05T19:34:20.434366Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 232: The Gecko Gods. Error: SyntaxError: Cannot convert The Gecko Gods to a BigInt
+2026-04-05T19:34:20.434395Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 233: The Hex. Error: SyntaxError: Cannot convert The Hex to a BigInt
+2026-04-05T19:34:20.434423Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 234: The Huntsman. Error: SyntaxError: Cannot convert The Huntsman to a BigInt
+2026-04-05T19:34:20.434461Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 235: The Last Campfire. Error: SyntaxError: Cannot convert The Last Campfire to a BigInt
+2026-04-05T19:34:20.434522Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 236: The Last Guardian. Error: SyntaxError: Cannot convert The Last Guardian to a BigInt
+2026-04-05T19:34:20.434771Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 237: The Last Of Us. Error: SyntaxError: Cannot convert The Last Of Us to a BigInt
+2026-04-05T19:34:20.434834Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 238: The Legend of Zelda: Breath of the Wild. Error: SyntaxError: Cannot convert The Legend of Zelda: Breath of the Wild to a BigInt
+2026-04-05T19:34:20.434876Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 239: The Midnight Walk. Error: SyntaxError: Cannot convert The Midnight Walk to a BigInt
+2026-04-05T19:34:20.434921Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 240: The Order: 1886. Error: SyntaxError: Cannot convert The Order: 1886 to a BigInt
+2026-04-05T19:34:20.434963Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 241: The Outer Worlds. Error: SyntaxError: Cannot convert The Outer Worlds to a BigInt
+2026-04-05T19:34:20.435169Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 242: The Sexy Brutale. Error: SyntaxError: Cannot convert The Sexy Brutale to a BigInt
+2026-04-05T19:34:20.435235Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 243: The Survey. Error: SyntaxError: Cannot convert The Survey to a BigInt
+2026-04-05T19:34:20.435282Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 244: The Unfinished Swan. Error: SyntaxError: Cannot convert The Unfinished Swan to a BigInt
+2026-04-05T19:34:20.435318Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 245: The Universim. Error: SyntaxError: Cannot convert The Universim to a BigInt
+2026-04-05T19:34:20.435390Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 246: The Witcher. Error: SyntaxError: Cannot convert The Witcher to a BigInt
+2026-04-05T19:34:20.435426Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 247: The Witcher 3 REDkit. Error: SyntaxError: Cannot convert The Witcher 3 REDkit to a BigInt
+2026-04-05T19:34:20.435474Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 248: This War of Mine. Error: SyntaxError: Cannot convert This War of Mine to a BigInt
+2026-04-05T19:34:20.435507Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 249: Tiny Glade. Error: SyntaxError: Cannot convert Tiny Glade to a BigInt
+2026-04-05T19:34:20.435570Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 250: to a T. Error: SyntaxError: Cannot convert to a T to a BigInt
+2026-04-05T19:34:20.435615Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 251: Tunic. Error: SyntaxError: Cannot convert Tunic to a BigInt
+2026-04-05T19:34:20.435661Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 252: UFO 50. Error: SyntaxError: Cannot convert UFO 50 to a BigInt
+2026-04-05T19:34:20.435721Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 253: Undertale. Error: SyntaxError: Cannot convert Undertale to a BigInt
+2026-04-05T19:34:20.435769Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 254: Unpacking. Error: SyntaxError: Cannot convert Unpacking to a BigInt
+2026-04-05T19:34:20.435808Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 255: Unpacking. Error: SyntaxError: Cannot convert Unpacking to a BigInt
+2026-04-05T19:34:20.435847Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 256: Unravel. Error: SyntaxError: Cannot convert Unravel to a BigInt
+2026-04-05T19:34:20.435887Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 257: Untitled Goose Game. Error: SyntaxError: Cannot convert Untitled Goose Game to a BigInt
+2026-04-05T19:34:20.435921Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 258: Valheim. Error: SyntaxError: Cannot convert Valheim to a BigInt
+2026-04-05T19:34:20.435956Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 259: Venba. Error: SyntaxError: Cannot convert Venba to a BigInt
+2026-04-05T19:34:20.435989Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 260: Viewfinder. Error: SyntaxError: Cannot convert Viewfinder to a BigInt
+2026-04-05T19:34:20.436023Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 261: Vintage Story. Error: SyntaxError: Cannot convert Vintage Story to a BigInt
+2026-04-05T19:34:20.436077Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 262: Warhammer 40,000: Chaos Gate - Daemonhunters. Error: SyntaxError: Cannot convert Warhammer 40,000: Chaos Gate - Daemonhunters to a BigInt
+2026-04-05T19:34:20.436129Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 263: Warhammer 40,000: Space Marine 2. Error: SyntaxError: Cannot convert Warhammer 40,000: Space Marine 2 to a BigInt
+2026-04-05T19:34:20.436166Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 264: What Never Was. Error: SyntaxError: Cannot convert What Never Was to a BigInt
+2026-04-05T19:34:20.436211Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 265: What Remains of Edith Finch. Error: SyntaxError: Cannot convert What Remains of Edith Finch to a BigInt
+2026-04-05T19:34:20.436259Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 266: Wizard of Legend. Error: SyntaxError: Cannot convert Wizard of Legend to a BigInt
+2026-04-05T19:34:20.436382Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 267: Yakuza Remastered Collection. Error: SyntaxError: Cannot convert Yakuza Remastered Collection to a BigInt
+2026-04-05T19:34:20.436432Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 268: Yes, Your Grace. Error: SyntaxError: Cannot convert Yes, Your Grace to a BigInt
+2026-04-05T19:34:20.436472Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 269: Yes, Your Grace. Error: SyntaxError: Cannot convert Yes, Your Grace to a BigInt
+2026-04-05T19:34:20.436509Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 270: You found nothing.. Error: SyntaxError: Cannot convert You found nothing. to a BigInt
+2026-04-05T19:34:20.436542Z  WARN: sync_games_from_sheet spacetimedb_module:11569: Failed to parse ID at line 271: Zoochosis. Error: SyntaxError: Cannot convert Zoochosis to a BigInt
+2026-04-05T19:34:20.436558Z  INFO: sync_games_from_sheet spacetimedb_module:11602: Game sync completed: 0 imported, 270 errors
+2026-04-05T19:36:15.554660Z  INFO: Updated program to 98cd58b7385623bf2df600ff8c8bd541d69f707b93bc0153332bc7917565ea15
+2026-04-05T19:36:15.554798Z  INFO: Database updated

@@ -615,11 +615,25 @@ const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1VayJrz5E92IJ1
  * Expected CSV format: id, title, subtitle, cover_url, purchase_link, played
  * (Headers are ignored)
  */
+function stableHash(input: string): bigint {
+  let hash = 0n;
+  for (let i = 0; i < input.length; i++) {
+    const char = BigInt(input.charCodeAt(i));
+    hash = (hash << 5n) - hash + char;
+    hash = hash & 0xffffffffffffffffn; // Keep it within u64 range
+  }
+  return hash;
+}
+
 export const sync_games_from_sheet = spacetimedb.procedure(
   { url: t.string() },
   t.unit(),
   (ctx, { url }) => {
     const targetUrl = url || DEFAULT_SHEET_URL;
+
+    if (!targetUrl) {
+      throw new SenderError("URL is required for sync");
+    }
 
     // Only admin can sync games, UNLESS the game table is currently empty
     let gameCount = 0;
@@ -681,26 +695,47 @@ export const sync_games_from_sheet = spacetimedb.procedure(
 
           if (parts.length < 2) continue;
 
-          // Robust ID parsing: skip header or invalid rows
+          // Map columns flexibly
           let id: bigint;
-          try {
-            // Try to parse as BigInt. If it's the header "id", it will throw.
-            id = BigInt(parts[0]);
-          } catch (e) {
-            if (i === 0 || parts[0].toLowerCase() === "id") {
-              console.info(`Skipping header or non-numeric ID at line ${i + 1}: ${parts[0]}`);
-            } else {
-              console.warn(`Failed to parse ID at line ${i + 1}: ${parts[0]}. Error: ${e}`);
-              errorCount++;
+          let title: string;
+          let subtitle: string | undefined;
+          let cover_url: string | undefined;
+          let purchase_link: string | undefined;
+          let played: boolean;
+
+          const firstPart = parts[0];
+          const isFirstPartNumeric = /^\d+$/.test(firstPart);
+
+          if (isFirstPartNumeric) {
+            // Standard ID-first format
+            id = BigInt(firstPart);
+            title = parts[1];
+            subtitle = parts[2] || undefined;
+            cover_url = parts[3] || undefined;
+            purchase_link = parts[4] || undefined;
+            played = parts[5]?.toLowerCase() === "true";
+          } else {
+            // Assume Title-first format (no numeric ID column)
+            // Skip headers like "id", "title", "name", etc.
+            const headerCheck = firstPart.toLowerCase();
+            if (i === 0 || headerCheck === "id" || headerCheck === "title" || headerCheck === "name") {
+              console.info(`Skipping header at line ${i + 1}: ${firstPart}`);
+              continue;
             }
-            continue;
+
+            title = firstPart;
+            id = stableHash(title);
+            subtitle = parts[1] || undefined;
+            cover_url = parts[2] || undefined;
+            purchase_link = parts[3] || undefined;
+            played = parts[4]?.toLowerCase() === "true";
           }
 
-          const title = parts[1];
-          const subtitle = parts[2] || undefined;
-          const cover_url = parts[3] || undefined;
-          const purchase_link = parts[4] || undefined;
-          const played = parts[5]?.toLowerCase() === "true";
+          if (!title) {
+            console.warn(`Skipping line ${i + 1} with empty title`);
+            errorCount++;
+            continue;
+          }
 
           const existing = tx.db.game.id.find(id);
           if (existing) {

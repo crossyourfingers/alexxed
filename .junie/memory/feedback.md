@@ -118,3 +118,11 @@
     "NEW INSTRUCTION": "WHEN user mentions Anonymous Auth and identity is none THEN explain identity must exist and request console+HAR"
 }
 
+[2026-04-05 14:49] - Updated by Junie
+{
+    "TYPE": "preference",
+    "CATEGORY": "Documentation and backend-first",
+    "EXPECTATION": "Document in AGENTS.md how to call Spacetime methods directly for testing, and prioritize placing business logic in the backend.",
+    "NEW INSTRUCTION": "WHEN adding developer docs THEN include how to call Spacetime methods directly for testing"
+}
+

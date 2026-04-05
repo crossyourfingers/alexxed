@@ -19,6 +19,7 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
       dragging = true;
       startX =
         "touches" in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+      currentX = startX;
       // lift the top card visually so it stays above the stack during drag
       activeCard = el.firstElementChild as HTMLElement | null;
       if (activeCard) {
