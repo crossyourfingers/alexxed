@@ -14,3 +14,11 @@
     "NEW INSTRUCTION": "WHEN build shows missing SDK fields or accessors THEN regenerate SDK and align frontend names"
 }
 
+[2026-04-04 23:51] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Connection still broken",
+    "EXPECTATION": "After OIDC consent, the app should establish and maintain a SpacetimeDB WebSocket connection in production without looping from 'Connecting...' to 'Disconnected'.",
+    "NEW INSTRUCTION": "WHEN user shares disconnect console logs THEN request full console and Network HAR from production"
+}
+

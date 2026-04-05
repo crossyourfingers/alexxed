@@ -28,6 +28,9 @@ function AuthGate() {
   const [users] = useTable(tables.user);
 
   if (auth.isLoading || !connected) {
+    const authStatus = auth.isLoading ? "Loading Auth..." : (auth.isAuthenticated ? "Authenticated" : "Not Authenticated");
+    const dbStatus = connected ? "Connected" : "Reconnecting...";
+    
     return (
       <div
         style={{
@@ -41,12 +44,49 @@ function AuthGate() {
           color: "#22c55e",
           fontSize: "18px",
           gap: "10px",
+          padding: "20px",
+          textAlign: "center"
         }}
       >
-        <div>Connecting to {DB_NAME}...</div>
-        <div style={{ fontSize: "12px", opacity: 0.7 }}>
-          Status: {connected ? "Connected" : "Reconnecting..."} | Identity: {identity?.toHexString().substring(0, 8) || "none"}
+        <div style={{ fontWeight: "bold", fontSize: "24px", marginBottom: "10px" }}>
+          Connecting to Alexxed...
         </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "5px", alignItems: "flex-start", background: "rgba(0,0,0,0.3)", padding: "15px", borderRadius: "8px", border: "1px solid rgba(34, 197, 94, 0.3)" }}>
+          <div style={{ fontSize: "14px" }}>
+            <span style={{ opacity: 0.7 }}>Database:</span> {DB_NAME}
+          </div>
+          <div style={{ fontSize: "14px" }}>
+            <span style={{ opacity: 0.7 }}>Auth Status:</span> <span style={{ color: auth.isLoading ? "#fbbf24" : "#22c55e" }}>{authStatus}</span>
+          </div>
+          <div style={{ fontSize: "14px" }}>
+            <span style={{ opacity: 0.7 }}>DB Connection:</span> <span style={{ color: !connected ? "#fbbf24" : "#22c55e" }}>{dbStatus}</span>
+          </div>
+          <div style={{ fontSize: "14px" }}>
+            <span style={{ opacity: 0.7 }}>Identity:</span> {identity?.toHexString().substring(0, 12) || "none"}
+          </div>
+        </div>
+        
+        {auth.isLoading && (
+          <div style={{ fontSize: "12px", marginTop: "20px", color: "#94a3b8", maxWidth: "400px" }}>
+            If this takes too long, please check if your <b>VITE_SPACETIMEAUTH_CLIENT_ID</b> is correct in your .env file and matches the client with Redirect URIs in the Spacetime dashboard.
+          </div>
+        )}
+        
+        <button 
+          onClick={() => window.location.reload()}
+          style={{
+            marginTop: "20px",
+            padding: "8px 16px",
+            background: "transparent",
+            color: "#22c55e",
+            border: "1px solid #22c55e",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "14px"
+          }}
+        >
+          Reload Page
+        </button>
       </div>
     );
   }
