@@ -41,6 +41,7 @@ import DeleteChannelReducer from "./delete_channel_reducer";
 import InsertSystemMessageReducer from "./insert_system_message_reducer";
 import LoginReducer from "./login_reducer";
 import MarkChannelReadReducer from "./mark_channel_read_reducer";
+import MarkGamePlayedReducer from "./mark_game_played_reducer";
 import PopulateScheduleReducer from "./populate_schedule_reducer";
 import RegisterReducer from "./register_reducer";
 import ReportMessageReducer from "./report_message_reducer";
@@ -220,6 +221,7 @@ const reducersSchema = __reducers(
   __reducerSchema("insert_system_message", InsertSystemMessageReducer),
   __reducerSchema("login", LoginReducer),
   __reducerSchema("mark_channel_read", MarkChannelReadReducer),
+  __reducerSchema("mark_game_played", MarkGamePlayedReducer),
   __reducerSchema("populate_schedule", PopulateScheduleReducer),
   __reducerSchema("register", RegisterReducer),
   __reducerSchema("report_message", ReportMessageReducer),

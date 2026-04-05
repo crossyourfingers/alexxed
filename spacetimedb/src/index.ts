@@ -895,6 +895,25 @@ export const cast_vote = spacetimedb.reducer(
 );
 
 /**
+ * Mark a game as played or unplayed. Admin-only.
+ * Played games are hidden from the voting queue.
+ */
+export const mark_game_played = spacetimedb.reducer(
+  { game_id: t.u64(), played: t.bool() },
+  (ctx, { game_id, played }) => {
+    const profile = ctx.db.streamer_profile.id.find(ctx.sender);
+    if (!profile) {
+      throw new SenderError("Only the streamer can mark games as played");
+    }
+    const g = ctx.db.game.id.find(game_id);
+    if (!g) {
+      throw new SenderError(`Game ${game_id} not found`);
+    }
+    ctx.db.game.id.update({ ...g, played });
+  },
+);
+
+/**
  * Very small view to return aggregated vote counts per game.
  * This is intentionally naive (scans user_vote) and will be replaced with
  * indexed queries once we stabilise the schema.
