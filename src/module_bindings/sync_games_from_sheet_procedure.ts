@@ -10,11 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.row({
-  id: __t.u64().primaryKey(),
-  title: __t.string(),
-  coverUrl: __t.option(__t.string()).name("cover_url"),
-  purchaseLink: __t.option(__t.string()).name("purchase_link"),
-  played: __t.option(__t.bool()),
-  subtitle: __t.option(__t.string()),
-});
+export const params = {
+  url: __t.string(),
+};
+export const returnType = __t.unit()

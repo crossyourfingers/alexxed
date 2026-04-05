@@ -3,7 +3,7 @@ import { Header } from "../components/Header";
 import "./CommunityPage.css";
 import "./VotePage.css";
 import VoteStatsPanel from "../components/VoteStatsPanel";
-import { useTable, useReducer } from "spacetimedb/react";
+import { useTable, useReducer, useSpacetimeDB } from "spacetimedb/react";
 import { tables, reducers } from "../module_bindings";
 import SwipeVote from "./SwipeVote";
 
@@ -28,15 +28,21 @@ export function VotePage({ username, onLogout }: VotePageProps) {
   const [games, gamesLoading] = useTable(tables.game);
   const [counts] = useTable(tables.game_vote_counts);
   const castVote = useReducer(reducers.castVote);
-  const syncGames = useReducer(reducers.syncGamesFromSheet);
+  const { getConnection } = useSpacetimeDB();
 
   const [sheetUrl, setSheetUrl] = React.useState("");
   const [syncing, setSyncing] = React.useState(false);
 
   const handleSync = () => {
     if (!sheetUrl) return;
+    const conn = getConnection();
+    if (!conn) {
+      window.alert("Not connected to database");
+      return;
+    }
+
     setSyncing(true);
-    syncGames({ url: sheetUrl })
+    conn.procedures.syncGamesFromSheet({ url: sheetUrl })
       .then(() => {
         window.alert("Games synced successfully!");
         setSheetUrl("");

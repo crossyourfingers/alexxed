@@ -613,11 +613,12 @@ export const init = spacetimedb.init((ctx) => {
  * Expected CSV format: id, title, subtitle, cover_url, purchase_link, played
  * (Headers are ignored)
  */
-export const sync_games_from_sheet = spacetimedb.reducer(
+export const sync_games_from_sheet = spacetimedb.procedure(
   { url: t.string() },
+  t.unit(),
   (ctx, { url }) => {
     // Only admin can sync games
-    const profile = ctx.db.streamer_profile.id.find(ctx.sender);
+    const profile = ctx.withTx((tx) => tx.db.streamer_profile.id.find(ctx.sender));
     if (!profile) {
       throw new SenderError("Only admin can sync games from sheet");
     }
@@ -638,68 +639,71 @@ export const sync_games_from_sheet = spacetimedb.reducer(
           ? 1
           : 0;
 
-      for (let i = startIdx; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
+      ctx.withTx((tx) => {
+        for (let i = startIdx; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
 
-        // Enhanced CSV parser to handle quoted fields with commas
-        let parts: string[] = [];
-        let current = "";
-        let inQuotes = false;
-        for (let j = 0; j < line.length; j++) {
-          const char = line[j];
-          if (char === '"') {
-            inQuotes = !inQuotes;
-          } else if (char === "," && !inQuotes) {
-            parts.push(current.trim());
-            current = "";
+          // Enhanced CSV parser to handle quoted fields with commas
+          let parts: string[] = [];
+          let current = "";
+          let inQuotes = false;
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === "," && !inQuotes) {
+              parts.push(current.trim());
+              current = "";
+            } else {
+              current += char;
+            }
+          }
+          parts.push(current.trim());
+
+          // Remove surrounding quotes from parts if they exist
+          parts = parts.map((p) =>
+            p.startsWith('"') && p.endsWith('"') ? p.slice(1, -1).trim() : p,
+          );
+
+          if (parts.length < 2) continue;
+
+          const id = BigInt(parts[0]);
+          const title = parts[1];
+          const subtitle = parts[2] || undefined;
+          const cover_url = parts[3] || undefined;
+          const purchase_link = parts[4] || undefined;
+          const played = parts[5]?.toLowerCase() === "true";
+
+          const existing = tx.db.game.id.find(id);
+          if (existing) {
+            tx.db.game.id.update({
+              id,
+              title,
+              subtitle,
+              cover_url,
+              purchase_link,
+              played,
+            });
           } else {
-            current += char;
+            tx.db.game.insert({
+              id,
+              title,
+              subtitle,
+              cover_url,
+              purchase_link,
+              played,
+            });
+          }
+
+          // Initialize vote counter if missing
+          if (!tx.db.game_vote_count.game_id.find(id)) {
+            tx.db.game_vote_count.insert({ game_id: id, up: 0n, down: 0n });
           }
         }
-        parts.push(current.trim());
-
-        // Remove surrounding quotes from parts if they exist
-        parts = parts.map((p) =>
-          p.startsWith('"') && p.endsWith('"') ? p.slice(1, -1).trim() : p,
-        );
-
-        if (parts.length < 2) continue;
-
-        const id = BigInt(parts[0]);
-        const title = parts[1];
-        const subtitle = parts[2] || undefined;
-        const cover_url = parts[3] || undefined;
-        const purchase_link = parts[4] || undefined;
-        const played = parts[5]?.toLowerCase() === "true";
-
-        const existing = ctx.db.game.id.find(id);
-        if (existing) {
-          ctx.db.game.id.update({
-            id,
-            title,
-            subtitle,
-            cover_url,
-            purchase_link,
-            played,
-          });
-        } else {
-          ctx.db.game.insert({
-            id,
-            title,
-            subtitle,
-            cover_url,
-            purchase_link,
-            played,
-          });
-        }
-
-        // Initialize vote counter if missing
-        if (!ctx.db.game_vote_count.game_id.find(id)) {
-          ctx.db.game_vote_count.insert({ game_id: id, up: 0n, down: 0n });
-        }
-      }
+      });
       console.info(`Synced ${lines.length - startIdx} games from sheet`);
+      return {};
     } catch (e: any) {
       console.warn("Game sync failed:", e);
       throw new SenderError(`Sync failed: ${e.message || e}`);
@@ -729,13 +733,14 @@ export const cast_vote = spacetimedb.reducer(
       throw new SenderError("Invalid vote value");
     }
 
-    // Verify game exists (if not, create a placeholder stub row)
+        // Verify game exists (if not, create a placeholder stub row)
     const g = ctx.db.game.id.find(game_id);
     if (!g) {
       // create a placeholder game row with unknown title
       ctx.db.game.insert({
         id: game_id,
         title: "(unknown)",
+        subtitle: undefined,
         cover_url: undefined,
         purchase_link: undefined,
         played: false,

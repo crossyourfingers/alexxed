@@ -53,6 +53,7 @@ import UpdateStreamerProfileReducer from "./update_streamer_profile_reducer";
 
 // Import all procedure arg schemas
 import * as FetchLinkPreviewProcedure from "./fetch_link_preview_procedure";
+import * as SyncGamesFromSheetProcedure from "./sync_games_from_sheet_procedure";
 
 // Import all table schema definitions
 import AdminReportedMessagesRow from "./admin_reported_messages_table";
@@ -233,6 +234,7 @@ const reducersSchema = __reducers(
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */
 const proceduresSchema = __procedures(
   __procedureSchema("fetch_link_preview", FetchLinkPreviewProcedure.params, FetchLinkPreviewProcedure.returnType),
+  __procedureSchema("sync_games_from_sheet", SyncGamesFromSheetProcedure.params, SyncGamesFromSheetProcedure.returnType),
 );
 
 /** The remote SpacetimeDB module schema, both runtime and type information. */

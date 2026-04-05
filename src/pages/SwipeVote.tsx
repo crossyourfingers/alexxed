@@ -98,7 +98,7 @@ export default function SwipeVote() {
       id: g.id,
       title: g.title,
       subtitle: g.subtitle || "",
-      image: g.cover_url || fallbackImage,
+      image: g.coverUrl || fallbackImage,
     };
   });
 
