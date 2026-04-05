@@ -65,39 +65,42 @@ This file encodes the core programming and workflow principles for the Alexxed p
 
 ## Gaps & Open Questions
 
-This section tracks known compliance gaps, maintainability issues, and open questions identified in the project. For full details, see [Constitution Gaps](constitution-gaps.md) and [Devstral Gaps](devstral-gaps.md).
+This section tracks known compliance gaps, maintainability issues, and open questions identified in the project. This is the single source of truth for technical debt and security risks.
 
-### Constitution Compliance Gaps (as of 2026-03-06)
+### 1. High-Priority Gaps (Critical)
 
-- **Partial Compliance:**
-	- Strong: SpacetimeDB-first architecture, type safety, real-time subscriptions
-	- Needs Improvement: Test coverage, spec completeness, security implementation
-	- Critical Gaps: Authentication security, incomplete test coverage
+#### Security: Authentication & Hashing
+- **Issue:** The backend (`spacetimedb/src/index.ts`) currently uses a `simpleHash` function for passwords, explicitly labeled as "demo-grade."
+- **Risk:** High. Insecure password storage.
+- **Requirement:** Replace with production-grade hashing (e.g., bcrypt/Argon2 if supported, or SpacetimeDB's native identity patterns) and adopt a robust authentication model.
 
-#### Principle II: Spec-Driven Development
-- Link Preview feature implemented without a prior spec
-- Channel management spec coverage unclear
-- User session analytics: archived spec may be incomplete
+#### Testing: Insufficient Coverage
+- **Issue:** Significant lack of automated tests for critical backend and frontend logic.
+- **Missing Tests:**
+	- Reducers, procedures, and views in SpacetimeDB.
+	- Critical frontend flows: authentication, channel management, and system messages.
+	- Integration tests for complex state mutations.
+- **Requirement:** Expand test suite to cover all core paths and negative cases.
 
-#### Principle V: Testing & Quality Standards
-- Insufficient test coverage:
-	- Few reducer/component/integration tests
-	- No tests for some critical flows (auth, channel management, system messages, link preview, views, procedures)
+#### Architecture: Authentication Fragmentation
+- **Issue:** Authentication logic (OIDC/auth) remains fragmented across multiple files and could benefit from a centralized approach or utilizing SpacetimeDB native auth patterns.
 
-### Maintainability & Architecture Gaps
-- Duplicated message display logic between App.tsx and StreamPage.tsx
-- Inconsistent use of reusable components (MessageList, MessageInput)
-- Mixed concerns in root components (state, data, UI)
-- Hardcoded channel logic (e.g., general channel lookup)
-- Fragmented authentication implementation
+### 2. Maintainability & Technical Debt
 
-**Recommendations:**
-- Create shared hooks for message formatting, channel lookup, user identity, and online status
-- Standardize on reusable components for message display/input
-- Separate presentation and container components
-- Centralize feature flags and shared state
+#### Resolved Items (2026-04-04)
+- [x] **Shared Hooks:** `useChatMessages()` and `useChannelByName()` are implemented and used.
+- [x] **Consolidated UI:** Standardized `MessageList` and `MessageInput` components are in use.
+- [x] **Message Formatting:** `PrettyMessage` type and logic centralized in `src/hooks/useChatMessages.ts`.
 
-**See also:** devstral-gaps.md
+#### Outstanding Debt
+- **Mixed Concerns:** Some root components still intermingle state management, data fetching, and UI.
+- **Hardcoded Logic:** Scattered channel lookups (e.g., `channels.find(ch => ch.name === "general")`) should be replaced by the `useChannelByName()` hook where applicable.
+- **Spec Gaps:** Some features (like Link Preview) were implemented without prior formal specifications.
+
+### 3. Recommended Next Steps
+- Create issues for critical security fixes and test coverage gaps.
+- Standardize remaining components to separate presentation from container logic.
+- Ensure every new feature has a concise spec in `domain_knowledge/` before implementation.
 
 ---
 

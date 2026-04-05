@@ -259,11 +259,12 @@ const channel_unread = table(
 const game = table(
   { name: "game", public: true },
   {
-    id: t.u64().primaryKey().autoInc(),
+    id: t.u64().primaryKey(), // We'll use IDs from Google Sheets or specific logic
     title: t.string(),
     cover_url: t.string().optional(),
     purchase_link: t.string().optional(),
     played: t.bool().optional(),
+    subtitle: t.string().optional(),
   },
 );
 
@@ -604,8 +605,107 @@ export const init = spacetimedb.init((ctx) => {
 });
 
 // -----------------------------
-// Voting reducers (stubs)
+// Voting & Game Sync reducers
 // -----------------------------
+
+/**
+ * Sync games from a public Google Sheets CSV export.
+ * Expected CSV format: id, title, subtitle, cover_url, purchase_link, played
+ * (Headers are ignored)
+ */
+export const sync_games_from_sheet = spacetimedb.reducer(
+  { url: t.string() },
+  (ctx, { url }) => {
+    // Only admin can sync games
+    const profile = ctx.db.streamer_profile.id.find(ctx.sender);
+    if (!profile) {
+      throw new SenderError("Only admin can sync games from sheet");
+    }
+
+    try {
+      const response = ctx.http.fetch(url);
+      if (response.status !== 200) {
+        throw new SenderError(`Failed to fetch sheet: ${response.status}`);
+      }
+
+      const csv = response.text();
+      const lines = csv.split(/\r?\n/);
+
+      // Skip header if it exists (assuming first line starts with 'id' or similar)
+      const startIdx =
+        lines[0].toLowerCase().startsWith("id") ||
+        lines[0].toLowerCase().startsWith("game")
+          ? 1
+          : 0;
+
+      for (let i = startIdx; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        // Enhanced CSV parser to handle quoted fields with commas
+        let parts: string[] = [];
+        let current = "";
+        let inQuotes = false;
+        for (let j = 0; j < line.length; j++) {
+          const char = line[j];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === "," && !inQuotes) {
+            parts.push(current.trim());
+            current = "";
+          } else {
+            current += char;
+          }
+        }
+        parts.push(current.trim());
+
+        // Remove surrounding quotes from parts if they exist
+        parts = parts.map((p) =>
+          p.startsWith('"') && p.endsWith('"') ? p.slice(1, -1).trim() : p,
+        );
+
+        if (parts.length < 2) continue;
+
+        const id = BigInt(parts[0]);
+        const title = parts[1];
+        const subtitle = parts[2] || undefined;
+        const cover_url = parts[3] || undefined;
+        const purchase_link = parts[4] || undefined;
+        const played = parts[5]?.toLowerCase() === "true";
+
+        const existing = ctx.db.game.id.find(id);
+        if (existing) {
+          ctx.db.game.id.update({
+            id,
+            title,
+            subtitle,
+            cover_url,
+            purchase_link,
+            played,
+          });
+        } else {
+          ctx.db.game.insert({
+            id,
+            title,
+            subtitle,
+            cover_url,
+            purchase_link,
+            played,
+          });
+        }
+
+        // Initialize vote counter if missing
+        if (!ctx.db.game_vote_count.game_id.find(id)) {
+          ctx.db.game_vote_count.insert({ game_id: id, up: 0n, down: 0n });
+        }
+      }
+      console.info(`Synced ${lines.length - startIdx} games from sheet`);
+    } catch (e: any) {
+      console.warn("Game sync failed:", e);
+      throw new SenderError(`Sync failed: ${e.message || e}`);
+    }
+  },
+);
 
 /**
  * Cast or update a vote for a game. Simple semantics for now:

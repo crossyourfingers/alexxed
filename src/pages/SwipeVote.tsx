@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import posterCards from "../data/posterData";
 import "./SwipeVote.css";
 import { useTable, useReducer } from "spacetimedb/react";
 import { tables, reducers } from "../module_bindings";
+import { makePosterDataUri } from "../data/posterData";
 
 function useSwipe(onSwipe: (dir: "left" | "right") => void) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -83,9 +83,32 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
 }
 
 export default function SwipeVote() {
-  const [deck, setDeck] = useState(() => posterCards.slice());
+  const [games, gamesLoading] = useTable(tables.game);
   const [counts] = useTable(tables.game_vote_counts);
   const castVote = useReducer(reducers.castVote);
+
+  const deck = games.map((g) => {
+    const fallbackImage = makePosterDataUri(
+      g.title,
+      g.subtitle || "",
+      "#2b5876",
+      "#4e4376",
+    );
+    return {
+      id: g.id,
+      title: g.title,
+      subtitle: g.subtitle || "",
+      image: g.cover_url || fallbackImage,
+    };
+  });
+
+  const [displayDeck, setDisplayDeck] = useState<typeof deck>([]);
+
+  useEffect(() => {
+    if (!gamesLoading && displayDeck.length === 0 && deck.length > 0) {
+      setDisplayDeck(deck);
+    }
+  }, [gamesLoading, deck.length]);
 
   // local set of ids we've voted on — prevents duplicate reducer calls
   const [votedIds, setVotedIds] = useState<Set<string>>(() => {
@@ -124,7 +147,7 @@ export default function SwipeVote() {
     });
 
   const ref = useSwipe((dir) => {
-    const top = deck[0];
+    const top = displayDeck[0];
     if (!top) return;
     const idStr = top.id.toString();
     const vote = dir === "right" ? "up" : "down";
@@ -150,7 +173,7 @@ export default function SwipeVote() {
     if (el) {
       // the visual move has already been applied by useSwipe's onEnd — rotate after a short delay
       setTimeout(() => {
-        setDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
+        setDisplayDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
         // clear transforms to restore stacked layout
         setTimeout(() => {
           const container = ref.current;
@@ -162,12 +185,12 @@ export default function SwipeVote() {
         }, 120);
       }, 220);
     } else {
-      setDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
+      setDisplayDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
     }
   });
 
   const handleButton = (dir: "left" | "right") => {
-    const top = deck[0];
+    const top = displayDeck[0];
     if (!top) return;
     const idStr = top.id.toString();
     const vote = dir === "right" ? "up" : "down";
@@ -195,7 +218,7 @@ export default function SwipeVote() {
           ? "translateX(1000px) rotate(30deg)"
           : "translateX(-1000px) rotate(-30deg)";
       setTimeout(() => {
-        setDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
+        setDisplayDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
         setTimeout(() => {
           const container = ref.current;
           if (!container) return;
@@ -206,7 +229,7 @@ export default function SwipeVote() {
         }, 120);
       }, 260);
     } else {
-      setDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
+      setDisplayDeck((d) => (d.length <= 1 ? d.slice() : [...d.slice(1), d[0]]));
     }
   };
 
@@ -219,10 +242,12 @@ export default function SwipeVote() {
   return (
     <div className="swipe-container">
       <div ref={ref} className="deck" aria-live="polite">
-        {deck.length === 0 ? (
-          <div className="no-cards">No cards</div>
+        {gamesLoading ? (
+          <div className="no-cards">Loading games...</div>
+        ) : displayDeck.length === 0 ? (
+          <div className="no-cards">No games available for voting</div>
         ) : (
-          deck.slice(0, 3).map((card, idx) => {
+          displayDeck.slice(0, 3).map((card, idx) => {
             const isTop = idx === 0;
             const voted = votedIds.has(card.id.toString());
             const style: React.CSSProperties = {

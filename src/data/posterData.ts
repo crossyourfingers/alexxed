@@ -9,7 +9,7 @@ function escapeXml(s: string) {
     .replace(/\"/g, "&quot;");
 }
 
-function makePosterDataUri(
+export function makePosterDataUri(
   title: string,
   subtitle: string | undefined,
   colorA: string,

@@ -28,6 +28,25 @@ export function VotePage({ username, onLogout }: VotePageProps) {
   const [games, gamesLoading] = useTable(tables.game);
   const [counts] = useTable(tables.game_vote_counts);
   const castVote = useReducer(reducers.castVote);
+  const syncGames = useReducer(reducers.syncGamesFromSheet);
+
+  const [sheetUrl, setSheetUrl] = React.useState("");
+  const [syncing, setSyncing] = React.useState(false);
+
+  const handleSync = () => {
+    if (!sheetUrl) return;
+    setSyncing(true);
+    syncGames({ url: sheetUrl })
+      .then(() => {
+        window.alert("Games synced successfully!");
+        setSheetUrl("");
+      })
+      .catch((err) => {
+        console.error("Sync failed:", err);
+        window.alert(`Sync failed: ${err.message || err}`);
+      })
+      .finally(() => setSyncing(false));
+  };
 
   const getCountsFor = (gameId: bigint) => {
     const row = counts.find((r: any) => r.gameId === gameId);
@@ -59,6 +78,27 @@ export function VotePage({ username, onLogout }: VotePageProps) {
 
             <div style={{ paddingTop: 16 }}>
               <SwipeVote />
+            </div>
+
+            <div className="admin-sync-area" style={{ marginTop: 40, padding: 16, border: '1px solid var(--color-border)', borderRadius: 8 }}>
+              <h3>Admin: Sync Games</h3>
+              <p className="small muted">Enter public Google Sheets CSV export URL to populate games.</p>
+              <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                <input
+                  type="text"
+                  value={sheetUrl}
+                  onChange={(e) => setSheetUrl(e.target.value)}
+                  placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv"
+                  style={{ flex: 1, padding: '8px 12px', borderRadius: 4, border: '1px solid var(--color-border)', background: 'var(--color-bg-surface)', color: 'white' }}
+                />
+                <button
+                  onClick={handleSync}
+                  disabled={syncing || !sheetUrl}
+                  style={{ padding: '8px 16px', borderRadius: 4, background: 'var(--color-primary)', color: 'white', border: 'none', cursor: syncing ? 'wait' : 'pointer' }}
+                >
+                  {syncing ? "Syncing..." : "Sync Now"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

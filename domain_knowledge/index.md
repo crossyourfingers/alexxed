@@ -17,7 +17,6 @@ Welcome! This directory contains structured, interlinked domain knowledge for th
 - [Business Rules](business_rules.md)
 - [Glossary](glossary.md)
 - [Project Constitution](constitution.md)
- - [Maintainability Gaps (Devstral)](devstral-gaps.md)
  - [Game Voting Feature](game-voting-feature.md)
 
 ---

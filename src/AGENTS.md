@@ -86,17 +86,14 @@ src/
 
 ## Known Technical Debt
 
-From [Devstral Gaps](../domain_knowledge/devstral-gaps.md):
+From [Project Constitution](../domain_knowledge/constitution.md):
 
-1. **Message display logic duplicated** between `App.tsx` and `StreamPage.tsx`
-2. **Inconsistent component architecture** — some pages use inline rendering, others use reusable components
-3. **Mixed concerns in root components** — state, fetching, formatting, display all mixed
+1. **Mixed concerns in root components** — state, fetching, formatting, display all mixed.
+2. **Hardcoded channel logic** — scattered lookups like `channels.find(ch => ch.name === "general")` should be replaced by `useChannelByName()`.
 
-Recommendations (when refactoring):
-
-- Create shared `useChatMessages()` hook
-- Standardize on `MessageList`/`MessageInput` components
-- Create `useChannelByName()` utility hook
+### Resolved Items
+- [x] **Duplicated message display logic** — centralized via `useChatMessages()` and `PrettyMessage`.
+- [x] **Inconsistent component architecture** — standardized on `MessageList` and `MessageInput`.
 
 ---
 
