@@ -14,14 +14,13 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
     let currentX = 0;
     let dragging = false;
 
-    function onStart(e: TouchEvent | MouseEvent) {
+    function onStart(e: TouchEvent) {
       // only drag the top card
       const card = el.firstElementChild as HTMLElement | null;
       if (!card || card.classList.contains("animating")) return;
 
       dragging = true;
-      startX =
-        "touches" in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+      startX = e.touches[0].clientX;
       currentX = startX;
 
       card.style.zIndex = "9999";
@@ -29,10 +28,9 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
       card.style.transition = "none";
     }
 
-    function onMove(e: TouchEvent | MouseEvent) {
+    function onMove(e: TouchEvent) {
       if (!dragging) return;
-      currentX =
-        "touches" in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+      currentX = e.touches[0].clientX;
       const dx = currentX - startX;
       const card = el.firstElementChild as HTMLElement | null;
       if (!card) return;
@@ -66,16 +64,10 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
     el.addEventListener("touchstart", onStart);
     el.addEventListener("touchmove", onMove);
     el.addEventListener("touchend", onEnd);
-    el.addEventListener("mousedown", onStart);
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onEnd);
     return () => {
       el.removeEventListener("touchstart", onStart);
       el.removeEventListener("touchmove", onMove);
       el.removeEventListener("touchend", onEnd);
-      el.removeEventListener("mousedown", onStart);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onEnd);
     };
   }, [onSwipe]);
   return ref;
