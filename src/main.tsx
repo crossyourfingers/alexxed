@@ -32,6 +32,7 @@ function AuthGate() {
       <div
         style={{
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           minHeight: "100vh",
@@ -39,9 +40,13 @@ function AuthGate() {
             "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
           color: "#22c55e",
           fontSize: "18px",
+          gap: "10px",
         }}
       >
-        Connecting...
+        <div>Connecting to {DB_NAME}...</div>
+        <div style={{ fontSize: "12px", opacity: 0.7 }}>
+          Status: {connected ? "Connected" : "Reconnecting..."} | Identity: {identity?.toHexString().substring(0, 8) || "none"}
+        </div>
       </div>
     );
   }
@@ -51,6 +56,7 @@ function AuthGate() {
       <div
         style={{
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           minHeight: "100vh",
@@ -60,9 +66,27 @@ function AuthGate() {
           fontSize: "18px",
           padding: "20px",
           textAlign: "center",
+          gap: "10px",
         }}
       >
-        Authentication error: {auth.error.message}
+        <div>Authentication Error</div>
+        <div style={{ fontSize: "14px" }}>
+          {auth.error.message}
+        </div>
+        <button 
+          onClick={() => window.location.reload()}
+          style={{
+            marginTop: "20px",
+            padding: "8px 16px",
+            background: "#22c55e",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer"
+          }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -164,9 +188,14 @@ function SpacetimeDBWrapper() {
     .withUri(HOST)
     .withDatabaseName(DB_NAME)
     .withToken(token || undefined)
-    .onConnect(onConnect)
     .onDisconnect(onDisconnect)
     .onConnectError(onConnectError);
+
+  // Subscribe to all public tables on connect to ensure the connection transitions to active
+  connectionBuilder.onConnect((conn, identity, token) => {
+    onConnect(conn, identity, token);
+    conn.subscriptionBuilder().subscribe("SELECT * FROM channel");
+  });
 
   return (
     <SpacetimeDBProvider connectionBuilder={connectionBuilder}>
