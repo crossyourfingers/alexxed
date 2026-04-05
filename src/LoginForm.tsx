@@ -86,15 +86,8 @@ function RavenSVG({ coverEyes }: { coverEyes: boolean }) {
 }
 
 export function LoginForm() {
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [isPasswordFocused, _setIsPasswordFocused] = useState(false);
   const auth = useAuth();
-
-  React.useEffect(() => {
-    // Automatically trigger login if we are not authenticated and not loading
-    if (!auth.isAuthenticated && !auth.isLoading) {
-      auth.login();
-    }
-  }, [auth.isAuthenticated, auth.isLoading]);
 
   const handleLogin = () => {
     auth.login();
