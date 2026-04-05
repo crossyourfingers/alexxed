@@ -46,3 +46,19 @@
     "NEW INSTRUCTION": "WHEN isAuthenticated is true but identity stays null THEN request console+Network HAR and verify HOST/DB_NAME"
 }
 
+[2026-04-05 11:04] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Post-auth connection hang",
+    "EXPECTATION": "After authentication, the app should proceed past the Connecting screen and render the home UI once SpacetimeDB connection and identity are established.",
+    "NEW INSTRUCTION": "WHEN user reports stuck on Connecting THEN Request console+Network HAR and confirm HOST and DB_NAME environment values"
+}
+
+[2026-04-05 11:05] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Post-auth connection hang",
+    "EXPECTATION": "After authentication, the app should advance past Connecting and render the home UI.",
+    "NEW INSTRUCTION": "WHEN user reports stuck on Connecting THEN request console+Network HAR and verify HOST and DB_NAME"
+}
+

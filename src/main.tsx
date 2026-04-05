@@ -27,6 +27,8 @@ function AuthGate() {
   const { identity, isActive: connected } = useSpacetimeDB();
   const [users] = useTable(tables.user);
 
+  console.log("AuthGate: connected:", connected, "identity:", identity?.toHexString(), "isAuthenticated:", auth.isAuthenticated, "isLoading:", auth.isLoading);
+
   if (auth.isLoading) {
     return (
       <div
@@ -126,6 +128,8 @@ function AuthGate() {
 
   if (!connected || !identity) {
     const dbStatus = connected ? "Connected" : "Reconnecting...";
+    const token = auth.getToken();
+    const tokenInfo = token ? `Yes (Starts with ${token.substring(0, 8)}...)` : "No";
     
     return (
       <div
@@ -155,10 +159,13 @@ function AuthGate() {
             <span style={{ opacity: 0.7 }}>Auth Status:</span> <span style={{ color: "#22c55e" }}>Authenticated</span>
           </div>
           <div style={{ fontSize: "14px" }}>
+            <span style={{ opacity: 0.7 }}>OIDC Token:</span> <span style={{ color: token ? "#22c55e" : "#fbbf24" }}>{tokenInfo}</span>
+          </div>
+          <div style={{ fontSize: "14px" }}>
             <span style={{ opacity: 0.7 }}>DB Connection:</span> <span style={{ color: !connected ? "#fbbf24" : "#22c55e" }}>{dbStatus}</span>
           </div>
           <div style={{ fontSize: "14px" }}>
-            <span style={{ opacity: 0.7 }}>Identity:</span> {identity?.toHexString().substring(0, 12) || "none"}
+            <span style={{ opacity: 0.7 }}>Identity:</span> {identity?.toHexString() || "none"}
           </div>
         </div>
         
@@ -270,20 +277,24 @@ function SpacetimeDBWrapper() {
   // Use OIDC token for SpacetimeDB authentication
   const token = auth.getToken();
 
-  console.log("SpacetimeDBWrapper: Token present:", !!token, "Authenticated:", auth.isAuthenticated);
+  const connectionBuilder = React.useMemo(() => {
+    console.log("SpacetimeDBWrapper: Creating new connectionBuilder. Token present:", !!token, "Authenticated:", auth.isAuthenticated);
+    
+    const builder = DbConnection.builder()
+      .withUri(HOST)
+      .withDatabaseName(DB_NAME)
+      .withToken(token || undefined)
+      .onDisconnect(onDisconnect)
+      .onConnectError(onConnectError);
 
-  const connectionBuilder = DbConnection.builder()
-    .withUri(HOST)
-    .withDatabaseName(DB_NAME)
-    .withToken(token || undefined)
-    .onDisconnect(onDisconnect)
-    .onConnectError(onConnectError);
-
-  // Subscribe to all public tables on connect to ensure the connection transitions to active
-  connectionBuilder.onConnect((conn, identity, token) => {
-    onConnect(conn, identity, token);
-    conn.subscriptionBuilder().subscribe("SELECT * FROM channel");
-  });
+    // Subscribe to all public tables on connect to ensure the connection transitions to active
+    builder.onConnect((conn, identity, token) => {
+      onConnect(conn, identity, token);
+      conn.subscriptionBuilder().subscribe("SELECT * FROM channel");
+    });
+    
+    return builder;
+  }, [token, auth.isAuthenticated]);
 
   return (
     <SpacetimeDBProvider key={token || "unauthenticated"} connectionBuilder={connectionBuilder}>
