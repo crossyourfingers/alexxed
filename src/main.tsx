@@ -22,12 +22,12 @@ import { useAuth } from "./auth/useAuth.tsx";
 const HOST = import.meta.env.VITE_SPACETIMEDB_HOST ?? "ws://localhost:3000";
 const DB_NAME = import.meta.env.VITE_SPACETIMEDB_DB_NAME ?? "alexxed-u3k4f";
 
-function AuthGate() {
+function AuthGate({ isGuestMode, onToggleGuestMode }: { isGuestMode: boolean, onToggleGuestMode: (guest: boolean) => void }) {
   const auth = useAuth();
   const { identity, isActive: connected } = useSpacetimeDB();
   const [users] = useTable(tables.user);
 
-  console.log("AuthGate: connected:", connected, "identity:", identity?.toHexString(), "isAuthenticated:", auth.isAuthenticated, "isLoading:", auth.isLoading);
+  console.log("AuthGate: connected:", connected, "identity:", identity?.toHexString(), "isAuthenticated:", auth.isAuthenticated, "isLoading:", auth.isLoading, "isGuestMode:", isGuestMode);
 
   if (auth.isLoading) {
     return (
@@ -151,39 +151,93 @@ function AuthGate() {
         <div style={{ fontWeight: "bold", fontSize: "24px", marginBottom: "10px" }}>
           Connecting to Alexxed...
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "5px", alignItems: "flex-start", background: "rgba(0,0,0,0.3)", padding: "15px", borderRadius: "8px", border: "1px solid rgba(34, 197, 94, 0.3)" }}>
-          <div style={{ fontSize: "14px" }}>
-            <span style={{ opacity: 0.7 }}>Database:</span> {DB_NAME}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-start", background: "rgba(0,0,0,0.5)", padding: "20px", borderRadius: "12px", border: "1px solid rgba(34, 197, 94, 0.4)", width: "100%", maxWidth: "500px" }}>
+          <div style={{ fontSize: "14px", display: "flex", justifyContent: "space-between", width: "100%" }}>
+            <span style={{ opacity: 0.7 }}>Database:</span> <span>{DB_NAME}</span>
           </div>
-          <div style={{ fontSize: "14px" }}>
+          <div style={{ fontSize: "14px", display: "flex", justifyContent: "space-between", width: "100%" }}>
             <span style={{ opacity: 0.7 }}>Auth Status:</span> <span style={{ color: "#22c55e" }}>Authenticated</span>
           </div>
-          <div style={{ fontSize: "14px" }}>
-            <span style={{ opacity: 0.7 }}>OIDC Token:</span> <span style={{ color: token ? "#22c55e" : "#fbbf24" }}>{tokenInfo}</span>
+          <div style={{ fontSize: "14px", display: "flex", justifyContent: "space-between", width: "100%", wordBreak: "break-all" }}>
+            <span style={{ opacity: 0.7, minWidth: "100px", textAlign: "left" }}>OIDC Token:</span> <span style={{ color: token ? "#22c55e" : "#fbbf24", textAlign: "right" }}>{tokenInfo}</span>
           </div>
-          <div style={{ fontSize: "14px" }}>
+          <div style={{ fontSize: "14px", display: "flex", justifyContent: "space-between", width: "100%" }}>
             <span style={{ opacity: 0.7 }}>DB Connection:</span> <span style={{ color: !connected ? "#fbbf24" : "#22c55e" }}>{dbStatus}</span>
           </div>
-          <div style={{ fontSize: "14px" }}>
-            <span style={{ opacity: 0.7 }}>Identity:</span> {identity?.toHexString() || "none"}
+          <div style={{ fontSize: "14px", display: "flex", justifyContent: "space-between", width: "100%", wordBreak: "break-all" }}>
+            <span style={{ opacity: 0.7, minWidth: "100px", textAlign: "left" }}>Identity:</span> <span style={{ textAlign: "right" }}>{identity?.toHexString() || "none"}</span>
           </div>
         </div>
         
-        <button 
-          onClick={() => window.location.reload()}
-          style={{
-            marginTop: "20px",
-            padding: "8px 16px",
-            background: "transparent",
-            color: "#22c55e",
-            border: "1px solid #22c55e",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "14px"
-          }}
-        >
-          Reload Page
-        </button>
+        <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              padding: "8px 16px",
+              background: "transparent",
+              color: "#22c55e",
+              border: "1px solid #22c55e",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "14px"
+            }}
+          >
+            Reload Page
+          </button>
+          <button 
+            onClick={() => {
+              auth.removeUser();
+              window.location.reload();
+            }}
+            style={{
+              padding: "8px 16px",
+              background: "rgba(244, 63, 94, 0.1)",
+              color: "#f43f5e",
+              border: "1px solid #f43f5e",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "14px"
+            }}
+          >
+            Clear Auth & Reset
+          </button>
+          {!isGuestMode && (
+            <button 
+              onClick={() => onToggleGuestMode(true)}
+              style={{
+                padding: "8px 16px",
+                background: "rgba(34, 197, 94, 0.1)",
+                color: "#22c55e",
+                border: "1px solid #22c55e",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "14px"
+              }}
+            >
+              Connect as Guest
+            </button>
+          )}
+          {isGuestMode && (
+            <button 
+              onClick={() => onToggleGuestMode(false)}
+              style={{
+                padding: "8px 16px",
+                background: "rgba(34, 197, 94, 0.1)",
+                color: "#22c55e",
+                border: "1px solid #22c55e",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "14px"
+              }}
+            >
+              Use OIDC Auth
+            </button>
+          )}
+        </div>
+        
+        <div style={{ fontSize: "12px", marginTop: "20px", color: "#94a3b8", maxWidth: "400px" }}>
+          If <b>Identity</b> is "none", ensure the database <b>{DB_NAME}</b> is configured to accept OIDC tokens from your SpacetimeAuth client.
+        </div>
       </div>
     );
   }
@@ -235,7 +289,7 @@ function AuthGate() {
   );
 }
 
-function SpacetimeDBWrapper() {
+function SpacetimeDBWrapper({ isGuestMode, onToggleGuestMode }: { isGuestMode: boolean, onToggleGuestMode: (guest: boolean) => void }) {
   const auth = useAuth();
 
   const onConnect = (conn: DbConnection, identity: Identity, token: string) => {
@@ -272,10 +326,15 @@ function SpacetimeDBWrapper() {
 
   const onConnectError = (_ctx: ErrorContext, err: Error) => {
     console.error("Error connecting to SpacetimeDB:", err);
+    console.error("Context:", _ctx);
+    // Alert the user if it's an auth-related error specifically
+    if (err.message.toLowerCase().includes("auth") || err.message.toLowerCase().includes("token") || err.message.toLowerCase().includes("identity")) {
+      console.warn("Possible authentication failure between OIDC and SpacetimeDB.");
+    }
   };
 
   // Use OIDC token for SpacetimeDB authentication
-  const token = auth.getToken();
+  const token = isGuestMode ? null : auth.getToken();
 
   const connectionBuilder = React.useMemo(() => {
     console.log("SpacetimeDBWrapper: Creating new connectionBuilder. Token present:", !!token, "Authenticated:", auth.isAuthenticated);
@@ -298,7 +357,7 @@ function SpacetimeDBWrapper() {
 
   return (
     <SpacetimeDBProvider key={token || "unauthenticated"} connectionBuilder={connectionBuilder}>
-      <AuthGate />
+      <AuthGate isGuestMode={isGuestMode} onToggleGuestMode={onToggleGuestMode} />
     </SpacetimeDBProvider>
   );
 }
@@ -316,11 +375,14 @@ const oidcConfig = {
   },
 };
 
-const RootApp = () => (
-  <AuthProvider {...oidcConfig}>
-    <SpacetimeDBWrapper />
-  </AuthProvider>
-);
+const RootApp = () => {
+  const [isGuestMode, setIsGuestMode] = React.useState(false);
+  return (
+    <AuthProvider {...oidcConfig}>
+      <SpacetimeDBWrapper isGuestMode={isGuestMode} onToggleGuestMode={setIsGuestMode} />
+    </AuthProvider>
+  );
+};
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

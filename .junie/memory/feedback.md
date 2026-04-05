@@ -70,3 +70,35 @@
     "NEW INSTRUCTION": "WHEN TS reports 'React refers to a UMD global' THEN add 'import React from \"react\"' to that file"
 }
 
+[2026-04-05 11:14] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Post-auth connection hang",
+    "EXPECTATION": "After authentication and DB connect, identity should resolve and the app should proceed past Connecting.",
+    "NEW INSTRUCTION": "WHEN connected true and isAuthenticated true but identity undefined THEN request console+Network HAR and verify HOST and DB_NAME"
+}
+
+[2026-04-05 11:14] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Post-auth identity missing",
+    "EXPECTATION": "After authentication and DB connection, the user identity should resolve so the app proceeds past Connecting.",
+    "NEW INSTRUCTION": "WHEN connected true and isAuthenticated true but identity undefined THEN request full console logs and Network HAR and verify HOST and DB_NAME"
+}
+
+[2026-04-05 11:18] - Updated by Junie
+{
+    "TYPE": "correction",
+    "CATEGORY": "Auth scope clarification",
+    "EXPECTATION": "Stick to SpacetimeAuth only and do not introduce a Guest/custom auth path; provide context for any auth-related proposals.",
+    "NEW INSTRUCTION": "WHEN proposing auth workarounds like guest/bypass THEN do not implement; explain rationale using SpacetimeAuth only"
+}
+
+[2026-04-05 11:19] - Updated by Junie
+{
+    "TYPE": "positive",
+    "CATEGORY": "Plan approval",
+    "EXPECTATION": "The assistant should present a clear, contextual plan for changes and diagnostics.",
+    "NEW INSTRUCTION": "WHEN proposing changes or diagnostics THEN explain purpose, scope, and rollback plan"
+}
+
