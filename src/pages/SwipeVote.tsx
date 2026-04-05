@@ -7,6 +7,10 @@ import { makePosterDataUri } from "../data/posterData";
 function useSwipe(onSwipe: (dir: "left" | "right") => void) {
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
+    // Only add touch listeners if the device supports touch
+    const supportsTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (!supportsTouch) return;
+
     const elRef = ref.current;
     if (!elRef) return;
     const el = elRef;

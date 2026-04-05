@@ -126,4 +126,28 @@ describe('SwipeVote', () => {
     
     vi.useRealTimers();
   });
+
+  it('allows button clicks on non-touch devices (desktop behavior)', async () => {
+    // Simulate non-touch environment
+    Object.defineProperty(window, 'ontouchstart', {
+      value: undefined,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, 'maxTouchPoints', {
+      value: 0,
+      configurable: true,
+    });
+
+    render(<SwipeVote />);
+
+    const upButton = screen.getByRole('button', { name: /👍/i });
+    expect(upButton).not.toBeDisabled();
+
+    // Click should still trigger vote
+    await act(async () => {
+      fireEvent.click(upButton);
+    });
+
+    expect(mockCastVote).toHaveBeenCalled();
+  });
 });
