@@ -44,6 +44,7 @@ export const Game = __t.object("Game", {
   purchaseLink: __t.option(__t.string()),
   played: __t.option(__t.bool()),
   subtitle: __t.option(__t.string()),
+  genre: __t.option(__t.string()),
 });
 export type Game = __Infer<typeof Game>;
 

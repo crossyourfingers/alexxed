@@ -17,4 +17,5 @@ export default __t.row({
   purchaseLink: __t.option(__t.string()).name("purchase_link"),
   played: __t.option(__t.bool()),
   subtitle: __t.option(__t.string()),
+  genre: __t.option(__t.string()),
 });

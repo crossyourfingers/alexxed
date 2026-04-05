@@ -181,7 +181,7 @@ const tablesSchema = __schema({
       ] },
     ],
     constraints: [
-      { name: 'user_identity_key', constraint: 'unique', columns: ['userIdentity'] },
+      { name: 'user_user_identity_key', constraint: 'unique', columns: ['userIdentity'] },
     ],
   }, UserRow),
   user_vote: __table({

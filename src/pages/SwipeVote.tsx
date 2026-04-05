@@ -96,7 +96,7 @@ export default function SwipeVote() {
     return {
       id: g.id,
       title: g.title,
-      subtitle: g.subtitle || "",
+      subtitle: g.subtitle || g.genre || "",
       image: g.coverUrl || fallbackImage,
     };
   });
@@ -227,7 +227,22 @@ export default function SwipeVote() {
                 role="article"
                 aria-label={`${card.title} card`}
               >
-                <img className="poster" src={card.image} alt={card.title} />
+                <img
+                  className="poster"
+                  src={card.image}
+                  alt={card.title}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (!target.src.startsWith("data:")) {
+                      target.src = makePosterDataUri(
+                        card.title,
+                        card.subtitle,
+                        "#2b5876",
+                        "#4e4376"
+                      );
+                    }
+                  }}
+                />
                 {voted && <div className="disabled-badge">VOTED</div>}
                 {isTop ? (
                   <div className="card-body">

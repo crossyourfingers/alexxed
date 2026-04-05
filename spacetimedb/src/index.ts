@@ -265,6 +265,7 @@ const game = table(
     purchase_link: t.string().optional(),
     played: t.bool().optional(),
     subtitle: t.string().optional(),
+    genre: t.string().optional(),
   },
 );
 
@@ -649,7 +650,18 @@ export const sync_games_from_sheet = spacetimedb.procedure(
         tx.db.streamer_profile.id.find(ctx.sender),
       );
       if (!profile) {
-        throw new SenderError("Only admin can sync games from sheet");
+        // Fallback: check if any profile exists. If not, the caller is the first user
+        let hasAnyProfile = false;
+        ctx.withTx((tx) => {
+          for (const _ of tx.db.streamer_profile.iter()) {
+            hasAnyProfile = true;
+            break;
+          }
+        });
+
+        if (hasAnyProfile) {
+          throw new SenderError("Only admin can sync games from sheet");
+        }
       }
     }
 
@@ -702,6 +714,7 @@ export const sync_games_from_sheet = spacetimedb.procedure(
           let cover_url: string | undefined;
           let purchase_link: string | undefined;
           let played: boolean;
+          let genre: string | undefined;
 
           const firstPart = parts[0];
           const isFirstPartNumeric = /^\d+$/.test(firstPart);
@@ -714,6 +727,7 @@ export const sync_games_from_sheet = spacetimedb.procedure(
             cover_url = parts[3] || undefined;
             purchase_link = parts[4] || undefined;
             played = parts[5]?.toLowerCase() === "true";
+            genre = parts[6] || undefined;
           } else {
             // Assume Title-first format (no numeric ID column)
             // Skip headers like "id", "title", "name", etc.
@@ -726,9 +740,17 @@ export const sync_games_from_sheet = spacetimedb.procedure(
             title = firstPart;
             id = stableHash(title);
             subtitle = parts[1] || undefined;
-            cover_url = parts[2] || undefined;
-            purchase_link = parts[3] || undefined;
-            played = parts[4]?.toLowerCase() === "true";
+            genre = parts[2] || undefined;
+            cover_url = parts[3] || undefined;
+            purchase_link = parts[4] || undefined;
+            played = parts[5]?.toLowerCase() === "true";
+          }
+
+          // Validate cover_url - if it doesn't look like a URL, it might be a genre or other text
+          if (cover_url && !cover_url.startsWith("http") && !cover_url.startsWith("data:")) {
+            console.warn(`Invalid cover_url at line ${i + 1}: ${cover_url}. Moving to genre.`);
+            if (!genre) genre = cover_url;
+            cover_url = undefined;
           }
 
           if (!title) {
@@ -746,6 +768,7 @@ export const sync_games_from_sheet = spacetimedb.procedure(
               cover_url,
               purchase_link,
               played,
+              genre,
             });
           } else {
             tx.db.game.insert({
@@ -755,6 +778,7 @@ export const sync_games_from_sheet = spacetimedb.procedure(
               cover_url,
               purchase_link,
               played,
+              genre,
             });
           }
 
@@ -807,6 +831,7 @@ export const cast_vote = spacetimedb.reducer(
         cover_url: undefined,
         purchase_link: undefined,
         played: false,
+        genre: undefined,
       });
     }
     // Find existing vote by this user (scan - safe and simple for now)
