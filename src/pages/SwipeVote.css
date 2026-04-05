@@ -31,9 +31,7 @@
   right: 0;
   margin: 0 auto;
   touch-action: pan-y;
-  transition:
-    box-shadow 120ms ease,
-    transform 120ms ease;
+  transition: box-shadow 120ms ease;
 }
 
 .card:hover {

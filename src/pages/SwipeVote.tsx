@@ -53,13 +53,13 @@ function useSwipe(onSwipe: (dir: "left" | "right") => void) {
       } else if (dx < -threshold) {
         onSwipe("left");
       } else {
-        card.style.transition = "transform 200ms ease";
+        card.style.transition = "transform 250ms cubic-bezier(0.165, 0.84, 0.44, 1)";
         card.style.transform = `translateX(0)`;
         setTimeout(() => {
           card.style.transition = "";
           card.style.zIndex = "";
           card.style.willChange = "";
-        }, 200);
+        }, 250);
       }
     }
 
@@ -170,21 +170,21 @@ export default function SwipeVote() {
     if (el) {
       el.classList.add("animating");
       el.style.zIndex = "9999";
-      el.style.transition = "transform 400ms cubic-bezier(0.165, 0.84, 0.44, 1)";
+      el.style.transition = "transform 350ms cubic-bezier(0.165, 0.84, 0.44, 1)";
       el.style.transform =
         dir === "right"
           ? "translateX(120vw) rotate(40deg)"
           : "translateX(-120vw) rotate(-40deg)";
 
       setTimeout(() => {
-        setDisplayDeck((d) => (d.length <= 1 ? d : [...d.slice(1), d[0]]));
+        setDisplayDeck((d) => (d.length <= 1 ? [] : d.slice(1)));
         isAnimating.current = false;
         // The displayDeck update will cause a re-render.
         // We don't need to manually clear styles on the old 'el' because it will be removed/moved
         // by React, and the new top card will have its own styles applied.
-      }, 400);
+      }, 350);
     } else {
-      setDisplayDeck((d) => (d.length <= 1 ? d : [...d.slice(1), d[0]]));
+      setDisplayDeck((d) => (d.length <= 1 ? [] : d.slice(1)));
       isAnimating.current = false;
     }
   };
