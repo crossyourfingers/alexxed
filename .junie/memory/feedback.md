@@ -30,3 +30,11 @@
     "NEW INSTRUCTION": "WHEN 'community-loading' appears during startup THEN remove it and gate routes on AuthGate readiness"
 }
 
+[2026-04-05 10:40] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Auth redirect failure",
+    "EXPECTATION": "If already authenticated, load the home screen immediately; if not, automatically start and complete the SpacetimeAuth OIDC flow.",
+    "NEW INSTRUCTION": "WHEN unauthenticated and not isLoading THEN call signinRedirect automatically"
+}
+
