@@ -160,9 +160,11 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
       accessorKey: "title",
       enableSorting: true,
       enableColumnFilter: true,
-      cell: ({ row }) => (
-        <span className="library-title">{row?.original?.title ?? ""}</span>
-      ),
+      cell: ({ row }) => {
+        const title = row?.original?.title;
+        console.log("Library title cell rendering:", title);
+        return <span className="library-title">{title ?? ""}</span>;
+      },
     },
     {
       id: "genre",

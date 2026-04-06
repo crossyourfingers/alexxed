@@ -491,14 +491,19 @@ export function DataTable<TData extends { id?: any }>(props: DataTableProps<TDat
 
   // Decide rows to render
   let rowsToRender: TData[] = [];
-  let virtualInfo: { start: number; total: number } | undefined;
   if (virtualization) {
     const info = virtualRows as any;
     rowsToRender = info.visible as TData[];
-    virtualInfo = { start: info.start + (enablePagination ? pageStart : 0), total: info.total } as any;
   } else {
     rowsToRender = pageVisibleRows as TData[];
   }
+
+  // Debug data presence
+  useEffect(() => {
+    if (data.length > 0) {
+      console.log(`DataTable rendering ${data.length} rows (${rowsToRender.length} to render), virtualization: ${virtualization}`);
+    }
+  }, [data.length, rowsToRender.length, virtualization]);
 
   // Helper to render header cell content
   const renderHeaderCell = (col: AnyColumn) => {
@@ -689,8 +694,8 @@ export function DataTable<TData extends { id?: any }>(props: DataTableProps<TDat
       </div>
 
       {/* Empty-state rendering outside table body when no rows */}
-      {!isLoading && totalRows === 0 ? (
-        <div role="status" aria-live="polite">{emptyStateMessage}</div>
+      {!isLoading && data.length === 0 ? (
+        <div role="status" aria-live="polite" className="dt-empty-state">{emptyStateMessage}</div>
       ) : null}
 
       {/* Pagination controls */}
