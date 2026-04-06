@@ -10,9 +10,10 @@ import React, { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "../components/DataTable/DataTable";
 import { Header } from "../components/Header";
-import { useTable, useReducer } from "spacetimedb/react";
+import { useTable, useReducer, useSpacetimeDB } from "spacetimedb/react";
 import { tables, reducers } from "../module_bindings";
 import type { Game, GameVoteRow } from "../module_bindings/types";
+import { useState } from "react";
 import "./GameListPage.css";
 
 interface GameListPageProps {
@@ -35,6 +36,8 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
   const [counts] = useTable(tables.game_vote_counts);
   const castVote = useReducer(reducers.castVote);
   const markGamePlayed = useReducer(reducers.markGamePlayed);
+  const { getConnection, isActive, identity } = useSpacetimeDB();
+  const [syncing, setSyncing] = useState(false);
 
   // Build a lookup map for vote counts
   const countMap = useMemo(() => {
@@ -71,6 +74,23 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
     markGamePlayed({ gameId, played: !currentPlayed }).catch((err: any) => {
       console.error("Failed to mark game played:", err);
     });
+  };
+
+  const handleSync = () => {
+    if (!isActive || !identity) return;
+    const conn = getConnection();
+    if (!conn) return;
+
+    setSyncing(true);
+    conn.procedures.syncGamesFromSheet({ url: "" })
+      .then(() => {
+        console.log("Manual game sync successful");
+      })
+      .catch((err) => {
+        console.error("Manual sync failed:", err);
+        window.alert(`Sync failed: ${err.message || err}`);
+      })
+      .finally(() => setSyncing(false));
   };
 
   const columns: ColumnDef<GameRow, any>[] = [
@@ -189,7 +209,19 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
       <Header username={username} onLogout={onLogout} activePage="games" />
       <main className="game-list-main">
         <div className="game-list-header">
-          <h1>Tell me what games to play</h1>
+          <div className="game-list-header-top">
+            <h1>Tell me what games to play</h1>
+            <div className="game-list-actions">
+              <button
+                className="sync-btn"
+                onClick={handleSync}
+                disabled={syncing || !isActive}
+                title="Force sync games from Google Sheets"
+              >
+                {syncing ? "🔄 Syncing..." : "🔄 Sync Now"}
+              </button>
+            </div>
+          </div>
           <p className="game-list-subtitle">
             Vote for the next game Alex should play. Played games are shown but
             excluded from the voting queue.

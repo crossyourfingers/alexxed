@@ -55,6 +55,8 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
   const { getConnection, isActive, identity } = useSpacetimeDB();
   const hasAttemptedSync = useRef(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [enriching, setEnriching] = useState(false);
 
   // Auto-sync on first load if table is empty
   useEffect(() => {
@@ -74,6 +76,44 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
       }
     }
   }, [ownedGames, isActive, identity, getConnection]);
+
+  const handleSync = () => {
+    if (!isActive || !identity) return;
+    const conn = getConnection();
+    if (!conn) return;
+
+    setSyncing(true);
+    setSyncStatus("Syncing library from Google Sheets...");
+    conn.procedures.syncLibraryFromSheet({ url: "" })
+      .then(() => {
+        console.log("Manual library sync successful");
+        setSyncStatus(null);
+      })
+      .catch((err: any) => {
+        console.error("Library sync failed:", err);
+        setSyncStatus(`Sync failed: ${err?.message ?? err}`);
+      })
+      .finally(() => setSyncing(false));
+  };
+
+  const handleEnrich = () => {
+    if (!isActive || !identity) return;
+    const conn = getConnection();
+    if (!conn) return;
+
+    setEnriching(true);
+    setSyncStatus("Enriching covers from Wikipedia (batch size 50)...");
+    conn.procedures.enrichLibraryCovers({ batchSize: 50 })
+      .then(() => {
+        console.log("Enrichment batch complete");
+        setSyncStatus(null);
+      })
+      .catch((err: any) => {
+        console.error("Enrichment failed:", err);
+        setSyncStatus(`Enrichment failed: ${err?.message ?? err}`);
+      })
+      .finally(() => setEnriching(false));
+  };
 
   const rows: LibraryRow[] = useMemo(() => {
     return (ownedGames as OwnedGame[]).map((g) => ({
@@ -128,8 +168,30 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
         activePage="library"
       />
       <div className="library-content">
-        <h1>Library</h1>
-        {syncStatus && <p className="library-sync-status">{syncStatus}</p>}
+        <div className="library-header">
+          <div className="library-header-top">
+            <h1>Library</h1>
+            <div className="library-actions">
+              <button
+                className="library-sync-btn"
+                onClick={handleSync}
+                disabled={syncing || !isActive}
+                title="Force sync library from Google Sheets"
+              >
+                {syncing ? "🔄 Syncing..." : "🔄 Sync Now"}
+              </button>
+              <button
+                className="library-enrich-btn"
+                onClick={handleEnrich}
+                disabled={enriching || !isActive}
+                title="Enrich covers from Wikipedia (batch of 50)"
+              >
+                {enriching ? "🖼️ Enriching..." : "🖼️ Enrich Covers"}
+              </button>
+            </div>
+          </div>
+          {syncStatus && <p className="library-sync-status">{syncStatus}</p>}
+        </div>
         <DataTable
           columns={columns}
           data={rows}
