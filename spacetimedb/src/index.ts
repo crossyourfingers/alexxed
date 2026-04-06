@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { schema, t, table, SenderError } from "spacetimedb/server";
 import { Identity } from "spacetimedb";
+import { runSyncGamesFromSheet, runSyncLibraryFromSheet } from "./sync";
 
 const user = table(
   { name: "user", public: true },
@@ -622,337 +623,29 @@ export const init = spacetimedb.init((ctx) => {
 // Voting & Game Sync reducers
 // -----------------------------
 
-const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1VayJrz5E92IJ1LY3srwHXOrZ850mvphheqsZCeqrR-w/export?format=csv";
-
 /**
  * Sync games from a public Google Sheets CSV export.
- * Expected CSV format: id, title, subtitle, cover_url, purchase_link, played
- * (Headers are ignored)
+ * Business logic lives in sync.ts; this just wires it to the SpacetimeDB procedure.
  */
-function stableHash(input: string): bigint {
-  let hash = 0n;
-  for (let i = 0; i < input.length; i++) {
-    const char = BigInt(input.charCodeAt(i));
-    hash = (hash << 5n) - hash + char;
-    hash = hash & 0xffffffffffffffffn; // Keep it within u64 range
-  }
-  return hash;
-}
-
 export const sync_games_from_sheet = spacetimedb.procedure(
   { url: t.string() },
   t.unit(),
   (ctx, { url }) => {
-    const targetUrl = url || DEFAULT_SHEET_URL;
-
-    if (!targetUrl) {
-      throw new SenderError("URL is required for sync");
-    }
-
-    // Only admin can sync games, UNLESS the game table is currently empty
-    let gameCount = 0;
-    ctx.withTx((tx) => {
-      for (const _ of tx.db.game.iter()) {
-        gameCount++;
-        if (gameCount > 0) break;
-      }
-    });
-
-    if (gameCount > 0) {
-      const profile = ctx.withTx((tx) =>
-        tx.db.streamer_profile.id.find(ctx.sender),
-      );
-      if (!profile) {
-        // Fallback: check if any profile exists. If not, the caller is the first user
-        let hasAnyProfile = false;
-        ctx.withTx((tx) => {
-          for (const _ of tx.db.streamer_profile.iter()) {
-            hasAnyProfile = true;
-            break;
-          }
-        });
-
-        if (hasAnyProfile) {
-          throw new SenderError("Only admin can sync games from sheet");
-        }
-      }
-    }
-
-    try {
-      const response = ctx.http.fetch(targetUrl);
-      if (response.status !== 200) {
-        throw new SenderError(`Failed to fetch sheet: ${response.status}`);
-      }
-
-      const csv = response.text();
-      const lines = csv.split(/\r?\n/);
-      console.info(`Fetched CSV with ${lines.length} lines`);
-
-      ctx.withTx((tx) => {
-        let importedCount = 0;
-        let errorCount = 0;
-
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (!line) continue;
-
-          // Enhanced CSV parser to handle quoted fields with commas
-          let parts: string[] = [];
-          let current = "";
-          let inQuotes = false;
-          for (let j = 0; j < line.length; j++) {
-            const char = line[j];
-            if (char === '"') {
-              inQuotes = !inQuotes;
-            } else if (char === "," && !inQuotes) {
-              parts.push(current.trim());
-              current = "";
-            } else {
-              current += char;
-            }
-          }
-          parts.push(current.trim());
-
-          // Remove surrounding quotes from parts if they exist
-          parts = parts.map((p) =>
-            p.startsWith('"') && p.endsWith('"') ? p.slice(1, -1).trim() : p,
-          );
-
-          if (parts.length < 2) continue;
-
-          // Map columns flexibly
-          let id: bigint;
-          let title: string;
-          let subtitle: string | undefined;
-          let cover_url: string | undefined;
-          let purchase_link: string | undefined;
-          let played: boolean;
-          let genre: string | undefined;
-
-          const firstPart = parts[0];
-          const isFirstPartNumeric = /^\d+$/.test(firstPart);
-
-          if (isFirstPartNumeric) {
-            // Standard ID-first format
-            id = BigInt(firstPart);
-            title = parts[1];
-            subtitle = parts[2] || undefined;
-            cover_url = parts[3] || undefined;
-            purchase_link = parts[4] || undefined;
-            played = parts[5]?.toLowerCase() === "true";
-            genre = parts[6] || undefined;
-          } else {
-            // Assume Title-first format (no numeric ID column)
-            // Skip headers like "id", "title", "name", etc.
-            const headerCheck = firstPart.toLowerCase();
-            if (i === 0 || headerCheck === "id" || headerCheck === "title" || headerCheck === "name") {
-              console.info(`Skipping header at line ${i + 1}: ${firstPart}`);
-              continue;
-            }
-
-            title = firstPart;
-            id = stableHash(title);
-            subtitle = parts[1] || undefined;
-            genre = parts[2] || undefined;
-            cover_url = parts[3] || undefined;
-            purchase_link = parts[4] || undefined;
-            played = parts[5]?.toLowerCase() === "true";
-          }
-
-          // Validate cover_url - if it doesn't look like a URL, it might be a genre or other text
-          if (cover_url && !cover_url.startsWith("http") && !cover_url.startsWith("data:")) {
-            console.warn(`Invalid cover_url at line ${i + 1}: ${cover_url}. Moving to genre.`);
-            if (!genre) genre = cover_url;
-            cover_url = undefined;
-          }
-
-          if (!title) {
-            console.warn(`Skipping line ${i + 1} with empty title`);
-            errorCount++;
-            continue;
-          }
-
-          const existing = tx.db.game.id.find(id);
-          if (existing) {
-            tx.db.game.id.update({
-              id,
-              title,
-              subtitle,
-              cover_url,
-              purchase_link,
-              played,
-              genre,
-            });
-          } else {
-            tx.db.game.insert({
-              id,
-              title,
-              subtitle,
-              cover_url,
-              purchase_link,
-              played,
-              genre,
-            });
-          }
-
-          // Initialize vote counter if missing
-          if (!tx.db.game_vote_count.game_id.find(id)) {
-            tx.db.game_vote_count.insert({ game_id: id, up: 0n, down: 0n });
-          }
-          importedCount++;
-        }
-        console.info(`Game sync completed: ${importedCount} imported, ${errorCount} errors`);
-      });
-      return {};
-    } catch (e: any) {
-      console.warn("Game sync failed:", e);
-      throw new SenderError(`Sync failed: ${e.message || e}`);
-    }
+    runSyncGamesFromSheet(ctx, url);
+    return {};
   },
 );
 
-// GID for the "Owned Games" worksheet in the shared Google Sheet
-const DEFAULT_LIBRARY_URL = "https://docs.google.com/spreadsheets/d/1VayJrz5E92IJ1LY3srwHXOrZ850mvphheqsZCeqrR-w/export?format=csv&gid=1";
-
+/**
+ * Sync owned games from the 'Owned Games' worksheet of the shared Google Sheet.
+ * Business logic lives in sync.ts; this just wires it to the SpacetimeDB procedure.
+ */
 export const sync_library_from_sheet = spacetimedb.procedure(
   { url: t.string() },
   t.unit(),
   (ctx, { url }) => {
-    const targetUrl = url || DEFAULT_LIBRARY_URL;
-
-    if (!targetUrl) {
-      throw new SenderError("URL is required for library sync");
-    }
-
-    // Only admin can sync, UNLESS the owned_game table is currently empty
-    let count = 0;
-    ctx.withTx((tx) => {
-      for (const _ of tx.db.owned_game.iter()) {
-        count++;
-        if (count > 0) break;
-      }
-    });
-
-    if (count > 0) {
-      const profile = ctx.withTx((tx) =>
-        tx.db.streamer_profile.id.find(ctx.sender),
-      );
-      if (!profile) {
-        let hasAnyProfile = false;
-        ctx.withTx((tx) => {
-          for (const _ of tx.db.streamer_profile.iter()) {
-            hasAnyProfile = true;
-            break;
-          }
-        });
-        if (hasAnyProfile) {
-          throw new SenderError("Only admin can sync library from sheet");
-        }
-      }
-    }
-
-    try {
-      const response = ctx.http.fetch(targetUrl);
-      if (response.status !== 200) {
-        throw new SenderError(`Failed to fetch sheet: ${response.status}`);
-      }
-
-      const csv = response.text();
-      const lines = csv.split(/\r?\n/);
-      console.info(`Fetched library CSV with ${lines.length} lines`);
-
-      ctx.withTx((tx) => {
-        let importedCount = 0;
-        let errorCount = 0;
-
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (!line) continue;
-
-          // CSV parser handling quoted fields with commas
-          let parts: string[] = [];
-          let current = "";
-          let inQuotes = false;
-          for (let j = 0; j < line.length; j++) {
-            const char = line[j];
-            if (char === '"') {
-              inQuotes = !inQuotes;
-            } else if (char === "," && !inQuotes) {
-              parts.push(current.trim());
-              current = "";
-            } else {
-              current += char;
-            }
-          }
-          parts.push(current.trim());
-
-          parts = parts.map((p) =>
-            p.startsWith('"') && p.endsWith('"') ? p.slice(1, -1).trim() : p,
-          );
-
-          if (parts.length < 1) continue;
-
-          const firstPart = parts[0];
-          const headerCheck = firstPart.toLowerCase();
-          if (i === 0 || headerCheck === "id" || headerCheck === "title" || headerCheck === "name") {
-            console.info(`Skipping header at line ${i + 1}: ${firstPart}`);
-            continue;
-          }
-
-          if (!firstPart) {
-            errorCount++;
-            continue;
-          }
-
-          const isFirstPartNumeric = /^\d+$/.test(firstPart);
-          let id: bigint;
-          let title: string;
-          let genre: string | undefined;
-          let platform: string | undefined;
-          let cover_url: string | undefined;
-          let wikipedia_url: string | undefined;
-
-          if (isFirstPartNumeric) {
-            id = BigInt(firstPart);
-            title = parts[1] || "";
-            genre = parts[2] || undefined;
-            platform = parts[3] || undefined;
-            cover_url = parts[4] || undefined;
-            wikipedia_url = parts[5] || undefined;
-          } else {
-            title = firstPart;
-            id = stableHash(title);
-            genre = parts[1] || undefined;
-            platform = parts[2] || undefined;
-            cover_url = parts[3] || undefined;
-            wikipedia_url = parts[4] || undefined;
-          }
-
-          if (cover_url && !cover_url.startsWith("http") && !cover_url.startsWith("data:")) {
-            if (!genre) genre = cover_url;
-            cover_url = undefined;
-          }
-
-          if (!title) {
-            errorCount++;
-            continue;
-          }
-
-          const existing = tx.db.owned_game.id.find(id);
-          if (existing) {
-            tx.db.owned_game.id.update({ id, title, cover_url, genre, platform, wikipedia_url });
-          } else {
-            tx.db.owned_game.insert({ id, title, cover_url, genre, platform, wikipedia_url });
-          }
-          importedCount++;
-        }
-        console.info(`Library sync completed: ${importedCount} imported, ${errorCount} errors`);
-      });
-      return {};
-    } catch (e: any) {
-      console.warn("Library sync failed:", e);
-      throw new SenderError(`Library sync failed: ${e.message || e}`);
-    }
+    runSyncLibraryFromSheet(ctx, url);
+    return {};
   },
 );
 
