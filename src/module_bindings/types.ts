@@ -131,6 +131,12 @@ export const ReportedMessageView = __t.object("ReportedMessageView", {
 });
 export type ReportedMessageView = __Infer<typeof ReportedMessageView>;
 
+export const SecretConfig = __t.object("SecretConfig", {
+  key: __t.string(),
+  value: __t.string(),
+});
+export type SecretConfig = __Infer<typeof SecretConfig>;
+
 export const StreamScheduleDay = __t.object("StreamScheduleDay", {
   dayNumber: __t.u32(),
   theme: __t.string(),

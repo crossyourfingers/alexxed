@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { schema, t, table, SenderError } from "spacetimedb/server";
 import { Identity } from "spacetimedb";
-import { runSyncGamesFromSheet, runSyncLibraryFromSheet, runEnrichLibraryCovers } from "./sync";
+import { runSyncGamesFromSheet, runSyncLibraryFromSheet, runEnrichLibraryCovers, runEnrichFromIGDB } from "./sync";
 
 const user = table(
   { name: "user", public: true },
@@ -108,6 +108,16 @@ const link_preview = table(
     description: t.string(),
     image: t.string(),
     fetched_at: t.timestamp(),
+  },
+);
+
+// Private table for storing API keys and other secrets.
+// Access is restricted to the admin (streamer profile).
+const secret_config = table(
+  { name: "secret_config" },
+  {
+    key: t.string().primaryKey(),
+    value: t.string(),
   },
 );
 
@@ -334,6 +344,7 @@ const spacetimedb = schema({
   user_vote,
   game_vote_count,
   owned_game,
+  secret_config,
 });
 export default spacetimedb;
 
@@ -349,6 +360,24 @@ export const set_name = spacetimedb.reducer(
     if (!user) throw new SenderError("Cannot set name for unknown user");
     console.info(`User ${ctx.sender} sets name to ${name}`);
     ctx.db.user.user_identity.update({ ...user, name });
+  },
+);
+
+export const set_secret = spacetimedb.reducer(
+  { key: t.string(), value: t.string() },
+  (ctx, { key, value }) => {
+    // Only the streamer can set secrets
+    const profile = ctx.db.streamer_profile.id.find(ctx.sender);
+    if (!profile) {
+      throw new SenderError("Only the streamer can set secrets");
+    }
+
+    const existing = ctx.db.secret_config.key.find(key);
+    if (existing) {
+      ctx.db.secret_config.key.update({ key, value });
+    } else {
+      ctx.db.secret_config.insert({ key, value });
+    }
   },
 );
 
@@ -1272,6 +1301,16 @@ export const enrich_library_covers = spacetimedb.procedure(
   t.unit(),
   (ctx, { batch_size }) => {
     runEnrichLibraryCovers(ctx, Number(batch_size));
+    return {};
+  },
+);
+
+// Procedure to enrich games (voting + library) from IGDB API v4
+export const enrich_from_igdb = spacetimedb.procedure(
+  { batch_size: t.u32(), target: t.string() }, // target: "voting" or "library"
+  t.unit(),
+  (ctx, { batch_size, target }) => {
+    runEnrichFromIGDB(ctx, Number(batch_size), target);
     return {};
   },
 );

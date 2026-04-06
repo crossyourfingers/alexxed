@@ -47,12 +47,14 @@ import RegisterReducer from "./register_reducer";
 import ReportMessageReducer from "./report_message_reducer";
 import SendMessageReducer from "./send_message_reducer";
 import SetNameReducer from "./set_name_reducer";
+import SetSecretReducer from "./set_secret_reducer";
 import ToggleLikeReducer from "./toggle_like_reducer";
 import ToggleReactionReducer from "./toggle_reaction_reducer";
 import UpdateChannelReducer from "./update_channel_reducer";
 import UpdateStreamerProfileReducer from "./update_streamer_profile_reducer";
 
 // Import all procedure arg schemas
+import * as EnrichFromIgdbProcedure from "./enrich_from_igdb_procedure";
 import * as EnrichLibraryCoversProcedure from "./enrich_library_covers_procedure";
 import * as FetchLinkPreviewProcedure from "./fetch_link_preview_procedure";
 import * as SyncGamesFromSheetProcedure from "./sync_games_from_sheet_procedure";
@@ -241,6 +243,7 @@ const reducersSchema = __reducers(
   __reducerSchema("report_message", ReportMessageReducer),
   __reducerSchema("send_message", SendMessageReducer),
   __reducerSchema("set_name", SetNameReducer),
+  __reducerSchema("set_secret", SetSecretReducer),
   __reducerSchema("toggle_like", ToggleLikeReducer),
   __reducerSchema("toggle_reaction", ToggleReactionReducer),
   __reducerSchema("update_channel", UpdateChannelReducer),
@@ -249,6 +252,7 @@ const reducersSchema = __reducers(
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */
 const proceduresSchema = __procedures(
+  __procedureSchema("enrich_from_igdb", EnrichFromIgdbProcedure.params, EnrichFromIgdbProcedure.returnType),
   __procedureSchema("enrich_library_covers", EnrichLibraryCoversProcedure.params, EnrichLibraryCoversProcedure.returnType),
   __procedureSchema("fetch_link_preview", FetchLinkPreviewProcedure.params, FetchLinkPreviewProcedure.returnType),
   __procedureSchema("sync_games_from_sheet", SyncGamesFromSheetProcedure.params, SyncGamesFromSheetProcedure.returnType),

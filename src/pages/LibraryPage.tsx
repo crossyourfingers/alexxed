@@ -57,6 +57,7 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [enriching, setEnriching] = useState(false);
+  const [enrichingIGDB, setEnrichingIGDB] = useState(false);
 
   // Auto-sync on first load if table is empty
   useEffect(() => {
@@ -113,6 +114,25 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
         setSyncStatus(`Enrichment failed: ${err?.message ?? err}`);
       })
       .finally(() => setEnriching(false));
+  };
+
+  const handleEnrichIGDB = () => {
+    if (!isActive || !identity) return;
+    const conn = getConnection();
+    if (!conn) return;
+
+    setEnrichingIGDB(true);
+    setSyncStatus("Enriching covers and genres from IGDB (batch size 50)...");
+    conn.procedures.enrichFromIgdb({ batchSize: 50, target: "library" })
+      .then(() => {
+        console.log("IGDB enrichment batch triggered");
+        setSyncStatus(null);
+      })
+      .catch((err: any) => {
+        console.error("IGDB enrichment failed:", err);
+        setSyncStatus(`IGDB enrichment failed: ${err?.message ?? err}`);
+      })
+      .finally(() => setEnrichingIGDB(false));
   };
 
   const rows: LibraryRow[] = useMemo(() => {
@@ -173,12 +193,12 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
             <h1>Library</h1>
             <div className="library-actions">
               <button
-                className="library-sync-btn"
-                onClick={handleSync}
-                disabled={syncing || !isActive}
-                title="Force sync library from Google Sheets"
+                className="library-enrich-btn-igdb"
+                onClick={handleEnrichIGDB}
+                disabled={enrichingIGDB || !isActive}
+                title="Enrich covers and genres from IGDB (batch of 50)"
               >
-                {syncing ? "🔄 Syncing..." : "🔄 Sync Now"}
+                {enrichingIGDB ? "🎮 Enriching..." : "🎮 Enrich (IGDB)"}
               </button>
               <button
                 className="library-enrich-btn"
@@ -186,7 +206,15 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
                 disabled={enriching || !isActive}
                 title="Enrich covers from Wikipedia (batch of 50)"
               >
-                {enriching ? "🖼️ Enriching..." : "🖼️ Enrich Covers"}
+                {enriching ? "🖼️ Enriching..." : "🖼️ Enrich (Wiki)"}
+              </button>
+              <button
+                className="library-sync-btn"
+                onClick={handleSync}
+                disabled={syncing || !isActive}
+                title="Force sync library from Google Sheets"
+              >
+                {syncing ? "🔄 Syncing..." : "🔄 Sync Now"}
               </button>
             </div>
           </div>

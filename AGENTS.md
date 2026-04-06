@@ -134,6 +134,30 @@ When available, agents should use the **Playwright MCP server** for visual and i
 
 ---
 
+## API Configuration (Secrets)
+
+To use high-quality game metadata (IGDB/Twitch), you must configure your API secrets in the `secret_config` table.
+
+### 1. Obtain IGDB Credentials
+- Create a Twitch Developer account.
+- Register an application in the [Twitch Dev Console](https://dev.twitch.tv/console).
+- Obtain your **Client ID** and **Client Secret**.
+
+### 2. Set Secrets via SpacetimeDB CLI
+Run the following commands from your terminal (replacing the values with your actual credentials):
+
+```powershell
+spacetime call alexxed-u3k4f set_secret "IGDB_CLIENT_ID" "your_client_id_here"
+spacetime call alexxed-u3k4f set_secret "IGDB_CLIENT_SECRET" "your_client_secret_here"
+```
+
+*Note: These secrets are stored in a private table (`secret_config`) only accessible to the admin (streamer profile).*
+
+### 3. Verify Enrichment
+Once secrets are set, use the **"Enrich (IGDB)"** button in the app's Library or Game List pages to fetch high-quality cover art and genres.
+
+---
+
 ## SpacetimeDB Development
 
 ### Core Principles

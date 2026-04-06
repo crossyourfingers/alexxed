@@ -337,32 +337,48 @@ export function runEnrichLibraryCovers(ctx: any, batchSize: number): void {
   console.info(`Enriching covers for ${toEnrich.length} games (batch ${limit})`);
   let enriched = 0;
   let failed = 0;
-  for (const { id, title } of toEnrich) {
-    const encoded = encodeURIComponent(title.replace(/ /g, "_"));
+  const headers = { "User-Agent": "alexxed-bot/1.0 (https://theonenamedalexx.live)" };
+
+  function fetchCoverUrl(lookupTitle: string): string | null {
+    const encoded = encodeURIComponent(lookupTitle.replace(/ /g, "_"));
     const apiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encoded}`;
+    const response = ctx.http.fetch(apiUrl, { headers });
+    if (response.status !== 200) return null;
+    const body = response.text();
+    const match = body.match(/"source"\s*:\s*"([^"]+)"/);
+    return match ? match[1].replace(/\\u002F/g, "/") : null;
+  }
+
+  function searchCanonicalTitle(rawTitle: string): string | null {
+    const encoded = encodeURIComponent(rawTitle);
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encoded}&srlimit=1&format=json`;
+    const response = ctx.http.fetch(searchUrl, { headers });
+    if (response.status !== 200) return null;
+    const body = response.text();
+    const match = body.match(/"title"\s*:\s*"([^"]+)"/);
+    return match ? match[1].replace(/\\"/g, '"') : null;
+  }
+
+  for (const { id, title } of toEnrich) {
     try {
-      const response = ctx.http.fetch(apiUrl, {
-        headers: { "User-Agent": "alexxed-bot/1.0 (https://theonenamedalexx.live)" },
-      });
-      if (response.status === 200) {
-        const body = response.text();
-        // Extract thumbnail.source from JSON without a full JSON.parse
-        const match = body.match(/"source"\s*:\s*"([^"]+)"/);
-        const coverUrl = match ? match[1].replace(/\\u002F/g, "/") : null;
-        if (coverUrl) {
-          ctx.withTx((tx: any) => {
-            const existing = tx.db.owned_game.id.find(id);
-            if (existing) {
-              tx.db.owned_game.id.update({ ...existing, cover_url: coverUrl });
-            }
-          });
-          enriched++;
-        } else {
-          console.warn(`No thumbnail found for: ${title}`);
-          failed++;
+      // Try direct lookup first, then fall back to search API for correct casing
+      let coverUrl = fetchCoverUrl(title);
+      if (!coverUrl) {
+        const canonical = searchCanonicalTitle(title);
+        if (canonical && canonical.toLowerCase() !== title.toLowerCase()) {
+          coverUrl = fetchCoverUrl(canonical);
         }
+      }
+      if (coverUrl) {
+        ctx.withTx((tx: any) => {
+          const existing = tx.db.owned_game.id.find(id);
+          if (existing) {
+            tx.db.owned_game.id.update({ ...existing, cover_url: coverUrl });
+          }
+        });
+        enriched++;
       } else {
-        console.warn(`Wikipedia returned ${response.status} for: ${title}`);
+        console.warn(`No thumbnail found for: ${title}`);
         failed++;
       }
     } catch (e) {
@@ -371,4 +387,133 @@ export function runEnrichLibraryCovers(ctx: any, batchSize: number): void {
     }
   }
   console.info(`Cover enrichment done: ${enriched} enriched, ${failed} skipped/failed`);
+}
+
+/**
+ * Enrich games or library entries using the IGDB API v4.
+ *
+ * Requires IGDB_CLIENT_ID and IGDB_CLIENT_SECRET to be set in secret_config.
+ * Authentication tokens are cached in the same secret_config table.
+ */
+export function runEnrichFromIGDB(ctx: any, batchSize: number, target: string): void {
+  const limit = batchSize > 0 ? batchSize : 20;
+
+  // 1. Get Credentials
+  const clientId = ctx.withTx((tx: any) => tx.db.secret_config.key.find("IGDB_CLIENT_ID")?.value);
+  const clientSecret = ctx.withTx((tx: any) => tx.db.secret_config.key.find("IGDB_CLIENT_SECRET")?.value);
+
+  if (!clientId || !clientSecret) {
+    throw new SenderError("IGDB_CLIENT_ID and IGDB_CLIENT_SECRET must be set in secret_config");
+  }
+
+  // 2. Get or Refresh Access Token
+  let accessToken = ctx.withTx((tx: any) => tx.db.secret_config.key.find("IGDB_ACCESS_TOKEN")?.value);
+  // Simple check: if we have no token, or if it's "stale" (we don't store expiry yet, just refresh if missing or failing)
+  if (!accessToken) {
+    console.info("Fetching new IGDB access token...");
+    const authUrl = `https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`;
+    const response = ctx.http.fetch(authUrl, { method: "POST" });
+    if (response.status !== 200) {
+      throw new SenderError(`Failed to get IGDB token: ${response.status} ${response.text()}`);
+    }
+    const body = JSON.parse(response.text());
+    accessToken = body.access_token;
+    ctx.withTx((tx: any) => {
+      const existing = tx.db.secret_config.key.find("IGDB_ACCESS_TOKEN");
+      if (existing) tx.db.secret_config.key.update({ key: "IGDB_ACCESS_TOKEN", value: accessToken });
+      else tx.db.secret_config.insert({ key: "IGDB_ACCESS_TOKEN", value: accessToken });
+    });
+  }
+
+  // 3. Collect items to enrich
+  const items: Array<{ id: bigint; title: string }> = [];
+  ctx.withTx((tx: any) => {
+    if (target === "voting") {
+      for (const game of tx.db.game.iter()) {
+        if (!game.cover_url || game.cover_url.includes("wikipedia")) {
+          items.push({ id: game.id, title: game.title });
+          if (items.length >= limit) break;
+        }
+      }
+    } else {
+      for (const game of tx.db.owned_game.iter()) {
+        if (!game.cover_url || game.cover_url.includes("wikipedia")) {
+          items.push({ id: game.id, title: game.title });
+          if (items.length >= limit) break;
+        }
+      }
+    }
+  });
+
+  console.info(`Enriching ${items.length} ${target} items from IGDB...`);
+  const headers = {
+    "Client-ID": clientId,
+    "Authorization": `Bearer ${accessToken}`,
+    "Accept": "application/json",
+  };
+
+  let enriched = 0;
+  let failed = 0;
+
+  for (const item of items) {
+    try {
+      // IGDB Query: search by title, get cover and genre
+      // We use the 'games' endpoint with 'search' keyword.
+      const query = `search "${item.title.replace(/"/g, '\\"')}"; fields name, cover.url, genres.name, summary; limit 1;`;
+      const response = ctx.http.fetch("https://api.igdb.com/v4/games", {
+        method: "POST",
+        headers,
+        body: query,
+      });
+
+      if (response.status === 401) {
+        // Token might be expired, clear it so next run refreshes
+        ctx.withTx((tx: any) => tx.db.secret_config.key.delete("IGDB_ACCESS_TOKEN"));
+        throw new SenderError("IGDB token expired. Please run again to refresh.");
+      }
+
+      if (response.status !== 200) {
+        console.warn(`IGDB error for ${item.title}: ${response.status}`);
+        failed++;
+        continue;
+      }
+
+      const results = JSON.parse(response.text());
+      if (results && results.length > 0) {
+        const game = results[0];
+        let coverUrl = game.cover?.url;
+        if (coverUrl) {
+          // Convert //images.igdb.com/... to https://images.igdb.com/...
+          if (coverUrl.startsWith("//")) coverUrl = "https:" + coverUrl;
+          // Change t_thumb to t_cover_big for better quality
+          coverUrl = coverUrl.replace("t_thumb", "t_cover_big");
+        }
+
+        const genre = game.genres?.[0]?.name;
+
+        ctx.withTx((tx: any) => {
+          if (target === "voting") {
+            const existing = tx.db.game.id.find(item.id);
+            if (existing) {
+              tx.db.game.id.update({ ...existing, cover_url: coverUrl || existing.cover_url, genre: genre || existing.genre });
+            }
+          } else {
+            const existing = tx.db.owned_game.id.find(item.id);
+            if (existing) {
+              tx.db.owned_game.id.update({ ...existing, cover_url: coverUrl || existing.cover_url, genre: genre || existing.genre });
+            }
+          }
+        });
+        enriched++;
+      } else {
+        console.warn(`No IGDB match for: ${item.title}`);
+        failed++;
+      }
+    } catch (e) {
+      console.warn(`Failed to enrich ${item.title} from IGDB:`, e);
+      failed++;
+    }
+  }
+
+  console.info(`IGDB enrichment done: ${enriched} enriched, ${failed} failed.`);
 }

@@ -31,7 +31,7 @@
   gap: 12px;
 }
 
-.sync-btn {
+.sync-btn, .enrich-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -44,14 +44,15 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.sync-btn:hover:not(:disabled) {
+.sync-btn:hover:not(:disabled), .enrich-btn:hover:not(:disabled) {
   background: var(--color-bg-surface-hover, #2d3748);
   border-color: var(--color-primary);
 }
 
-.sync-btn:disabled {
+.sync-btn:disabled, .enrich-btn:disabled {
   opacity: 0.5;
   cursor: wait;
 }

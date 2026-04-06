@@ -38,6 +38,7 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
   const markGamePlayed = useReducer(reducers.markGamePlayed);
   const { getConnection, isActive, identity } = useSpacetimeDB();
   const [syncing, setSyncing] = useState(false);
+  const [enriching, setEnriching] = useState(false);
 
   // Build a lookup map for vote counts
   const countMap = useMemo(() => {
@@ -91,6 +92,23 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
         window.alert(`Sync failed: ${err.message || err}`);
       })
       .finally(() => setSyncing(false));
+  };
+
+  const handleEnrich = () => {
+    if (!isActive || !identity) return;
+    const conn = getConnection();
+    if (!conn) return;
+
+    setEnriching(true);
+    conn.procedures.enrichFromIgdb({ batchSize: 50, target: "voting" })
+      .then(() => {
+        console.log("IGDB enrichment batch triggered");
+      })
+      .catch((err) => {
+        console.error("IGDB enrichment failed:", err);
+        window.alert(`Enrichment failed: ${err.message || err}`);
+      })
+      .finally(() => setEnriching(false));
   };
 
   const columns: ColumnDef<GameRow, any>[] = [
@@ -212,6 +230,14 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
           <div className="game-list-header-top">
             <h1>Tell me what games to play</h1>
             <div className="game-list-actions">
+              <button
+                className="enrich-btn"
+                onClick={handleEnrich}
+                disabled={enriching || !isActive}
+                title="Enrich covers and genres from IGDB (batch of 50)"
+              >
+                {enriching ? "🎮 Enriching..." : "🎮 Enrich (IGDB)"}
+              </button>
               <button
                 className="sync-btn"
                 onClick={handleSync}

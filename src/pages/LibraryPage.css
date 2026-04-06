@@ -33,7 +33,8 @@
 }
 
 .library-sync-btn,
-.library-enrich-btn {
+.library-enrich-btn,
+.library-enrich-btn-igdb {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -46,16 +47,19 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .library-sync-btn:hover:not(:disabled),
-.library-enrich-btn:hover:not(:disabled) {
+.library-enrich-btn:hover:not(:disabled),
+.library-enrich-btn-igdb:hover:not(:disabled) {
   background: var(--color-bg-surface-hover, #2d3748);
   border-color: var(--color-primary);
 }
 
 .library-sync-btn:disabled,
-.library-enrich-btn:disabled {
+.library-enrich-btn:disabled,
+.library-enrich-btn-igdb:disabled {
   opacity: 0.5;
   cursor: wait;
 }

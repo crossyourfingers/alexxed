@@ -6,11 +6,14 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all procedure arg schemas
+import * as EnrichFromIgdbProcedure from "../enrich_from_igdb_procedure";
 import * as EnrichLibraryCoversProcedure from "../enrich_library_covers_procedure";
 import * as FetchLinkPreviewProcedure from "../fetch_link_preview_procedure";
 import * as SyncGamesFromSheetProcedure from "../sync_games_from_sheet_procedure";
 import * as SyncLibraryFromSheetProcedure from "../sync_library_from_sheet_procedure";
 
+export type EnrichFromIgdbArgs = __Infer<typeof EnrichFromIgdbProcedure.params>;
+export type EnrichFromIgdbResult = __Infer<typeof EnrichFromIgdbProcedure.returnType>;
 export type EnrichLibraryCoversArgs = __Infer<typeof EnrichLibraryCoversProcedure.params>;
 export type EnrichLibraryCoversResult = __Infer<typeof EnrichLibraryCoversProcedure.returnType>;
 export type FetchLinkPreviewArgs = __Infer<typeof FetchLinkPreviewProcedure.params>;
