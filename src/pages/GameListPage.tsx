@@ -189,7 +189,7 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
       <Header username={username} onLogout={onLogout} activePage="games" />
       <main className="game-list-main">
         <div className="game-list-header">
-          <h1>Game Library</h1>
+          <h1>Tell me what games to play</h1>
           <p className="game-list-subtitle">
             Vote for the next game Alex should play. Played games are shown but
             excluded from the voting queue.

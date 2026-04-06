@@ -141,7 +141,7 @@ function AuthGate() {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/community/general" replace />} />
+      <Route path="/" element={<Navigate to="/games" replace />} />
       <Route
         path="/community"
         element={<Navigate to="/community/general" replace />}
