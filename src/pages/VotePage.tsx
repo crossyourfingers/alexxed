@@ -6,6 +6,7 @@ import VoteStatsPanel from "../components/VoteStatsPanel";
 import { useTable, useReducer, useSpacetimeDB } from "spacetimedb/react";
 import { tables, reducers } from "../module_bindings";
 import SwipeVote from "./SwipeVote";
+import { GameListPage } from "./GameListPage";
 
 interface VotePageProps {
   username: string;
@@ -24,7 +25,7 @@ interface VotePageProps {
  * Note: `game_vote_counts` is an anonymous view backed by the server and
  * returns rows with `{ gameId: bigint, up: bigint, down: bigint }`.
  */
-export function VotePage({ username, onLogout }: VotePageProps) {
+function MobileVotePage({ username, onLogout }: VotePageProps) {
   const [games, gamesLoading] = useTable(tables.game);
   const [counts] = useTable(tables.game_vote_counts);
   const castVote = useReducer(reducers.castVote);
@@ -75,25 +76,6 @@ export function VotePage({ username, onLogout }: VotePageProps) {
       .finally(() => setSyncing(false));
   };
 
-  const getCountsFor = (gameId: bigint) => {
-    const row = counts.find((r: any) => r.gameId === gameId);
-    if (!row) return { up: 0n, down: 0n };
-    return { up: row.up as bigint, down: row.down as bigint };
-  };
-
-  const handleVote = (gameId: bigint, vote: "up" | "down") => {
-    // Call reducer — use object-syntax and BigInt for gameId
-    castVote({ gameId, vote })
-      .then(() => {
-        // Minimal UI feedback for now
-        window.alert(`Vote recorded: ${vote}`);
-      })
-      .catch((err: any) => {
-        console.error("Failed to cast vote:", err);
-        window.alert(`Failed to record vote: ${err?.message || err}`);
-      });
-  };
-
   return (
     <div className="community-page">
       <Header username={username} onLogout={onLogout} />
@@ -136,6 +118,23 @@ export function VotePage({ username, onLogout }: VotePageProps) {
       </div>
     </div>
   );
+}
+
+export function VotePage({ username, onLogout }: VotePageProps) {
+  const [isDesktop, setIsDesktop] = React.useState(() => window.matchMedia("(min-width: 768px)").matches);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  if (isDesktop) {
+    return <GameListPage username={username} onLogout={onLogout} />;
+  }
+
+  return <MobileVotePage username={username} onLogout={onLogout} />;
 }
 
 export default VotePage;
