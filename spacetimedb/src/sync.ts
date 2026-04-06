@@ -315,3 +315,60 @@ export function runSyncLibraryFromSheet(ctx: any, url: string): void {
     );
   });
 }
+/**
+ * Enrich owned_game rows that are missing a cover_url by fetching poster art
+ * from the Wikipedia REST API (page summary thumbnail).
+ *
+ * Processes up to `batchSize` games per call to avoid timeouts.
+ * Safe to call multiple times — already-enriched rows are skipped.
+ */
+export function runEnrichLibraryCovers(ctx: any, batchSize: number): void {
+  const limit = batchSize > 0 ? batchSize : 50;
+  // Collect IDs of games that still need a cover
+  const toEnrich: Array<{ id: bigint; title: string }> = [];
+  ctx.withTx((tx: any) => {
+    for (const game of tx.db.owned_game.iter()) {
+      if (!game.cover_url) {
+        toEnrich.push({ id: game.id, title: game.title });
+        if (toEnrich.length >= limit) break;
+      }
+    }
+  });
+  console.info(`Enriching covers for ${toEnrich.length} games (batch ${limit})`);
+  let enriched = 0;
+  let failed = 0;
+  for (const { id, title } of toEnrich) {
+    const encoded = encodeURIComponent(title.replace(/ /g, "_"));
+    const apiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encoded}`;
+    try {
+      const response = ctx.http.fetch(apiUrl, {
+        headers: { "User-Agent": "alexxed-bot/1.0 (https://theonenamedalexx.live)" },
+      });
+      if (response.status === 200) {
+        const body = response.text();
+        // Extract thumbnail.source from JSON without a full JSON.parse
+        const match = body.match(/"source"\s*:\s*"([^"]+)"/);
+        const coverUrl = match ? match[1].replace(/\\u002F/g, "/") : null;
+        if (coverUrl) {
+          ctx.withTx((tx: any) => {
+            const existing = tx.db.owned_game.id.find(id);
+            if (existing) {
+              tx.db.owned_game.id.update({ ...existing, cover_url: coverUrl });
+            }
+          });
+          enriched++;
+        } else {
+          console.warn(`No thumbnail found for: ${title}`);
+          failed++;
+        }
+      } else {
+        console.warn(`Wikipedia returned ${response.status} for: ${title}`);
+        failed++;
+      }
+    } catch (e) {
+      console.warn(`Failed to fetch Wikipedia cover for ${title}:`, e);
+      failed++;
+    }
+  }
+  console.info(`Cover enrichment done: ${enriched} enriched, ${failed} skipped/failed`);
+}

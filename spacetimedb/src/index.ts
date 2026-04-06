@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { schema, t, table, SenderError } from "spacetimedb/server";
 import { Identity } from "spacetimedb";
-import { runSyncGamesFromSheet, runSyncLibraryFromSheet } from "./sync";
+import { runSyncGamesFromSheet, runSyncLibraryFromSheet, runEnrichLibraryCovers } from "./sync";
 
 const user = table(
   { name: "user", public: true },
@@ -1263,6 +1263,16 @@ export const admin_reported_messages = spacetimedb.view(
       reported_at: r.reported_at,
       status: r.status,
     }));
+  },
+);
+
+// Procedure to enrich owned_game cover_url fields from Wikipedia
+export const enrich_library_covers = spacetimedb.procedure(
+  { batch_size: t.u32() },
+  t.unit(),
+  (ctx, { batch_size }) => {
+    runEnrichLibraryCovers(ctx, Number(batch_size));
+    return {};
   },
 );
 
