@@ -51,8 +51,14 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
 
   // Merge game rows with vote counts, exclude played games from voting queue
   const rows: GameRow[] = useMemo(() => {
-    return (games as Game[]).map((g) => {
+    const raw = games as Game[];
+    console.log("GameListPage: Raw games from useTable:", raw);
+
+    const mapped = raw.map((g) => {
       const c = countMap.get(g.id) ?? { up: 0n, down: 0n };
+      if (!g.title) {
+        console.warn("GameListPage: Found row with missing title:", g);
+      }
       return {
         id: g.id,
         title: g.title,
@@ -63,6 +69,9 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
         played: g.played ?? false,
       };
     });
+
+    console.log("GameListPage: Mapped rows for DataTable:", mapped);
+    return mapped;
   }, [games, countMap]);
 
   const handleVote = (gameId: bigint, vote: "up" | "down") => {
