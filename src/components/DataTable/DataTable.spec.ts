@@ -3,7 +3,9 @@ import { test, expect } from '@playwright/test';
 const COLUMN_COUNT = 6; // cover, title, genre, votes, actions, played
 
 test.describe('DataTable Layout', () => {
-  test('rows should be horizontal with correct cell count', async ({ page }) => {
+  test('rows should be horizontal with correct cell count', async ({ page, viewport }) => {
+    // Force a desktop viewport
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('http://localhost:5173/#/games');
 
     // If auth-locked, skip gracefully

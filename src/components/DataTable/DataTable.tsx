@@ -546,10 +546,10 @@ export function DataTable<TData extends { id?: any }>(props: DataTableProps<TDat
       ) : null}
 
       <div ref={containerRef} data-virtualized={virtualization ? 'true' : undefined} style={virtualization ? { height: `${containerHeight}px`, overflow: 'auto' as const, position: 'relative' as const } : wrapperStyle}>
-        <table role="table" style={tableStyle}>
+        <table role="table" style={{ ...tableStyle, display: 'table', borderCollapse: 'collapse', width: '100%' }}>
           {caption ? <caption>{caption}</caption> : null}
           <thead>
-            <tr role="row">
+            <tr role="row" style={{ display: 'table-row' }}>
               {enableRowSelection ? (
                 <th scope="col" role="columnheader" style={{ minWidth: 40 }}>
                   <input ref={headerSelectRef} aria-label="Select All" type="checkbox" onChange={toggleSelectAll} />
@@ -666,14 +666,14 @@ export function DataTable<TData extends { id?: any }>(props: DataTableProps<TDat
                   const realIdx = (enablePagination ? pageStart : 0) + rIdx;
                   const isSelected = selectedIds.has(getRowId(row));
                   return (
-                    <tr key={getRowId(row) ?? realIdx} role="row" onClick={handleRowClick(row)} onKeyDown={handleRowKeyDown(row)} tabIndex={onRowClick ? 0 : undefined} style={{ cursor: onRowClick ? 'pointer' : undefined }}>
+                    <tr key={getRowId(row) ?? realIdx} role="row" onClick={handleRowClick(row)} onKeyDown={handleRowKeyDown(row)} tabIndex={onRowClick ? 0 : undefined} style={{ cursor: onRowClick ? 'pointer' : undefined, display: 'table-row' }}>
                       {enableRowSelection ? (
-                        <td role="cell" style={{ width: 40 }}>
+                        <td role="cell" style={{ width: 40, display: 'table-cell' }}>
                           <input aria-label={`Select row ${getRowId(row)}`} type="checkbox" checked={isSelected} onChange={(e) => { e.stopPropagation(); toggleRow(row); }} />
                         </td>
                       ) : null}
                       {columns.map((col: AnyColumn, ci: number) => (
-                        <td key={ci} role="cell" style={{ minWidth: col.minSize ? `${col.minSize}px` : '50px' }}>
+                        <td key={ci} role="cell" style={{ minWidth: col.minSize ? `${col.minSize}px` : '50px', display: 'table-cell' }}>
                           {renderCell(row, col, realIdx)}
                         </td>
                       ))}
