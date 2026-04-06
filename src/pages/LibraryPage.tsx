@@ -23,16 +23,16 @@ interface LibraryPageProps {
 interface LibraryRow {
   id: bigint;
   title: string;
-  coverUrl: string | undefined | null;
+  cover_url: string | undefined | null;
   genre: string | undefined | null;
   platform: string | undefined | null;
-  wikipediaUrl: string | undefined | null;
+  wikipedia_url: string | undefined | null;
 }
 
 /** Cell component so each row can independently call the Wikipedia hook. */
 function CoverCell({ row }: { row: LibraryRow | undefined }) {
-  const wikiImage = useWikipediaImage(row?.coverUrl ? undefined : row?.title);
-  const src = row?.coverUrl || wikiImage;
+  const wikiImage = useWikipediaImage(row?.cover_url ? undefined : row?.title);
+  const src = row?.cover_url || wikiImage;
   if (!row) return null;
   return src ? (
     <img
@@ -141,10 +141,10 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
       .map((g) => ({
         id: g.id,
         title: g.title,
-        coverUrl: g.coverUrl,
+        cover_url: g.coverUrl,
         genre: g.genre,
         platform: g.platform,
-        wikipediaUrl: g.wikipediaUrl,
+        wikipedia_url: g.wikipediaUrl,
       }));
   }, [ownedGames]);
 
@@ -152,7 +152,7 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
     {
       id: "cover",
       header: "",
-      accessorKey: "coverUrl",
+      accessorKey: "cover_url",
       enableSorting: false,
       cell: ({ row }) => <CoverCell row={row?.original} />,
     },
