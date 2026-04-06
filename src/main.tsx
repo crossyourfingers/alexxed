@@ -244,8 +244,10 @@ const oidcConfig = {
   scope: ACTIVE_AUTH_CONFIG.scope,
   response_type: "code",
   onSigninCallback: () => {
-    // Remove query params after auth
-    window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+    const redirect = sessionStorage.getItem('post_login_redirect');
+    sessionStorage.removeItem('post_login_redirect');
+    const hash = redirect || '#/';
+    window.history.replaceState({}, document.title, window.location.pathname + hash);
   },
 };
 

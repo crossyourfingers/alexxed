@@ -9,7 +9,13 @@ export function useAuth(): AuthProvider {
   const auth = useOidcAuth();
 
   return {
-    login: () => auth.signinRedirect(),
+    login: () => {
+      const hash = window.location.hash;
+      if (hash && hash !== '#/') {
+        sessionStorage.setItem('post_login_redirect', hash);
+      }
+      return auth.signinRedirect();
+    },
     logout: () => auth.signoutRedirect(),
     removeUser: () => auth.removeUser(),
     getUser: () => {
