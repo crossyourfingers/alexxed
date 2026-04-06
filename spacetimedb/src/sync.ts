@@ -275,26 +275,22 @@ export function runSyncLibraryFromSheet(ctx: any, url: string): void {
       if (isFirstPartNumeric) {
         id = BigInt(firstPart);
         title = parts[1] || "";
-        genre = parts[2] || undefined;
-        platform = parts[3] || undefined;
-        cover_url = parts[4] || undefined;
-        wikipedia_url = parts[5] || undefined;
+        platform = parts[2] || undefined; // Store (Steam/Epic/GOG)
+        // parts[3] = App ID (ignored, not stored)
+        // parts[4] = Date (ignored)
+        genre = undefined;
+        cover_url = undefined;
+        wikipedia_url = undefined;
       } else {
+        // Title-first: Title, Store, App ID, Date
         title = firstPart;
         id = stableHash(title);
-        genre = parts[1] || undefined;
-        platform = parts[2] || undefined;
-        cover_url = parts[3] || undefined;
-        wikipedia_url = parts[4] || undefined;
-      }
-
-      if (
-        cover_url &&
-        !cover_url.startsWith("http") &&
-        !cover_url.startsWith("data:")
-      ) {
-        if (!genre) genre = cover_url;
+        platform = parts[1] || undefined; // Store (Steam/Epic/GOG)
+        // parts[2] = App ID (ignored)
+        // parts[3] = Date (ignored)
+        genre = undefined;
         cover_url = undefined;
+        wikipedia_url = undefined;
       }
 
       if (!title) {
