@@ -641,14 +641,14 @@ export function DataTable<TData extends { id?: any }>(props: DataTableProps<TDat
                             onClick={handleRowClick(row)}
                             onKeyDown={handleRowKeyDown(row)}
                             tabIndex={onRowClick ? 0 : undefined}
-                            style={{ position: 'absolute', left: 0, right: 0, top: `${top}px`, display: 'flex', gap: 8, alignItems: 'center', cursor: onRowClick ? 'pointer' : undefined }}>
+                            style={{ position: 'absolute', left: 0, right: 0, top: `${top}px`, display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center', cursor: onRowClick ? 'pointer' : undefined, width: '100%' }}>
                             {enableRowSelection ? (
                               <div role="cell" style={{ width: 40 }}>
                                 <input aria-label={`Select row ${getRowId(row)}`} type="checkbox" checked={isSelected} onChange={() => toggleRow(row)} />
                               </div>
                             ) : null}
                             {columns.map((col: AnyColumn, ci: number) => (
-                              <div role="cell" key={ci} style={{ minWidth: col.minSize ? `${col.minSize}px` : '50px' }}>
+                              <div role="cell" key={ci} style={{ flex: 1, minWidth: col.minSize ? `${col.minSize}px` : '50px' }}>
                                 {renderCell(row, col, globalIndex)}
                               </div>
                             ))}
