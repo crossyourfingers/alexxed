@@ -119,6 +119,19 @@ Community members vote on which games Alex should play next. Key aspects:
 
 See full proposal: [Game Voting Feature](domain_knowledge/game-voting-feature.md)
 
+### UI Verification (Playwright MCP)
+
+When available, agents should use the **Playwright MCP server** for visual and interaction testing. This allows for real-time browser interaction to verify:
+- Desktop vs. Mobile layout logic (viewport switching)
+- Complex animations and state transitions (e.g., voting cards)
+- End-to-end user flows (login, sync, voting)
+
+**Best Practices:**
+1. **Prefer `playwright_screenshot`** to visually verify UI state.
+2. **Use `playwright_click` and `playwright_type`** for interaction testing.
+3. **Run local dev server (`npm run dev`)** before attempting UI verification.
+4. **Clean up** any browser sessions or temporary artifacts after verification.
+
 ---
 
 ## SpacetimeDB Development
