@@ -9,6 +9,7 @@ import { NotFoundPage } from "./pages/NotFoundPage.tsx";
 import { LoginForm } from "./LoginForm.tsx";
 import { VotePage } from "./pages/VotePage";
 import { GameListPage } from "./pages/GameListPage";
+import { LibraryPage } from "./pages/LibraryPage";
 import { Identity } from "spacetimedb";
 import {
   SpacetimeDBProvider,
@@ -157,6 +158,10 @@ function AuthGate() {
       <Route
         path="/games"
         element={<GameListPage username={username} onLogout={handleLogout} />}
+      />
+      <Route
+        path="/library"
+        element={<LibraryPage username={username} onLogout={handleLogout} />}
       />
       <Route
         path="/stream"

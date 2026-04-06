@@ -9,7 +9,7 @@ import "./Header.css";
 
 interface HeaderProps {
   /** Which page is currently active */
-  activePage?: "stream" | "community" | "profile" | "vote" | "games";
+  activePage?: "stream" | "community" | "profile" | "vote" | "games" | "library";
   /** Current user's display name */
   username: string;
   /** Callback when user clicks logout */
@@ -127,6 +127,12 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
           >
             Games
           </Link>
+          <Link
+            to="/library"
+            className={`nav-link ${activePage === "library" ? "active" : ""}`}
+          >
+            Library
+          </Link>
           <button onClick={onLogout} className="nav-link logout-btn">
             Logout
           </button>
@@ -225,6 +231,13 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
             onClick={handleCloseDrawer}
           >
             Games
+          </Link>
+          <Link
+            to="/library"
+            className={`nav-link ${activePage === "library" ? "active" : ""}`}
+            onClick={handleCloseDrawer}
+          >
+            Library
           </Link>
           <button
             onClick={() => {

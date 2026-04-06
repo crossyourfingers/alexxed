@@ -8,9 +8,12 @@ import { type Infer as __Infer } from "spacetimedb";
 // Import all procedure arg schemas
 import * as FetchLinkPreviewProcedure from "../fetch_link_preview_procedure";
 import * as SyncGamesFromSheetProcedure from "../sync_games_from_sheet_procedure";
+import * as SyncLibraryFromSheetProcedure from "../sync_library_from_sheet_procedure";
 
 export type FetchLinkPreviewArgs = __Infer<typeof FetchLinkPreviewProcedure.params>;
 export type FetchLinkPreviewResult = __Infer<typeof FetchLinkPreviewProcedure.returnType>;
 export type SyncGamesFromSheetArgs = __Infer<typeof SyncGamesFromSheetProcedure.params>;
 export type SyncGamesFromSheetResult = __Infer<typeof SyncGamesFromSheetProcedure.returnType>;
+export type SyncLibraryFromSheetArgs = __Infer<typeof SyncLibraryFromSheetProcedure.params>;
+export type SyncLibraryFromSheetResult = __Infer<typeof SyncLibraryFromSheetProcedure.returnType>;
 

@@ -103,6 +103,16 @@ export const MessageReaction = __t.object("MessageReaction", {
 });
 export type MessageReaction = __Infer<typeof MessageReaction>;
 
+export const OwnedGame = __t.object("OwnedGame", {
+  id: __t.u64(),
+  title: __t.string(),
+  coverUrl: __t.option(__t.string()),
+  genre: __t.option(__t.string()),
+  platform: __t.option(__t.string()),
+  wikipediaUrl: __t.option(__t.string()),
+});
+export type OwnedGame = __Infer<typeof OwnedGame>;
+
 export const ReportedMessage = __t.object("ReportedMessage", {
   id: __t.u64(),
   messageSent: __t.timestamp(),

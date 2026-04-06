@@ -3,6 +3,26 @@ import "./SwipeVote.css";
 import { useTable, useReducer } from "spacetimedb/react";
 import { tables, reducers } from "../module_bindings";
 import { makePosterDataUri } from "../data/posterData";
+import { useWikipediaImage } from "../hooks/useWikipediaImage";
+
+/** Renders the poster image for a card, falling back to Wikipedia then a generated poster. */
+function CardPoster({ title, subtitle, coverUrl }: { title: string; subtitle: string; coverUrl: string | null | undefined }) {
+  const wikiImage = useWikipediaImage(coverUrl ? undefined : title);
+  const src = coverUrl || wikiImage || makePosterDataUri(title, subtitle, "#2b5876", "#4e4376");
+  return (
+    <img
+      className="poster"
+      src={src}
+      alt={title}
+      onError={(e) => {
+        const target = e.target as HTMLImageElement;
+        if (!target.src.startsWith("data:")) {
+          target.src = makePosterDataUri(title, subtitle, "#2b5876", "#4e4376");
+        }
+      }}
+    />
+  );
+}
 
 function useSwipe(onSwipe: (dir: "left" | "right") => void) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -82,20 +102,12 @@ export default function SwipeVote() {
   const [counts] = useTable(tables.game_vote_counts);
   const castVote = useReducer(reducers.castVote);
 
-  const deck = games.map((g) => {
-    const fallbackImage = makePosterDataUri(
-      g.title,
-      g.subtitle || "",
-      "#2b5876",
-      "#4e4376",
-    );
-    return {
-      id: g.id,
-      title: g.title,
-      subtitle: g.subtitle || g.genre || "",
-      image: g.coverUrl || fallbackImage,
-    };
-  });
+  const deck = games.map((g) => ({
+    id: g.id,
+    title: g.title,
+    subtitle: g.subtitle || g.genre || "",
+    coverUrl: g.coverUrl,
+  }));
 
   const [displayDeck, setDisplayDeck] = useState<typeof deck>([]);
 
@@ -229,22 +241,7 @@ export default function SwipeVote() {
                 role="article"
                 aria-label={`${card.title} card`}
               >
-                <img
-                  className="poster"
-                  src={card.image}
-                  alt={card.title}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    if (!target.src.startsWith("data:")) {
-                      target.src = makePosterDataUri(
-                        card.title,
-                        card.subtitle,
-                        "#2b5876",
-                        "#4e4376"
-                      );
-                    }
-                  }}
-                />
+                <CardPoster title={card.title} subtitle={card.subtitle} coverUrl={card.coverUrl} />
                 { (voted || animating) && <div className="disabled-badge">VOTED</div>}
                 {isTop ? (
                   <div className="card-body">

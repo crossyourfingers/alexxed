@@ -303,6 +303,18 @@ const game_vote_count = table(
   },
 );
 
+const owned_game = table(
+  { name: "owned_game", public: true },
+  {
+    id: t.u64().primaryKey(),
+    title: t.string(),
+    cover_url: t.string().optional(),
+    genre: t.string().optional(),
+    platform: t.string().optional(),
+    wikipedia_url: t.string().optional(),
+  },
+);
+
 const spacetimedb = schema({
   user,
   message,
@@ -320,6 +332,7 @@ const spacetimedb = schema({
   game,
   user_vote,
   game_vote_count,
+  owned_game,
 });
 export default spacetimedb;
 
@@ -794,6 +807,151 @@ export const sync_games_from_sheet = spacetimedb.procedure(
     } catch (e: any) {
       console.warn("Game sync failed:", e);
       throw new SenderError(`Sync failed: ${e.message || e}`);
+    }
+  },
+);
+
+// GID for the "Owned Games" worksheet in the shared Google Sheet
+const DEFAULT_LIBRARY_URL = "https://docs.google.com/spreadsheets/d/1VayJrz5E92IJ1LY3srwHXOrZ850mvphheqsZCeqrR-w/export?format=csv&gid=1";
+
+export const sync_library_from_sheet = spacetimedb.procedure(
+  { url: t.string() },
+  t.unit(),
+  (ctx, { url }) => {
+    const targetUrl = url || DEFAULT_LIBRARY_URL;
+
+    if (!targetUrl) {
+      throw new SenderError("URL is required for library sync");
+    }
+
+    // Only admin can sync, UNLESS the owned_game table is currently empty
+    let count = 0;
+    ctx.withTx((tx) => {
+      for (const _ of tx.db.owned_game.iter()) {
+        count++;
+        if (count > 0) break;
+      }
+    });
+
+    if (count > 0) {
+      const profile = ctx.withTx((tx) =>
+        tx.db.streamer_profile.id.find(ctx.sender),
+      );
+      if (!profile) {
+        let hasAnyProfile = false;
+        ctx.withTx((tx) => {
+          for (const _ of tx.db.streamer_profile.iter()) {
+            hasAnyProfile = true;
+            break;
+          }
+        });
+        if (hasAnyProfile) {
+          throw new SenderError("Only admin can sync library from sheet");
+        }
+      }
+    }
+
+    try {
+      const response = ctx.http.fetch(targetUrl);
+      if (response.status !== 200) {
+        throw new SenderError(`Failed to fetch sheet: ${response.status}`);
+      }
+
+      const csv = response.text();
+      const lines = csv.split(/\r?\n/);
+      console.info(`Fetched library CSV with ${lines.length} lines`);
+
+      ctx.withTx((tx) => {
+        let importedCount = 0;
+        let errorCount = 0;
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          // CSV parser handling quoted fields with commas
+          let parts: string[] = [];
+          let current = "";
+          let inQuotes = false;
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === "," && !inQuotes) {
+              parts.push(current.trim());
+              current = "";
+            } else {
+              current += char;
+            }
+          }
+          parts.push(current.trim());
+
+          parts = parts.map((p) =>
+            p.startsWith('"') && p.endsWith('"') ? p.slice(1, -1).trim() : p,
+          );
+
+          if (parts.length < 1) continue;
+
+          const firstPart = parts[0];
+          const headerCheck = firstPart.toLowerCase();
+          if (i === 0 || headerCheck === "id" || headerCheck === "title" || headerCheck === "name") {
+            console.info(`Skipping header at line ${i + 1}: ${firstPart}`);
+            continue;
+          }
+
+          if (!firstPart) {
+            errorCount++;
+            continue;
+          }
+
+          const isFirstPartNumeric = /^\d+$/.test(firstPart);
+          let id: bigint;
+          let title: string;
+          let genre: string | undefined;
+          let platform: string | undefined;
+          let cover_url: string | undefined;
+          let wikipedia_url: string | undefined;
+
+          if (isFirstPartNumeric) {
+            id = BigInt(firstPart);
+            title = parts[1] || "";
+            genre = parts[2] || undefined;
+            platform = parts[3] || undefined;
+            cover_url = parts[4] || undefined;
+            wikipedia_url = parts[5] || undefined;
+          } else {
+            title = firstPart;
+            id = stableHash(title);
+            genre = parts[1] || undefined;
+            platform = parts[2] || undefined;
+            cover_url = parts[3] || undefined;
+            wikipedia_url = parts[4] || undefined;
+          }
+
+          if (cover_url && !cover_url.startsWith("http") && !cover_url.startsWith("data:")) {
+            if (!genre) genre = cover_url;
+            cover_url = undefined;
+          }
+
+          if (!title) {
+            errorCount++;
+            continue;
+          }
+
+          const existing = tx.db.owned_game.id.find(id);
+          if (existing) {
+            tx.db.owned_game.id.update({ id, title, cover_url, genre, platform, wikipedia_url });
+          } else {
+            tx.db.owned_game.insert({ id, title, cover_url, genre, platform, wikipedia_url });
+          }
+          importedCount++;
+        }
+        console.info(`Library sync completed: ${importedCount} imported, ${errorCount} errors`);
+      });
+      return {};
+    } catch (e: any) {
+      console.warn("Library sync failed:", e);
+      throw new SenderError(`Library sync failed: ${e.message || e}`);
     }
   },
 );

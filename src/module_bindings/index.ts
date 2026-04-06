@@ -55,6 +55,7 @@ import UpdateStreamerProfileReducer from "./update_streamer_profile_reducer";
 // Import all procedure arg schemas
 import * as FetchLinkPreviewProcedure from "./fetch_link_preview_procedure";
 import * as SyncGamesFromSheetProcedure from "./sync_games_from_sheet_procedure";
+import * as SyncLibraryFromSheetProcedure from "./sync_library_from_sheet_procedure";
 
 // Import all table schema definitions
 import AdminReportedMessagesRow from "./admin_reported_messages_table";
@@ -66,6 +67,7 @@ import LinkPreviewRow from "./link_preview_table";
 import MessageRow from "./message_table";
 import MessageLikeRow from "./message_like_table";
 import MessageReactionRow from "./message_reaction_table";
+import OwnedGameRow from "./owned_game_table";
 import StreamScheduleDayRow from "./stream_schedule_day_table";
 import StreamerProfileRow from "./streamer_profile_table";
 import SystemMessageRow from "./system_message_table";
@@ -141,6 +143,17 @@ const tablesSchema = __schema({
     constraints: [
     ],
   }, MessageReactionRow),
+  owned_game: __table({
+    name: 'owned_game',
+    indexes: [
+      { name: 'id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'owned_game_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, OwnedGameRow),
   stream_schedule_day: __table({
     name: 'stream_schedule_day',
     indexes: [
@@ -237,6 +250,7 @@ const reducersSchema = __reducers(
 const proceduresSchema = __procedures(
   __procedureSchema("fetch_link_preview", FetchLinkPreviewProcedure.params, FetchLinkPreviewProcedure.returnType),
   __procedureSchema("sync_games_from_sheet", SyncGamesFromSheetProcedure.params, SyncGamesFromSheetProcedure.returnType),
+  __procedureSchema("sync_library_from_sheet", SyncLibraryFromSheetProcedure.params, SyncLibraryFromSheetProcedure.returnType),
 );
 
 /** The remote SpacetimeDB module schema, both runtime and type information. */
