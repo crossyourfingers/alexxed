@@ -13,6 +13,7 @@ A real-time streaming community application built with [SpacetimeDB](https://spa
 - [Development Workflow](#development-workflow)
 - [Project Structure](#project-structure)
 - [Domain Knowledge](#domain-knowledge)
+- [Self-Testing & Verification](#self-testing--verification)
 - [Recommended Tools](#recommended-tools)
 - [Contributing](#contributing)
 
@@ -259,7 +260,49 @@ alexxed/
 
 ---
 
-## Domain Knowledge
+## Self-Testing & Verification
+
+AI Agents and developers MUST verify changes locally before committing.
+
+### 1. Backend Verification (SpacetimeDB)
+Always test business logic directly via the CLI to bypass UI complexity.
+
+- **Call Reducers/Procedures:**
+  ```bash
+  spacetime call alexxed-u3k4f <reducer_name> [args...]
+  ```
+- **Check Database State:**
+  ```bash
+  spacetime sql alexxed-u3k4f "SELECT * FROM <table_name> LIMIT 10"
+  ```
+- **Monitor Logs:**
+  ```bash
+  spacetime logs alexxed-u3k4f --follow
+  ```
+- **Run Diagnostics:**
+  ```bash
+  spacetime call alexxed-u3k4f validate_library_data
+  ```
+
+### 2. Frontend Verification (Playwright)
+Use Playwright for layout, interaction, and mobile/desktop responsiveness tests.
+
+- **Run UI Tests:**
+  ```bash
+  # Ensure 'npm run dev' is running in the background
+  npx playwright test
+  ```
+- **Visual Check:**
+  Use the Playwright MCP `playwright_screenshot` tool to verify visual states during development.
+
+### 3. Build Sanity Check
+Always ensure the project compiles and bundles correctly.
+
+```bash
+npm run build
+```
+
+---
 
 **All canonical project knowledge lives in `domain_knowledge/`** — this includes specifications, proposals, business rules, and architectural decisions.
 

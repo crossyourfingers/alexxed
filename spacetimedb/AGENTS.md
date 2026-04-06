@@ -147,6 +147,28 @@ The backend provides specialized procedures ("skills") that agents can use to ve
 
 ---
 
+## Mandatory Self-Testing
+
+AI Agents and developers MUST verify backend changes locally before pushing.
+
+### 1. SpacetimeDB CLI (Direct Logic Testing)
+Test business logic directly to bypass UI complexity and ensure deterministic behavior.
+
+- **Check State:** `spacetime sql alexxed-u3k4f "SELECT * FROM ..."`
+- **Call Reducers/Procedures:** `spacetime call alexxed-u3k4f <reducer> [args...]`
+- **Validate Data:** `spacetime call alexxed-u3k4f validate_library_data`
+- **Monitor Logs:** `spacetime logs alexxed-u3k4f --follow`
+
+### 2. Regression Testing
+For any logic fix or schema change:
+1. Verify failure with the original logic (reproducer script or CLI call).
+2. Apply changes and verify success.
+3. Check logs for panics or unexpected warnings.
+
+For more details, see: [TESTING.md](TESTING.md)
+
+---
+
 ## Directory Structure
 
 ```

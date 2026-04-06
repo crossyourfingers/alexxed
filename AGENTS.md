@@ -134,6 +134,31 @@ When available, agents should use the **Playwright MCP server** for visual and i
 
 ---
 
+## Mandatory Self-Testing & Verification
+
+AI Agents and developers MUST verify changes locally before committing.
+
+### 1. SpacetimeDB CLI (Backend Logic)
+Test business logic directly to bypass UI complexity and ensure deterministic behavior.
+
+- **Check State:** `spacetime sql alexxed-u3k4f "SELECT * FROM ..."`
+- **Call Reducers:** `spacetime call alexxed-u3k4f <reducer> [args...]`
+- **Validate Data:** `spacetime call alexxed-u3k4f validate_library_data`
+- **Logs:** `spacetime logs alexxed-u3k4f`
+
+### 2. Playwright (Frontend & UI)
+Verify layout, interaction, and mobile/desktop responsiveness.
+
+- **Automated Tests:** `npx playwright test` (ensure `npm run dev` is active)
+- **Visual Sanity Check:** Use `playwright_screenshot` to confirm UI state.
+
+### 3. Build Check
+Ensure the project compiles and bundles correctly.
+
+- **Build:** `npm run build`
+
+---
+
 ## API Configuration (Secrets)
 
 To use high-quality game metadata (IGDB/Twitch), you must configure your API secrets in the `secret_config` table.
