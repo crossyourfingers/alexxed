@@ -207,6 +207,7 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
           pageSizeOptions={[25, 50, 100]}
           caption="Game voting library"
           className="game-list-table"
+          enableVirtualization={false}
         />
       </main>
     </div>

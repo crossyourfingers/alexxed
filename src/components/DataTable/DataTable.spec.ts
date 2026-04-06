@@ -1,67 +1,56 @@
 import { test, expect } from '@playwright/test';
 
+const COLUMN_COUNT = 6; // cover, title, genre, votes, actions, played
+
 test.describe('DataTable Layout', () => {
-  test('rows should be horizontal (horizontal row, vertical stack of rows)', async ({ page }) => {
-    // Navigate to the games page which uses DataTable
-    // We assume the app is running and we might need to login.
-    // However, for a unit-like UI test, we can also try to point to a specific internal route if possible,
-    // but since we are using HashRouter and SpacetimeDB, we might need to bypass auth or use a mock.
-    
-    // For now, let's try to go to the page and see what happens.
+  test('rows should be horizontal with correct cell count', async ({ page }) => {
     await page.goto('http://localhost:5173/#/games');
-    
-    // If redirected to login, we might need to handle it.
-    // But if we just want to test the component, maybe we should have a dedicated test page.
-    // Given the constraints, I'll check if I'm on the login page.
+
+    // If auth-locked, skip gracefully
     if (await page.isVisible('button:has-text("Sign In")')) {
-      console.log('On login page, attempting to bypass or wait');
-      // In this app, we have a "Connect as Guest" button sometimes? No, that was diagnostic.
-      // But we can just test if the table exists.
+      console.log('Auth-locked: skipping DataTable layout test');
+      return;
     }
 
-    // Wait for the table to be visible
+    // Wait for the table
     const table = page.locator('table[role="table"]');
-    try {
-        await table.waitFor({ timeout: 5000 });
-    } catch (e) {
-        console.log('Table not found, might be auth-locked. This test requires a running dev server with data.');
-        return; 
-    }
+    await table.waitFor({ timeout: 10000 });
 
-    // Check a row's layout
-    const rows = page.locator('tr[role="row"], div[role="row"]');
-    const firstRow = rows.first();
-    await firstRow.waitFor();
+    // Wait for at least one data row (not the header row)
+    const dataRows = page.locator('tbody tr[role="row"]');
+    await dataRows.first().waitFor({ timeout: 10000 });
 
-    // Get bounding boxes of cells in the first row
-    const cells = firstRow.locator('[role="cell"]');
+    const firstRow = dataRows.first();
+
+    // (a) Cell count per row must match column count
+    const cells = firstRow.locator('td[role="cell"]');
     const cellCount = await cells.count();
-    
-    if (cellCount > 1) {
-      const box1 = await cells.nth(0).boundingBox();
-      const box2 = await cells.nth(1).boundingBox();
+    expect(cellCount).toBe(COLUMN_COUNT);
 
-      if (box1 && box2) {
-        // Horizontal check: box1.y should be approximately box2.y
-        // And box1.x + width should be <= box2.x
-        console.log(`Cell 1: x=${box1.x}, y=${box1.y}, w=${box1.width}`);
-        console.log(`Cell 2: x=${box2.x}, y=${box2.y}, w=${box2.width}`);
-        
-        expect(Math.abs(box1.y - box2.y)).toBeLessThan(5); // They should be on the same horizontal line
-        expect(box2.x).toBeGreaterThanOrEqual(box1.x + box1.width - 1); // Box 2 should be to the right of Box 1
-      }
+    // (b) All cells in the first row share the same y coordinate (horizontal alignment)
+    const boxes = await Promise.all(
+      Array.from({ length: cellCount }, (_, i) => cells.nth(i).boundingBox())
+    );
+    const validBoxes = boxes.filter((b): b is NonNullable<typeof b> => b !== null);
+    expect(validBoxes.length).toBe(COLUMN_COUNT);
+
+    const firstY = validBoxes[0].y;
+    for (const box of validBoxes) {
+      expect(Math.abs(box.y - firstY)).toBeLessThan(5);
     }
-    
-    // Check vertical stacking of rows
-    if (await rows.count() > 1) {
-      const row1 = await rows.nth(0).boundingBox();
-      const row2 = await rows.nth(1).boundingBox();
-      
-      if (row1 && row2) {
-        console.log(`Row 1: x=${row1.x}, y=${row1.y}, h=${row1.height}`);
-        console.log(`Row 2: x=${row2.x}, y=${row2.y}, h=${row2.height}`);
-        
-        expect(row2.y).toBeGreaterThanOrEqual(row1.y + row1.height - 1); // Row 2 should be below Row 1
+
+    // (c) Cells are positioned left-to-right (no column stacking)
+    for (let i = 1; i < validBoxes.length; i++) {
+      expect(validBoxes[i].x).toBeGreaterThan(validBoxes[i - 1].x);
+    }
+
+    // (d) Rows stack vertically
+    const rowCount = await dataRows.count();
+    if (rowCount > 1) {
+      const row1Box = await dataRows.nth(0).boundingBox();
+      const row2Box = await dataRows.nth(1).boundingBox();
+      if (row1Box && row2Box) {
+        expect(row2Box.y).toBeGreaterThanOrEqual(row1Box.y + row1Box.height - 1);
       }
     }
   });
