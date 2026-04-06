@@ -137,15 +137,10 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
 
   const rows: LibraryRow[] = useMemo(() => {
     const raw = ownedGames as OwnedGame[];
-    console.log("LibraryPage: Raw ownedGames from useTable:", raw);
     
     const mapped = raw
       .filter((g) => g && g.title) // Filter out any malformed rows
       .map((g) => {
-        // Log individual rows if titles are missing
-        if (!g.title) {
-          console.warn("LibraryPage: Found row with missing title:", g);
-        }
         return {
           id: g.id,
           title: g.title,
@@ -156,7 +151,6 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
         };
       });
       
-    console.log("LibraryPage: Mapped rows for DataTable:", mapped);
     return mapped;
   }, [ownedGames]);
 

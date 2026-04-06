@@ -433,10 +433,26 @@ export function DataTable<TData extends { id?: any }>(props: DataTableProps<TDat
   const renderCell = (row: TData, col: AnyColumn, rowIndex: number) => {
     const accessor = col.accessorKey ?? col.id;
     const value = safeGet(row as any, accessor as string);
+    
+    // Wrap the row in a TanStack-like structure for the cell renderer
+    const cellContext = {
+      getValue: () => value,
+      row: {
+        original: row,
+        index: rowIndex,
+      },
+      table: {
+        options: {
+          data: data,
+        }
+      }
+    };
+
     if (col.cell && typeof col.cell === 'function') {
       try {
-        return col.cell({ getValue: () => value, row });
+        return col.cell(cellContext);
       } catch (e) {
+        console.error('DataTable: cell render error', e, { accessor, value, row });
         return <span>{String(value ?? '')}</span>;
       }
     }
