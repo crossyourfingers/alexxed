@@ -135,6 +135,18 @@ CLI testing is encouraged for rapid verification of backend logic.
 
 ---
 
+## Agent Skills (SpacetimeDB Procedures)
+
+The backend provides specialized procedures ("skills") that agents can use to verify data and system state:
+
+| Skill | Purpose | Command Example |
+| ----- | ------- | --------------- |
+| `validate_library_data` | Checks `owned_game` integrity (missing covers/genres) | `spacetime call alexxed-u3k4f validate_library_data` |
+| `sync_library_from_sheet` | Fetches fresh library data from Google Sheets | `spacetime call alexxed-u3k4f sync_library_from_sheet ""` |
+| `enrich_from_igdb` | Fetches high-quality metadata from IGDB | `spacetime call alexxed-u3k4f enrich_from_igdb 20 library` |
+
+---
+
 ## Directory Structure
 
 ```

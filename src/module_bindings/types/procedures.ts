@@ -11,6 +11,7 @@ import * as EnrichLibraryCoversProcedure from "../enrich_library_covers_procedur
 import * as FetchLinkPreviewProcedure from "../fetch_link_preview_procedure";
 import * as SyncGamesFromSheetProcedure from "../sync_games_from_sheet_procedure";
 import * as SyncLibraryFromSheetProcedure from "../sync_library_from_sheet_procedure";
+import * as ValidateLibraryDataProcedure from "../validate_library_data_procedure";
 
 export type EnrichFromIgdbArgs = __Infer<typeof EnrichFromIgdbProcedure.params>;
 export type EnrichFromIgdbResult = __Infer<typeof EnrichFromIgdbProcedure.returnType>;
@@ -22,4 +23,6 @@ export type SyncGamesFromSheetArgs = __Infer<typeof SyncGamesFromSheetProcedure.
 export type SyncGamesFromSheetResult = __Infer<typeof SyncGamesFromSheetProcedure.returnType>;
 export type SyncLibraryFromSheetArgs = __Infer<typeof SyncLibraryFromSheetProcedure.params>;
 export type SyncLibraryFromSheetResult = __Infer<typeof SyncLibraryFromSheetProcedure.returnType>;
+export type ValidateLibraryDataArgs = __Infer<typeof ValidateLibraryDataProcedure.params>;
+export type ValidateLibraryDataResult = __Infer<typeof ValidateLibraryDataProcedure.returnType>;
 

@@ -517,3 +517,59 @@ export function runEnrichFromIGDB(ctx: any, batchSize: number, target: string): 
 
   console.info(`IGDB enrichment done: ${enriched} enriched, ${failed} failed.`);
 }
+
+/**
+ * Diagnostic tool for agents: Validates library data integrity.
+ * Checks for missing covers, genres, or platforms in owned_game table.
+ */
+export function runValidateLibraryData(ctx: any): string {
+  let totalCount = 0;
+  let missingCovers = 0;
+  let missingGenres = 0;
+  let missingPlatforms = 0;
+  let sampleMissingCovers: string[] = [];
+  let sampleMissingGenres: string[] = [];
+
+  ctx.withTx((tx: any) => {
+    for (const game of tx.db.owned_game.iter()) {
+      totalCount++;
+      let hasIssue = false;
+
+      if (!game.cover_url) {
+        missingCovers++;
+        if (sampleMissingCovers.length < 5) sampleMissingCovers.push(game.title);
+        hasIssue = true;
+      }
+
+      if (!game.genre) {
+        missingGenres++;
+        if (sampleMissingGenres.length < 5) sampleMissingGenres.push(game.title);
+        hasIssue = true;
+      }
+
+      if (!game.platform) {
+        missingPlatforms++;
+        hasIssue = true;
+      }
+    }
+  });
+
+  const summary = [
+    `Library Validation Summary:`,
+    `- Total Games: ${totalCount}`,
+    `- Missing Covers: ${missingCovers} (${((missingCovers / (totalCount || 1)) * 100).toFixed(1)}%)`,
+    `- Missing Genres: ${missingGenres} (${((missingGenres / (totalCount || 1)) * 100).toFixed(1)}%)`,
+    `- Missing Platforms: ${missingPlatforms}`,
+    ``,
+    missingCovers > 0 ? `Sample Missing Covers: ${sampleMissingCovers.join(", ")}` : "All games have covers!",
+    missingGenres > 0 ? `Sample Missing Genres: ${sampleMissingGenres.join(", ")}` : "All games have genres!",
+    ``,
+    `Recommendation:`,
+    missingCovers > 0 ? `- Run 'enrich_from_igdb 50 library' or 'enrich_library_covers 50' to fix covers.` : "",
+    missingGenres > 0 ? `- Run 'enrich_from_igdb 50 library' to fix missing genres.` : "",
+    (missingCovers === 0 && missingGenres === 0) ? `- Data looks healthy!` : "- Keep enriching until all data is present."
+  ].filter(line => line !== null).join("\n");
+
+  console.info(summary);
+  return summary;
+}

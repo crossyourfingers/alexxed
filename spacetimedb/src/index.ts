@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { schema, t, table, SenderError } from "spacetimedb/server";
 import { Identity } from "spacetimedb";
-import { runSyncGamesFromSheet, runSyncLibraryFromSheet, runEnrichLibraryCovers, runEnrichFromIGDB } from "./sync";
+import { runSyncGamesFromSheet, runSyncLibraryFromSheet, runEnrichLibraryCovers, runEnrichFromIGDB, runValidateLibraryData } from "./sync";
 
 const user = table(
   { name: "user", public: true },
@@ -1312,6 +1312,15 @@ export const enrich_from_igdb = spacetimedb.procedure(
   (ctx, { batch_size, target }) => {
     runEnrichFromIGDB(ctx, Number(batch_size), target);
     return {};
+  },
+);
+
+// Procedure for agents to validate library data integrity
+export const validate_library_data = spacetimedb.procedure(
+  {},
+  t.string(),
+  (ctx) => {
+    return runValidateLibraryData(ctx);
   },
 );
 

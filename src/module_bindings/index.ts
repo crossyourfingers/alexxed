@@ -59,6 +59,7 @@ import * as EnrichLibraryCoversProcedure from "./enrich_library_covers_procedure
 import * as FetchLinkPreviewProcedure from "./fetch_link_preview_procedure";
 import * as SyncGamesFromSheetProcedure from "./sync_games_from_sheet_procedure";
 import * as SyncLibraryFromSheetProcedure from "./sync_library_from_sheet_procedure";
+import * as ValidateLibraryDataProcedure from "./validate_library_data_procedure";
 
 // Import all table schema definitions
 import AdminReportedMessagesRow from "./admin_reported_messages_table";
@@ -257,6 +258,7 @@ const proceduresSchema = __procedures(
   __procedureSchema("fetch_link_preview", FetchLinkPreviewProcedure.params, FetchLinkPreviewProcedure.returnType),
   __procedureSchema("sync_games_from_sheet", SyncGamesFromSheetProcedure.params, SyncGamesFromSheetProcedure.returnType),
   __procedureSchema("sync_library_from_sheet", SyncLibraryFromSheetProcedure.params, SyncLibraryFromSheetProcedure.returnType),
+  __procedureSchema("validate_library_data", ValidateLibraryDataProcedure.params, ValidateLibraryDataProcedure.returnType),
 );
 
 /** The remote SpacetimeDB module schema, both runtime and type information. */

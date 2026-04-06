@@ -156,6 +156,13 @@ spacetime call alexxed-u3k4f set_secret "IGDB_CLIENT_SECRET" "your_client_secret
 ### 3. Verify Enrichment
 Once secrets are set, use the **"Enrich (IGDB)"** button in the app's Library or Game List pages to fetch high-quality cover art and genres.
 
+### 4. Agent Skill: Library Validator
+Agents can verify the current state of library metadata by calling:
+```powershell
+spacetime call alexxed-u3k4f validate_library_data
+```
+This procedure returns a summary of missing covers and genres, allowing agents to self-correct by triggering further enrichment if needed.
+
 ---
 
 ## SpacetimeDB Development
