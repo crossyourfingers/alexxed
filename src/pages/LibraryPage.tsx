@@ -136,14 +136,16 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
   };
 
   const rows: LibraryRow[] = useMemo(() => {
-    return (ownedGames as OwnedGame[]).map((g) => ({
-      id: g.id,
-      title: g.title,
-      coverUrl: g.coverUrl,
-      genre: g.genre,
-      platform: g.platform,
-      wikipediaUrl: g.wikipediaUrl,
-    }));
+    return (ownedGames as OwnedGame[])
+      .filter((g) => g && g.title) // Filter out any malformed rows
+      .map((g) => ({
+        id: g.id,
+        title: g.title,
+        coverUrl: g.coverUrl,
+        genre: g.genre,
+        platform: g.platform,
+        wikipediaUrl: g.wikipediaUrl,
+      }));
   }, [ownedGames]);
 
   const columns: ColumnDef<LibraryRow, any>[] = [
@@ -162,7 +164,6 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
       enableColumnFilter: true,
       cell: ({ row }) => {
         const title = row?.original?.title;
-        console.log("Library title cell rendering:", title);
         return <span className="library-title">{title ?? ""}</span>;
       },
     },

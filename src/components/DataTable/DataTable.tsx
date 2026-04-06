@@ -498,13 +498,6 @@ export function DataTable<TData extends { id?: any }>(props: DataTableProps<TDat
     rowsToRender = pageVisibleRows as TData[];
   }
 
-  // Debug data presence
-  useEffect(() => {
-    if (data.length > 0) {
-      console.log(`DataTable rendering ${data.length} rows (${rowsToRender.length} to render), virtualization: ${virtualization}`);
-    }
-  }, [data.length, rowsToRender.length, virtualization]);
-
   // Helper to render header cell content
   const renderHeaderCell = (col: AnyColumn) => {
     const title = col.header ?? String(col.accessorKey ?? col.id ?? '');
