@@ -30,9 +30,10 @@ interface LibraryRow {
 }
 
 /** Cell component so each row can independently call the Wikipedia hook. */
-function CoverCell({ row }: { row: LibraryRow }) {
-  const wikiImage = useWikipediaImage(row.coverUrl ? undefined : row.title);
-  const src = row.coverUrl || wikiImage;
+function CoverCell({ row }: { row: LibraryRow | undefined }) {
+  const wikiImage = useWikipediaImage(row?.coverUrl ? undefined : row?.title);
+  const src = row?.coverUrl || wikiImage;
+  if (!row) return null;
   return src ? (
     <img
       src={src}
@@ -91,7 +92,7 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
       header: "",
       accessorKey: "coverUrl",
       enableSorting: false,
-      cell: ({ row }) => <CoverCell row={row.original} />,
+      cell: ({ row }) => <CoverCell row={row?.original} />,
     },
     {
       id: "title",
@@ -100,7 +101,7 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
       enableSorting: true,
       enableColumnFilter: true,
       cell: ({ row }) => (
-        <span className="library-title">{row.original.title}</span>
+        <span className="library-title">{row?.original?.title ?? ""}</span>
       ),
     },
     {
@@ -108,14 +109,14 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
       header: "Genre",
       accessorKey: "genre",
       enableSorting: true,
-      cell: ({ row }) => <span>{row.original.genre ?? "—"}</span>,
+      cell: ({ row }) => <span>{row?.original?.genre ?? "—"}</span>,
     },
     {
       id: "platform",
       header: "Platform",
       accessorKey: "platform",
       enableSorting: true,
-      cell: ({ row }) => <span>{row.original.platform ?? "—"}</span>,
+      cell: ({ row }) => <span>{row?.original?.platform ?? "—"}</span>,
     },
   ];
 
