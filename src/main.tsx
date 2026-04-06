@@ -243,10 +243,9 @@ const oidcConfig = {
   redirect_uri: ACTIVE_AUTH_CONFIG.redirectUri,
   scope: ACTIVE_AUTH_CONFIG.scope,
   response_type: "code",
-  onSigninCallback: () => {
-    const redirect = sessionStorage.getItem('post_login_redirect');
-    sessionStorage.removeItem('post_login_redirect');
-    const hash = redirect || '#/';
+  onSigninCallback: (user: unknown) => {
+    const returnTo = ((user as { state?: { returnTo?: string } } | null)?.state)?.returnTo;
+    const hash = returnTo || '#/';
     window.history.replaceState({}, document.title, window.location.pathname + hash);
   },
 };

@@ -11,10 +11,8 @@ export function useAuth(): AuthProvider {
   return {
     login: () => {
       const hash = window.location.hash;
-      if (hash && hash !== '#/') {
-        sessionStorage.setItem('post_login_redirect', hash);
-      }
-      return auth.signinRedirect();
+      const state = (hash && hash !== '#/') ? { returnTo: hash } : undefined;
+      return auth.signinRedirect({ state });
     },
     logout: () => auth.signoutRedirect(),
     removeUser: () => auth.removeUser(),
