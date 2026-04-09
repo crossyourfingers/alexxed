@@ -201,6 +201,9 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
           <div className="library-header-top">
             <h1>Library</h1>
             <div className="library-actions">
+              <div className="library-sync-source">
+                Source: <strong>Local DuckDB</strong>
+              </div>
               <button
                 className="library-enrich-btn-igdb"
                 onClick={handleEnrichIGDB}
@@ -221,13 +224,16 @@ export function LibraryPage({ username, onLogout }: LibraryPageProps) {
                 className="library-sync-btn"
                 onClick={handleSync}
                 disabled={syncing || !isActive}
-                title="Force sync library from Google Sheets"
+                title="Force sync library from Google Sheets (Cloud Fallback)"
               >
-                {syncing ? "🔄 Syncing..." : "🔄 Sync Now"}
+                {syncing ? "🔄 Syncing..." : "🔄 Cloud Sync"}
               </button>
             </div>
           </div>
           {syncStatus && <p className="library-sync-status">{syncStatus}</p>}
+          <p className="library-info-note">
+            Note: For the best data quality, use the <code>library-sync</code> agent skill to push from the local DuckDB database.
+          </p>
         </div>
         <DataTable
           columns={columns}

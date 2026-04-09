@@ -207,12 +207,14 @@ spacetime call alexxed-u3k4f validate_library_data
 ```
 This procedure returns a summary of missing covers and genres, allowing agents to self-correct by triggering further enrichment if needed.
 
-### 5. DuckDB Local Library (Offline Querying)
-Agents can use local DuckDB skills to seed and query the game library without hitting external APIs.
+### 5. DuckDB Local Library (Offline Querying & Sync)
+Agents can use local DuckDB skills to seed, query, and sync the game library without hitting external APIs during heavy development.
 
 - **Seed Database:** `node agent_skills/library-seed/seed.mjs`
 - **Search Library:** `node agent_skills/library-query/query.mjs --search "term"`
 - **List Tables:** `node agent_skills/library-query/query.mjs --list`
+- **Sync Recommendations:** `node agent_skills/recommendations-sync/sync.mjs`
+- **Sync Library:** `node agent_skills/library-sync/sync.mjs`
 
 ---
 

@@ -234,6 +234,9 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
           <div className="game-list-header-top">
             <h1>Tell me what games to play</h1>
             <div className="game-list-actions">
+              <div className="library-sync-source">
+                Source: <strong>Local DuckDB</strong>
+              </div>
               <button
                 className="enrich-btn"
                 onClick={handleEnrich}
@@ -246,15 +249,18 @@ export function GameListPage({ username, onLogout }: GameListPageProps) {
                 className="sync-btn"
                 onClick={handleSync}
                 disabled={syncing || !isActive}
-                title="Force sync games from Google Sheets"
+                title="Force sync games from Google Sheets (Cloud Fallback)"
               >
-                {syncing ? "🔄 Syncing..." : "🔄 Sync Now"}
+                {syncing ? "🔄 Syncing..." : "🔄 Cloud Sync"}
               </button>
             </div>
           </div>
           <p className="game-list-subtitle">
             Vote for the next game Alex should play. Played games are shown but
             excluded from the voting queue.
+          </p>
+          <p className="library-info-note">
+            Note: To refresh the voting list from the curated library, use the <code>recommendations-sync</code> agent skill.
           </p>
         </div>
         <DataTable<GameRow>

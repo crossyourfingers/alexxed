@@ -48,6 +48,17 @@ export const Game = __t.object("Game", {
 });
 export type Game = __Infer<typeof Game>;
 
+export const GameImport = __t.object("GameImport", {
+  id: __t.u64(),
+  title: __t.string(),
+  coverUrl: __t.option(__t.string()),
+  purchaseLink: __t.option(__t.string()),
+  played: __t.option(__t.bool()),
+  subtitle: __t.option(__t.string()),
+  genre: __t.option(__t.string()),
+});
+export type GameImport = __Infer<typeof GameImport>;
+
 export const GameVoteCount = __t.object("GameVoteCount", {
   gameId: __t.u64(),
   up: __t.u64(),
@@ -112,6 +123,16 @@ export const OwnedGame = __t.object("OwnedGame", {
   wikipediaUrl: __t.option(__t.string()),
 });
 export type OwnedGame = __Infer<typeof OwnedGame>;
+
+export const OwnedGameImport = __t.object("OwnedGameImport", {
+  id: __t.u64(),
+  title: __t.string(),
+  coverUrl: __t.option(__t.string()),
+  genre: __t.option(__t.string()),
+  platform: __t.option(__t.string()),
+  wikipediaUrl: __t.option(__t.string()),
+});
+export type OwnedGameImport = __Infer<typeof OwnedGameImport>;
 
 export const ReportedMessage = __t.object("ReportedMessage", {
   id: __t.u64(),

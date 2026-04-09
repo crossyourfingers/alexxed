@@ -315,6 +315,104 @@ export function runSyncLibraryFromSheet(ctx: any, url: string): void {
     );
   });
 }
+
+/**
+ * Batch import game recommendations into the database.
+ * Used by the import_recommendations_batch reducer.
+ */
+export function runImportRecommendationsBatch(ctx: any, games: any[]): void {
+  // Only admin can sync, UNLESS the game table is currently empty
+  let count = 0;
+  for (const _ of ctx.db.game.iter()) {
+    count++;
+    if (count > 0) break;
+  }
+
+  if (count > 0) {
+    const profile = ctx.db.streamer_profile.id.find(ctx.sender);
+    if (!profile) {
+      // If there's no profile for the sender, check if there's any profile at all
+      let anyProfile = false;
+      for (const _ of ctx.db.streamer_profile.iter()) {
+        anyProfile = true;
+        break;
+      }
+      // If a streamer exists, only they can sync. If not, anyone can.
+      if (anyProfile) {
+        throw new SenderError("Only the streamer can import games");
+      }
+    }
+  }
+
+  for (const g of games) {
+    const existing = ctx.db.game.id.find(g.id);
+    if (existing) {
+      ctx.db.game.id.update({ ...existing, ...g });
+    } else {
+      ctx.db.game.insert({
+        id: g.id,
+        title: g.title,
+        cover_url: g.cover_url,
+        purchase_link: g.purchase_link,
+        played: g.played || false,
+        subtitle: g.subtitle,
+        genre: g.genre,
+      });
+    }
+
+    if (!ctx.db.game_vote_count.game_id.find(g.id)) {
+      ctx.db.game_vote_count.insert({ game_id: g.id, up: 0n, down: 0n });
+    }
+  }
+  console.info(`Batch import: ${games.length} recommendations imported`);
+}
+
+/**
+ * Batch import owned library games into the database.
+ * Used by the import_library_batch reducer.
+ */
+export function runImportLibraryBatch(ctx: any, games: any[]): void {
+  // Only admin can sync, UNLESS the owned_game table is currently empty
+  let count = 0;
+  for (const _ of ctx.db.owned_game.iter()) {
+    count++;
+    if (count > 0) break;
+  }
+
+  if (count > 0) {
+    const profile = ctx.db.streamer_profile.id.find(ctx.sender);
+    if (!profile) {
+      // If there's no profile for the sender, check if there's any profile at all
+      let anyProfile = false;
+      for (const _ of ctx.db.streamer_profile.iter()) {
+        anyProfile = true;
+        break;
+      }
+      // If a streamer exists, only they can sync. If not, anyone can.
+      if (anyProfile) {
+        throw new SenderError("Only the streamer can import library");
+      }
+    }
+  }
+
+  for (const g of games) {
+    const existing = ctx.db.owned_game.id.find(g.id);
+    if (existing) {
+      ctx.db.owned_game.id.update({ ...existing, ...g });
+    } else {
+      ctx.db.owned_game.insert({
+        id: g.id,
+        title: g.title,
+        cover_url: g.cover_url,
+        genre: g.genre,
+        platform: g.platform,
+        wikipedia_url: g.wikipedia_url,
+      });
+    }
+  }
+  console.info(`Batch import: ${games.length} library games imported`);
+}
+
 /**
  * Enrich owned_game rows that are missing a cover_url by fetching poster art
  * from the Wikipedia REST API (page summary thumbnail).

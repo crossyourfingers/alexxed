@@ -15,6 +15,16 @@ Note on agent permissions: if the repository root contains a `.agent-permissions
 
 ---
 
+## Project Structure & Compilation
+
+The `spacetimedb/` directory is a standalone TypeScript project that compiles into a WebAssembly (Wasm) module.
+
+- **Standalone `node_modules`**: Contains the SpacetimeDB Server SDK and build tools specifically for Wasm compilation. It is separate from the root `node_modules`.
+- **`dist/`**: Contains the compiled `.wasm` binary and generated metadata.
+- **Wasm Compilation**: When you run `spacetime publish`, the CLI uses the `spacetimedb/package.json` scripts to bundle and compile the TypeScript source into Wasm before uploading it to the SpacetimeDB cloud.
+
+---
+
 ## Core Principles
 
 1. **Backend-First Logic** — As much business logic as possible should be in the SpacetimeDB backend. The frontend should only be responsible for rendering and user interaction.
@@ -174,7 +184,12 @@ For more details, see: [TESTING.md](TESTING.md)
 ```
 spacetimedb/
 ├── src/
-│   └── index.ts    # Tables, reducers, lifecycle hooks, views
+│   ├── index.ts    # Entry point & modular re-exports
+│   ├── db.ts       # Schema initialization
+│   ├── tables/     # Table definitions (domain-driven)
+│   ├── reducers/   # Reducer/Procedure logic
+│   ├── lib/        # Shared utilities
+│   └── sync.ts     # Background/Bulk logic
 ├── package.json
 └── tsconfig.json
 ```

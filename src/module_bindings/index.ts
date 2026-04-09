@@ -38,6 +38,8 @@ import CastVoteReducer from "./cast_vote_reducer";
 import CleanupOldUserSessionsReducer from "./cleanup_old_user_sessions_reducer";
 import CreateChannelReducer from "./create_channel_reducer";
 import DeleteChannelReducer from "./delete_channel_reducer";
+import ImportLibraryBatchReducer from "./import_library_batch_reducer";
+import ImportRecommendationsBatchReducer from "./import_recommendations_batch_reducer";
 import InsertSystemMessageReducer from "./insert_system_message_reducer";
 import LoginReducer from "./login_reducer";
 import MarkChannelReadReducer from "./mark_channel_read_reducer";
@@ -50,7 +52,6 @@ import SetNameReducer from "./set_name_reducer";
 import SetSecretReducer from "./set_secret_reducer";
 import ToggleLikeReducer from "./toggle_like_reducer";
 import ToggleReactionReducer from "./toggle_reaction_reducer";
-import UpdateChannelReducer from "./update_channel_reducer";
 import UpdateStreamerProfileReducer from "./update_streamer_profile_reducer";
 
 // Import all procedure arg schemas
@@ -235,6 +236,8 @@ const reducersSchema = __reducers(
   __reducerSchema("cleanup_old_user_sessions", CleanupOldUserSessionsReducer),
   __reducerSchema("create_channel", CreateChannelReducer),
   __reducerSchema("delete_channel", DeleteChannelReducer),
+  __reducerSchema("import_library_batch", ImportLibraryBatchReducer),
+  __reducerSchema("import_recommendations_batch", ImportRecommendationsBatchReducer),
   __reducerSchema("insert_system_message", InsertSystemMessageReducer),
   __reducerSchema("login", LoginReducer),
   __reducerSchema("mark_channel_read", MarkChannelReadReducer),
@@ -247,7 +250,6 @@ const reducersSchema = __reducers(
   __reducerSchema("set_secret", SetSecretReducer),
   __reducerSchema("toggle_like", ToggleLikeReducer),
   __reducerSchema("toggle_reaction", ToggleReactionReducer),
-  __reducerSchema("update_channel", UpdateChannelReducer),
   __reducerSchema("update_streamer_profile", UpdateStreamerProfileReducer),
 );
 

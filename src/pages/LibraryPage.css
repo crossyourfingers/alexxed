@@ -30,6 +30,27 @@
 .library-actions {
   display: flex;
   gap: 12px;
+  align-items: center;
+}
+
+.library-sync-source {
+  font-size: 0.85rem;
+  color: #888;
+  margin-right: 0.5rem;
+}
+
+.library-info-note {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.library-info-note code {
+  background: #222;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  color: #ddd;
 }
 
 .library-sync-btn,
