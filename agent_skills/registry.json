@@ -1,0 +1,52 @@
+{
+  "skills": [
+    {
+      "name": "context-cleanup-queue",
+      "purpose": "Query and display a ranked list of documentation health violations from DuckDB.",
+      "language": "JavaScript/Node",
+      "path": "agent_skills/context-cleanup-queue/"
+    },
+    {
+      "name": "context-cleanup-scan",
+      "purpose": "Traverse the repository and scan documentation files (AGENTS.md, SKILL.md) for line-count violations.",
+      "language": "JavaScript/Node",
+      "path": "agent_skills/context-cleanup-scan/"
+    },
+    {
+      "name": "duckdb-maintenance",
+      "purpose": "Optimize and shrink repository-tracked DuckDB database files via compaction.",
+      "language": "JavaScript/Node",
+      "path": "agent_skills/duckdb-maintenance/"
+    },
+    {
+      "name": "library-query",
+      "purpose": "Search and query the local game library DuckDB database with schema-aware search.",
+      "language": "JavaScript/Node",
+      "path": "agent_skills/library-query/"
+    },
+    {
+      "name": "library-seed",
+      "purpose": "Fetch game library data from Google Sheets and seed the local DuckDB database.",
+      "language": "JavaScript/Node",
+      "path": "agent_skills/library-seed/"
+    },
+    {
+      "name": "library-sync",
+      "purpose": "Push 'Owned Games' from local DuckDB to SpacetimeDB in batches.",
+      "language": "JavaScript/Node",
+      "path": "agent_skills/library-sync/"
+    },
+    {
+      "name": "recommendations-sync",
+      "purpose": "Push 'Games' (recommendations) from local DuckDB to SpacetimeDB in batches.",
+      "language": "JavaScript/Node",
+      "path": "agent_skills/recommendations-sync/"
+    },
+    {
+      "name": "skill-generator",
+      "purpose": "Automate the creation of standardized Agent Skill boilerplate and maintain a machine-readable registry.",
+      "language": "Python",
+      "path": "agent_skills/skill-generator/"
+    }
+  ]
+}

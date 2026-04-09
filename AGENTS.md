@@ -93,9 +93,15 @@ Agent Skills are specialized, reusable cognitive modules that extend an agent's 
 
 ### Usage Convention
 
-1. **Discovery**: Agents should check the `agent_skills/` directory for any module that matches the current task domain.
+1. **Discovery**: Agents SHOULD consult `agent_skills/registry.json` for a machine-readable list of all available skills. Alternatively, check the `agent_skills/` directory for any module that matches the current task domain.
 2. **Read First**: Always read the `SKILL.md` within a skill's directory before executing any associated scripts. It contains the "rules of engagement" and usage instructions.
 3. **Colocation**: If a skill requires a script to be useful, it must be colocated in the same folder as its `SKILL.md`.
+
+### Skill Generation
+
+To maintain consistency, always use the `skill-generator` meta-skill when creating new skills in your favorite programming language.
+
+- **Generate Skill**: `python agent_skills/skill-generator/generator.py "name" "purpose" --lang "python|javascript"`
 
 ---
 
