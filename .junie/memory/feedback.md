@@ -126,3 +126,67 @@
     "NEW INSTRUCTION": "WHEN adding developer docs THEN include how to call Spacetime methods directly for testing"
 }
 
+[2026-04-05 15:50] - Updated by Junie
+{
+    "TYPE": "preference",
+    "CATEGORY": "Git workflow autonomy",
+    "EXPECTATION": "The assistant may commit and push changes to GitHub without prior approval.",
+    "NEW INSTRUCTION": "WHEN completing code changes or fixes THEN commit and push to GitHub proactively"
+}
+
+[2026-04-05 15:51] - Updated by Junie
+{
+    "TYPE": "preference",
+    "CATEGORY": "Git workflow autonomy",
+    "EXPECTATION": "The assistant may commit and push changes to GitHub without prior approval.",
+    "NEW INSTRUCTION": "WHEN completing code changes or fixes THEN commit and push to GitHub proactively"
+}
+
+[2026-04-05 15:52] - Updated by Junie
+{
+    "TYPE": "preference",
+    "CATEGORY": "Git workflow autonomy",
+    "EXPECTATION": "The assistant may commit and push code changes to GitHub without prior approval.",
+    "NEW INSTRUCTION": "WHEN completing code changes or fixes THEN commit and push to GitHub proactively"
+}
+
+[2026-04-05 15:55] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Admin-only action",
+    "EXPECTATION": "Automatic sync should not execute for non-admin users; only an admin can trigger the games-from-sheet sync and normal users should never see a fatal permission error.",
+    "NEW INSTRUCTION": "WHEN logs show 'Only admin can sync games from sheet' THEN disable auto-sync and gate sync to admins"
+}
+
+[2026-04-05 17:08] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Admin-only sync",
+    "EXPECTATION": "Automatic sync must not run for non-admin users; normal users should never see an 'Only admin can sync games from sheet' fatal error.",
+    "NEW INSTRUCTION": "WHEN logs show 'Only admin can sync games from sheet' THEN disable auto-sync and gate sync to admins"
+}
+
+[2026-04-05 18:02] - Updated by Junie
+{
+    "TYPE": "correction",
+    "CATEGORY": "Desktop swipe behavior",
+    "EXPECTATION": "Swipe gestures should only be active on mobile/touch devices; disable swipe on desktop.",
+    "NEW INSTRUCTION": "WHEN device lacks touch support or viewport >= 768px THEN disable swipe interactions"
+}
+
+[2026-04-05 18:14] - Updated by Junie
+{
+    "TYPE": "correction",
+    "CATEGORY": "Desktop gesture vs click",
+    "EXPECTATION": "Only swipe gestures should be disabled on desktop; button clicks must continue to work.",
+    "NEW INSTRUCTION": "WHEN disabling desktop swipe interactions THEN do not disable button click handlers"
+}
+
+[2026-04-05 20:51] - Updated by Junie
+{
+    "TYPE": "negative",
+    "CATEGORY": "Auth redirect/routing",
+    "EXPECTATION": "After completing SpacetimeAuth, the app should route back to the app’s redirect/callback URL and load the home screen when authenticated.",
+    "NEW INSTRUCTION": "WHEN login completes but app stays stuck or blank THEN verify Redirect URIs and callback route handling"
+}
+

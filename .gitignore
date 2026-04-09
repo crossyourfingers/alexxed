@@ -25,3 +25,6 @@ dist-ssr
 
 # JetBrains
 .idea/
+.junie/mcp/mcp.json
+
+agent_workspace/
