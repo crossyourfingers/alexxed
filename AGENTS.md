@@ -63,6 +63,7 @@ Agents MUST consult these files to understand project context, constraints, and 
 | Any `AGENTS.md`        | Coding rules, guidelines, and agent instructions (all locations) |
 | `README.md` (root)     | Human-preferred project overview and documentation       |
 | `.agent-permissions.json` | Machine-readable agent runtime permissions            |
+| `agent_skills/`        | Shared agent skills and instruction modules           |
 | `domain_knowledge/`    | Proposals, specs, business rules, glossary, and project memory |
 
 These files are:
@@ -78,6 +79,23 @@ Files in `agent_workspace/` are:
 - **No guarantees** — absence of these files should not break agent workflows
 
 Agents should treat `agent_workspace/` as a scratch space, not a reliable knowledge base.
+
+---
+
+## Agent Skills
+
+Agent Skills are specialized, reusable cognitive modules that extend an agent's capabilities by providing specific instructions, scripts, or project-specific playbooks.
+
+### Skill Types
+
+- **Active Skills**: These include executable scripts or CLIs (e.g., `library-seed`, `library-query`). They are used for deterministic tasks, automation, or data processing. Scripts are **colocated** within the skill's directory under `agent_skills/`.
+- **Markdown-only Skills**: These serve as authoritative "playbooks" or style guides, ensuring consistency and adherence to project conventions without requiring a script.
+
+### Usage Convention
+
+1. **Discovery**: Agents should check the `agent_skills/` directory for any module that matches the current task domain.
+2. **Read First**: Always read the `SKILL.md` within a skill's directory before executing any associated scripts. It contains the "rules of engagement" and usage instructions.
+3. **Colocation**: If a skill requires a script to be useful, it must be colocated in the same folder as its `SKILL.md`.
 
 ---
 
@@ -97,6 +115,7 @@ Agents should treat `agent_workspace/` as a scratch space, not a reliable knowle
 | Directory           | Purpose                    | AGENTS.md                                              |
 | ------------------- | -------------------------- | ------------------------------------------------------ |
 | `/src`              | React frontend             | [src/AGENTS.md](src/AGENTS.md)                         |
+| `/agent_skills`     | Shared agent skills        | [agent_skills/](agent_skills/)                         |
 | `/spacetimedb`      | SpacetimeDB backend module | [spacetimedb/AGENTS.md](spacetimedb/AGENTS.md)         |
 | `/domain_knowledge` | Proposals, specs, memory   | [domain_knowledge/index.md](domain_knowledge/index.md) |
 
@@ -187,6 +206,25 @@ Agents can verify the current state of library metadata by calling:
 spacetime call alexxed-u3k4f validate_library_data
 ```
 This procedure returns a summary of missing covers and genres, allowing agents to self-correct by triggering further enrichment if needed.
+
+### 5. DuckDB Local Library (Offline Querying)
+Agents can use local DuckDB skills to seed and query the game library without hitting external APIs.
+
+- **Seed Database:** `node agent_skills/library-seed/seed.mjs`
+- **Search Library:** `node agent_skills/library-query/query.mjs --search "term"`
+- **List Tables:** `node agent_skills/library-query/query.mjs --list`
+
+---
+
+## Documentation Monitoring (Context Cleanup)
+
+Agents and developers should monitor the line counts of `AGENTS.md` and `SKILL.md` files to ensure they remain concise (~100 lines).
+
+- **Scan Repository:** `node agent_skills/context-cleanup-scan/scan.mjs`
+- **Set Priority:** `node agent_skills/context-cleanup-scan/scan.mjs set <pattern> <high|medium|low>`
+- **View Violation Queue:** `node agent_skills/context-cleanup-queue/queue.mjs`
+
+Monitoring data is stored in `agent_skills/agents_monitoring.duckdb`. Files exceeding the 100-line threshold should be prioritized for compaction and modularization. Low-priority files (e.g., deprecated skills) are tracked but ignored in the primary violation count.
 
 ---
 
