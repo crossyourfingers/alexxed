@@ -31,6 +31,14 @@ The results are stored in `agent_skills/agents_monitoring.duckdb` with the follo
 - `priority`: User-assigned priority (`high`, `medium`, `low`)
 - `last_updated`: Timestamp of the last scan
 
+## Storage & Maintenance
+
+DuckDB is an analytical database optimized for performance, but its file size on disk may grow even when the actual amount of data is small.
+
+- **Storage Location**: `agent_skills/agents_monitoring.duckdb` (tracked in git).
+- **Update Pattern**: This skill uses an **incremental update** strategy (`INSERT ... ON CONFLICT DO UPDATE`). Because DuckDB uses block-based allocation, repeated incremental updates or structural changes (like `ALTER TABLE`) can cause the file size to increase even with only a few rows.
+- **Maintenance**: To reclaim unused space and keep the repository lightweight, use the `duckdb-maintenance` skill to compact the database.
+
 ## Implementation Details
 
 - **Language:** Node.js

@@ -2,8 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import duckdb from 'duckdb';
 
-const WORKSPACE_DIR = path.resolve('agent_workspace');
-const DB_FILE = path.join(WORKSPACE_DIR, 'library.duckdb');
+const DB_FILE = path.resolve('agent_skills', 'library.duckdb');
 
 async function runQuery(sql) {
     if (!fs.existsSync(DB_FILE)) {

@@ -5,7 +5,7 @@ import { google } from 'googleapis';
 
 const SPREADSHEET_ID = '1VayJrz5E92IJ1LY3srwHXOrZ850mvphheqsZCeqrR-w';
 const WORKSPACE_DIR = path.resolve('agent_workspace');
-const DB_FILE = path.join(WORKSPACE_DIR, 'library.duckdb');
+const DB_FILE = path.resolve('agent_skills', 'library.duckdb');
 const API_KEY = process.env.GOOGLE_SHEETS_API_KEY;
 
 async function fetchSheetMetadata() {
@@ -69,6 +69,9 @@ async function seedDuckDB(sheets) {
             
             console.info(`Importing ${csvFile} into table "${tableName}"...`);
             
+            // NOTE: Using DROP TABLE then CREATE TABLE is a "bulk load" strategy.
+            // DuckDB optimally packs data during initial creation, making this 
+            // the most storage-efficient way to update large datasets.
             await new Promise((resolve, reject) => {
                 conn.exec(`DROP TABLE IF EXISTS ${tableName};`, (err) => {
                     if (err) return reject(err);

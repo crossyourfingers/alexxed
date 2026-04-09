@@ -7,7 +7,7 @@ metadata:
 
 # Library Query
 
-This skill allows searching and querying the local DuckDB database (`agent_workspace/library.duckdb`) populated by the `library-seed` skill.
+This skill allows searching and querying the local DuckDB database (`agent_skills/library.duckdb`) populated by the `library-seed` skill.
 
 ## Usage
 
@@ -25,6 +25,13 @@ This skill allows searching and querying the local DuckDB database (`agent_works
    ```bash
    node agent_skills/library-query/query.mjs --sql "SELECT Title, Genre FROM owned_games WHERE Genre = 'RPG' LIMIT 5"
    ```
+
+## Storage & Maintenance
+
+DuckDB is a high-performance analytical database. Its file size on disk may grow due to block allocation and metadata overhead, even with few rows.
+
+- **Storage Location**: `agent_skills/library.duckdb` (tracked in git).
+- **Maintenance**: To shrink the database after large data changes, use the `duckdb-maintenance` skill.
 
 ## Database Schema
 

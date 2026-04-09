@@ -22,6 +22,11 @@ The queue displays:
 - **Score (Violation)**: Degree of violation (lines over 100).
 - **Status**: Visual indicator (`✅ OK`, `❌ VIOLATING`, `⚠️ IGNORED` for low priority).
 
+## Storage & Maintenance
+
+- **Storage Location**: `agent_skills/agents_monitoring.duckdb` (shared with `context-cleanup-scan`).
+- **Maintenance**: Periodic compaction via the `duckdb-maintenance` skill is recommended to keep the repository size small.
+
 ## Strategy
 
 This skill follows a CQRS-inspired pattern where the scan skill handles the "write" side (updating the database) and this skill handles the "read" side (querying for insights).

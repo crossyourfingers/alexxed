@@ -65,7 +65,9 @@ async function run() {
 
     console.log(`Scanning: ${relativePath} (${lineCount} lines, score: ${violationScore})`);
 
-    // UPSERT: Insert or update, but preserve priority status
+    // UPSERT: Insert or update, but preserve priority status.
+    // NOTE: Repeated UPSERTs and structural changes (ALTER TABLE) cause DuckDB file bloat 
+    // due to its block-based allocation. Use duckdb-maintenance skill to compact periodically.
     await exec(`
       INSERT INTO agents_monitoring (path, file_type, line_count, violation_score, last_updated)
       VALUES ('${relativePath}', '${fileName}', ${lineCount}, ${violationScore}, CURRENT_TIMESTAMP)

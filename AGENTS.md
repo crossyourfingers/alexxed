@@ -228,6 +228,16 @@ Monitoring data is stored in `agent_skills/agents_monitoring.duckdb`. Files exce
 
 ---
 
+## DuckDB Maintenance
+
+To keep the repository small and ensure optimal performance, local DuckDB database files should be periodically compacted.
+
+- **Compact Databases:** `node agent_skills/duckdb-maintenance/compact.mjs`
+
+Compaction reclaims unused space by recreating the database file. Run this before committing DuckDB files to source control or after major data/schema changes.
+
+---
+
 ## SpacetimeDB Development
 
 ### Core Principles

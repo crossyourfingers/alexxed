@@ -7,7 +7,7 @@ metadata:
 
 # Library Seed
 
-This skill seeds a local DuckDB database (`agent_workspace/library.duckdb`) with data from all sheets of Alex's game library spreadsheet. This allows for fast, local querying of the entire game library.
+This skill seeds a local DuckDB database (`agent_skills/library.duckdb`) with data from all sheets of Alex's game library spreadsheet. This allows for fast, local querying of the entire game library.
 
 ## Usage
 
@@ -17,6 +17,14 @@ This skill seeds a local DuckDB database (`agent_workspace/library.duckdb`) with
    ```
    *Note: This automatically clears existing tables and re-seeds from Google Sheets.*
 
+## Storage & Maintenance
+
+DuckDB is an analytical database optimized for performance, but its file size on disk does not shrink automatically when data is deleted or structure is changed.
+
+- **Storage Location**: `agent_skills/library.duckdb` (tracked in git).
+- **Update Pattern**: This skill uses a **bulk load** strategy (dropping and recreating tables). This is the most storage-efficient pattern for DuckDB.
+- **Maintenance**: If the database grows unexpectedly or after multiple re-seeds, use the `duckdb-maintenance` skill to compact it.
+
 ## Workflow
 
 - **Metadata Discovery**: Uses Google Sheets API (if `GOOGLE_SHEETS_API_KEY` is set) or hardcoded fallback.
@@ -24,5 +32,5 @@ This skill seeds a local DuckDB database (`agent_workspace/library.duckdb`) with
 
 ## Constraints
 
-- **Storage**: The DuckDB database is stored in `agent_workspace/library.duckdb`.
+- **Storage**: The DuckDB database is stored in `agent_skills/library.duckdb`.
 - **Secrets**: Respects `.env` protection. Do NOT read `.env` directly. Use environment variables.
