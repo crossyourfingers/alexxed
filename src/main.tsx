@@ -10,6 +10,7 @@ import { LoginForm } from "./LoginForm.tsx";
 import { VotePage } from "./pages/VotePage";
 import { GameListPage } from "./pages/GameListPage";
 import { LibraryPage } from "./pages/LibraryPage";
+import VaultPage from "./pages/Vault";
 import { Identity } from "spacetimedb";
 import {
   SpacetimeDBProvider,
@@ -142,7 +143,7 @@ function AuthGate() {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/games" replace />} />
+      <Route path="/" element={<VaultPage username={username} onLogout={handleLogout} />} />
       <Route
         path="/community"
         element={<Navigate to="/community/general" replace />}

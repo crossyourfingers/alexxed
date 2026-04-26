@@ -9,7 +9,7 @@ import "./Header.css";
 
 interface HeaderProps {
   /** Which page is currently active */
-  activePage?: "stream" | "community" | "profile" | "vote" | "games" | "library";
+  activePage?: "stream" | "community" | "profile" | "vote" | "games" | "library" | "vault";
   /** Current user's display name */
   username: string;
   /** Callback when user clicks logout */
@@ -96,6 +96,13 @@ export function Header({ activePage, username, onLogout }: HeaderProps) {
         </Link>
 
         <nav className="app-nav">
+          <Link
+            to="/"
+            className={`nav-link ${activePage === "vault" ? "active" : ""}`}
+            data-page="vault"
+          >
+            Vault
+          </Link>
           <Link
             to="/stream"
             className={`nav-link ${activePage === "stream" ? "active" : ""}`}

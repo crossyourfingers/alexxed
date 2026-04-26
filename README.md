@@ -31,11 +31,13 @@ A real-time streaming community application built with [SpacetimeDB](https://spa
 - 🎯 **Auto-scroll** - Intelligent pause when reading history
 - 📊 **Session Metrics** - Connection time and session count widget
 - 🔐 **SpacetimeAuth** - OIDC authentication via SpacetimeDB
+- 💾 **Vault** - Local DuckDB offline-first storage
 
 **Pages:**
 
 | Page | Route | Description |
 |------|-------|-------------|
+| Vault | `/` | Local storage vault |
 | Stream | `/stream` | YouTube video embed with real-time chat sidebar |
 | Community | `/community/:channel` | Full-featured multi-channel chat |
 | Profile | `/profile` | Streamer profile page |
